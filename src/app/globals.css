@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #581212;
+    --foreground: #f5f5f5;
+
+    /* GOTHIC PREMIUM PALETTE */
+    --blood-red: #bb0a1e;
+    --dark-blood: #4a040b;
+    --hell-fire: #fb0000;
+
+    --gold-accent: #d4af37;
+    --glass-border: rgba(255, 255, 255, 0.08);
+  }
+
+  body {
+    background-color: transparent;
+    color: var(--foreground);
+    @apply antialiased;
+    font-family: var(--font-inter);
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .text-shadow {
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
+  }
+
+  .text-glow {
+    text-shadow: 0 0 20px var(--blood-red), 0 0 40px var(--dark-blood);
+  }
+
+  .obsidian-panel {
+    /* OPTIMIZED: Less blur calculation, static opacity */
+    background-color: rgba(144, 3, 3, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.8),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  /* Vignette Overlay */
+  .vignette {
+    background: radial-gradient(circle at center, transparent 40%, #030000 100%);
+    pointer-events: none;
+  }
+
+  .grunge-text {
+    background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: contrast(150%) brightness(80%);
+  }
+
+  .gothic-gradient {
+    background: radial-gradient(circle at center, var(--dark-blood) 0%, #000 80%);
+  }
+
+  /* Animated Background Blob */
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  .bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  }
+}

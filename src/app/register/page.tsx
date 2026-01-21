@@ -14,6 +14,7 @@ export default function RegisterPage() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phoneNumber: '',
         password: '',
         confirmPassword: ''
     });
@@ -37,6 +38,7 @@ export default function RegisterPage() {
             const res = await api.post('/auth/register', {
                 name: formData.name,
                 email: formData.email,
+                phoneNumber: formData.phoneNumber,
                 password: formData.password
             });
 
@@ -93,6 +95,19 @@ export default function RegisterPage() {
                             name="email"
                             placeholder="Email Address"
                             value={formData.email}
+                            onChange={handleChange}
+                            required
+                            className="w-full bg-[#050505] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:border-[var(--blood-red)] outline-none transition-all placeholder:text-gray-600"
+                        />
+                    </div>
+
+                    <div className="relative group">
+                        <span className="absolute left-3 top-3.5 text-gray-500 group-focus-within:text-[var(--blood-red)] transition-colors">📞</span>
+                        <input
+                            type="tel"
+                            name="phoneNumber"
+                            placeholder="WhatsApp Number (08xx / 62xx)"
+                            value={(formData as any).phoneNumber || ''}
                             onChange={handleChange}
                             required
                             className="w-full bg-[#050505] border border-gray-800 rounded-xl py-3 pl-10 pr-4 text-white focus:border-[var(--blood-red)] outline-none transition-all placeholder:text-gray-600"

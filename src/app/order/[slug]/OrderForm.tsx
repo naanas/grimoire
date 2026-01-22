@@ -92,8 +92,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             })
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
+    }, [gameSlug]);
 
-        // 2. If URL has ID, fetch transaction details (Redirect from Ipaymu)
+    // If URL has ID, fetch transaction details (Redirect from Ipaymu)
+    useEffect(() => {
         if (urlTrxId) {
             setIsProcessing(true);
             api.get(`/check/${urlTrxId}`)
@@ -101,6 +103,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     if (res.data.success) {
                         const trx = res.data.data;
                         setResult({
+                            id: trx.id, // Ensure ID is saved
                             invoice: trx.invoice,
                             productName: trx.product?.name,
                             amount: trx.amount,
@@ -113,6 +116,15 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 .finally(() => setIsProcessing(false));
         }
     }, [gameSlug, urlTrxId]);
+
+    // Check Mock Mode from Env
+    const [isMockMode, setIsMockMode] = useState(false);
+    useEffect(() => {
+        // Simple check for dev environment
+        if (process.env.NODE_ENV === 'development' || window.location.hostname === 'localhost') {
+            setIsMockMode(true);
+        }
+    }, []);
 
     const handleOrder = async () => {
         // Validation
@@ -173,7 +185,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 <h2 className="text-3xl font-bold text-white">
                     {result.status === 'SUCCESS' ? 'Topup Successful!' :
                         result.status === 'FAILED' ? 'Transaction Failed' :
-                            'Order Created!'}
+                            (result.status === 'PROCESSING' || result.status === 'PAID') ? 'Payment Received! ⏳' :
+                                'Order Created!'}
                 </h2>
 
                 <div className="bg-[#0a0a0a] p-6 rounded-xl border border-[var(--dark-blood)] text-left space-y-3 max-w-md mx-auto shadow-2xl">
@@ -198,12 +211,40 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             className="inline-block w-full max-w-md bg-[var(--blood-red)] hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg animate-pulse text-lg">
                             PAY NOW via {paymentMethod}
                         </a>
-                        {/* Auto Refresh Hint */}
-                        <p className="text-xs text-gray-500 animate-pulse">Waiting for payment...</p>
-                        <button onClick={() => window.location.reload()} className="text-sm text-gray-400 underline hover:text-white">Refresh Status</button>
+                        {/* Manual Refresh for Pending */}
+                        <button
+                            onClick={async () => {
+                                const btn = document.getElementById('btn-refresh');
+                                if (btn) btn.innerHTML = 'Checking Payment...';
+                                try {
+                                    await api.post(`/check-status/${urlTrxId}`);
+                                } catch (e) { console.error(e); }
+                                window.location.reload();
+                            }}
+                            id="btn-refresh"
+                            className="block w-full text-sm text-gray-400 underline hover:text-white mt-4"
+                        >
+                            Check Payment Status
+                        </button>
                     </div>
                 ) : (
                     <div className="space-y-4">
+
+                        {/* DEV: MOCK PROVIDER CALLBACK */}
+                        {isMockMode && (result.status === 'PROCESSING' || result.status === 'PAID') && (
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await api.post('/dev/mock-callback', { id: result.id || urlTrxId });
+                                        window.location.reload();
+                                    } catch (e) { alert('Mock Error'); }
+                                }}
+                                className="block w-full bg-blue-900/50 border border-blue-500 text-blue-300 rounded py-2 hover:bg-blue-800 transition-all text-xs font-mono mb-2"
+                            >
+                                🛠️ [DEV] Force Provider Success (Mock Callback)
+                            </button>
+                        )}
+
                         {/* Manual Check Status Button */}
                         <button
                             onClick={async () => {
@@ -220,7 +261,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             id="btn-check-status"
                             className="block w-full text-xs text-[var(--blood-red)] border border-[var(--blood-red)] rounded py-2 hover:bg-[var(--blood-red)] hover:text-white transition-all"
                         >
-                            Check Provider Status (Manual)
+                            Sync Provider Status
                         </button>
 
                         <button onClick={() => window.location.href = '/'} className="inline-block w-full max-w-md bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-xl transition-all">

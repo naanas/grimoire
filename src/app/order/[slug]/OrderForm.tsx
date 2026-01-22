@@ -210,7 +210,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
     if (result) {
         return (
-            <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center relative">
+            <div className="min-h-[60vh] pt-4 pb-12 px-4 flex items-start justify-center relative">
                 {/* Background Pattern included in Layout, but we can add overlay if needed */}
 
                 <div className="text-center space-y-8 animate-in fade-in zoom-in duration-500 max-w-md w-full">
@@ -312,204 +312,209 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     }
 
     return (
-        <div className="space-y-8">
-            {/* 1. Account Data */}
-            <section>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">1</span>
-                    Account Info
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <label className="text-xs text-gray-400 ml-1">Game User ID</label>
-                        <div className="relative">
-                            <input
-                                type="text"
-                                placeholder="Type User ID here..."
-                                className={`bg-[#050505] border p-3 rounded-lg outline-none text-white w-full transition-colors ${nickResult ? 'border-green-500/50' : 'border-gray-800 focus:border-[var(--blood-red)]'
-                                    }`}
-                                value={targetId}
-                                onChange={(e) => setTargetId(e.target.value)}
-                            />
-                            {/* Loading / Result Indicator */}
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                                {nickCheckLoading && <Loader2 className="animate-spin text-gray-400" size={18} />}
-                                {!nickCheckLoading && nickResult && (
-                                    <span className="text-xs font-bold text-green-500 bg-green-900/20 px-2 py-1 rounded animate-in fade-in">
-                                        {nickResult}
-                                    </span>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    {gameSlug === 'mobile-legends' && (
+        <div className="bg-[#111] border border-[#222] rounded-xl p-6 shadow-2xl relative overflow-hidden">
+            {/* Background Glow */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--blood-red)]/20 blur-3xl rounded-full pointer-events-none"></div>
+
+            <div className="space-y-8 relative z-10">
+                {/* 1. Account Data */}
+                <section>
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">1</span>
+                        Account Info
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-xs text-gray-400 ml-1">Zone ID</label>
-                            <input
-                                type="text"
-                                placeholder="Type Zone ID"
-                                className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
-                                value={zoneId}
-                                onChange={(e) => setZoneId(e.target.value)}
-                            />
-                        </div>
-                    )}
-                </div>
-
-                {/* Buyer Info - Auto Filled if User */}
-                <div className="mt-4">
-                    {user ? (
-                        <div className="bg-[#0a0a0a] border border-green-900/30 p-4 rounded-xl flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-green-900/20 flex items-center justify-center text-green-500 font-bold">
-                                {user.name.charAt(0)}
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-400">Buying as</p>
-                                <p className="font-bold text-white">{user.name} <span className="text-green-500 text-xs">(Verified)</span></p>
-                                <p className="text-xs text-gray-500">{user.email}</p>
+                            <label className="text-xs text-gray-400 ml-1">Game User ID</label>
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Type User ID here..."
+                                    className={`bg-[#050505] border p-3 rounded-lg outline-none text-white w-full transition-colors ${nickResult ? 'border-green-500/50' : 'border-gray-800 focus:border-[var(--blood-red)]'
+                                        }`}
+                                    value={targetId}
+                                    onChange={(e) => setTargetId(e.target.value)}
+                                />
+                                {/* Loading / Result Indicator */}
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                    {nickCheckLoading && <Loader2 className="animate-spin text-gray-400" size={18} />}
+                                    {!nickCheckLoading && nickResult && (
+                                        <span className="text-xs font-bold text-green-500 bg-green-900/20 px-2 py-1 rounded animate-in fade-in">
+                                            {nickResult}
+                                        </span>
+                                    )}
+                                </div>
                             </div>
                         </div>
-                    ) : (
-                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                            <label className="text-xs text-gray-400 ml-1">WhatsApp Number <span className="text-red-500">*</span></label>
-                            <input
-                                type="text"
-                                placeholder="08xxxxxxxxxx"
-                                className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
-                                value={guestContact}
-                                onChange={(e) => setGuestContact(e.target.value.replace(/\D/g, ''))} // Only numbers
-                            />
-                            <p className="text-[10px] text-gray-600 ml-1">*Required for Invoice & Notification</p>
-                        </div>
-                    )}
-                </div>
-            </section>
-
-            {/* 2. Select Nominal */}
-            <section>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">2</span>
-                    Select Nominal
-                </h3>
-                {loading ? (
-                    <div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>
-                ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {products.map(p => (
-                            <div
-                                key={p.id}
-                                onClick={() => setSelectedProduct(p)}
-                                className={`cursor-pointer border rounded-lg p-4 transition-all relative overflow-hidden ${selectedProduct?.id === p.id ? 'bg-[var(--dark-blood)] border-[var(--hell-fire)]' : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600'}`}
-                            >
-                                <p className="font-bold text-sm">{p.name}</p>
-                                <p className="text-[var(--blood-red)] font-mono mt-1">Rp {p.price_sell.toLocaleString()}</p>
+                        {gameSlug === 'mobile-legends' && (
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-400 ml-1">Zone ID</label>
+                                <input
+                                    type="text"
+                                    placeholder="Type Zone ID"
+                                    className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
+                                    value={zoneId}
+                                    onChange={(e) => setZoneId(e.target.value)}
+                                />
                             </div>
-                        ))}
-                    </div>
-                )}
-            </section>
-
-            {/* 3. Payment */}
-            <section>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">3</span>
-                    Select Payment
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* Balance Option */}
-                    <div
-                        onClick={() => {
-                            if (user && user.balance >= (selectedProduct?.price_sell || 0)) {
-                                setPaymentMethod('BALANCE');
-                            }
-                        }}
-                        className={`cursor-pointer border rounded-lg p-3 text-center transition-all flex flex-col justify-center items-center relative overflow-hidden
-                            ${paymentMethod === 'BALANCE' ? 'bg-white text-black font-bold border-white' : 'bg-[#0a0a0a] border-gray-800'}
-                            ${(!user || (selectedProduct && user.balance < selectedProduct.price_sell)) ? 'opacity-50 cursor-not-allowed' : ''}
-                        `}
-                    >
-                        <span>BALANCE</span>
-                        {user ? (
-                            <span className={`text-xs ${paymentMethod === 'BALANCE' ? 'text-gray-800' : 'text-[var(--blood-red)]'}`}>
-                                (Rp {user.balance?.toLocaleString()})
-                            </span>
-                        ) : (
-                            <span className="text-[10px] text-gray-500">(Login Required)</span>
                         )}
                     </div>
 
-                    {['QRIS', 'VA_BCA', 'VA_MANDIRI'].map(method => (
+                    {/* Buyer Info - Auto Filled if User */}
+                    <div className="mt-4">
+                        {user ? (
+                            <div className="bg-[#0a0a0a] border border-green-900/30 p-4 rounded-xl flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-green-900/20 flex items-center justify-center text-green-500 font-bold">
+                                    {user.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p className="text-sm text-gray-400">Buying as</p>
+                                    <p className="font-bold text-white">{user.name} <span className="text-green-500 text-xs">(Verified)</span></p>
+                                    <p className="text-xs text-gray-500">{user.email}</p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                                <label className="text-xs text-gray-400 ml-1">WhatsApp Number <span className="text-red-500">*</span></label>
+                                <input
+                                    type="text"
+                                    placeholder="08xxxxxxxxxx"
+                                    className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
+                                    value={guestContact}
+                                    onChange={(e) => setGuestContact(e.target.value.replace(/\D/g, ''))} // Only numbers
+                                />
+                                <p className="text-[10px] text-gray-600 ml-1">*Required for Invoice & Notification</p>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* 2. Select Nominal */}
+                <section>
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">2</span>
+                        Select Nominal
+                    </h3>
+                    {loading ? (
+                        <div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>
+                    ) : (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                            {products.map(p => (
+                                <div
+                                    key={p.id}
+                                    onClick={() => setSelectedProduct(p)}
+                                    className={`cursor-pointer border rounded-lg p-4 transition-all relative overflow-hidden ${selectedProduct?.id === p.id ? 'bg-[var(--dark-blood)] border-[var(--hell-fire)]' : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600'}`}
+                                >
+                                    <p className="font-bold text-sm">{p.name}</p>
+                                    <p className="text-[var(--blood-red)] font-mono mt-1">Rp {p.price_sell.toLocaleString()}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
+                {/* 3. Payment */}
+                <section>
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">3</span>
+                        Select Payment
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {/* Balance Option */}
                         <div
-                            key={method}
-                            onClick={() => setPaymentMethod(method)}
-                            className={`cursor-pointer border rounded-lg p-3 text-center transition-all flex items-center justify-center ${paymentMethod === method ? 'bg-white text-black font-bold' : 'bg-[#0a0a0a] border-gray-800'}`}
+                            onClick={() => {
+                                if (user && user.balance >= (selectedProduct?.price_sell || 0)) {
+                                    setPaymentMethod('BALANCE');
+                                }
+                            }}
+                            className={`cursor-pointer border rounded-lg p-3 text-center transition-all flex flex-col justify-center items-center relative overflow-hidden
+                            ${paymentMethod === 'BALANCE' ? 'bg-white text-black font-bold border-white' : 'bg-[#0a0a0a] border-gray-800'}
+                            ${(!user || (selectedProduct && user.balance < selectedProduct.price_sell)) ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}
                         >
-                            {method.replace('_', ' ')}
+                            <span>BALANCE</span>
+                            {user ? (
+                                <span className={`text-xs ${paymentMethod === 'BALANCE' ? 'text-gray-800' : 'text-[var(--blood-red)]'}`}>
+                                    (Rp {user.balance?.toLocaleString()})
+                                </span>
+                            ) : (
+                                <span className="text-[10px] text-gray-500">(Login Required)</span>
+                            )}
                         </div>
-                    ))}
-                </div>
-            </section>
 
-            {/* Voucher Section */}
-            <section>
-                <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                    <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">4</span>
-                    Voucher (Optional)
-                </h3>
-                <div className="bg-[#0a0a0a] p-4 rounded-xl border border-[var(--glass-border)] space-y-3">
-                    <div className="flex gap-2">
-                        <input
-                            type="text"
-                            placeholder="Enter Code (e.g. DISKON10)"
-                            className="flex-1 bg-black/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-[var(--blood-red)] outline-none uppercase"
-                            value={voucherCode}
-                            onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                        />
-                        <button
-                            onClick={handleApplyVoucher}
-                            disabled={checkingVoucher || !selectedProduct}
-                            className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-bold transition-all border border-gray-600 disabled:opacity-50"
-                        >
-                            {checkingVoucher ? '...' : 'APPLY'}
-                        </button>
+                        {['QRIS', 'VA_BCA', 'VA_MANDIRI'].map(method => (
+                            <div
+                                key={method}
+                                onClick={() => setPaymentMethod(method)}
+                                className={`cursor-pointer border rounded-lg p-3 text-center transition-all flex items-center justify-center ${paymentMethod === method ? 'bg-white text-black font-bold' : 'bg-[#0a0a0a] border-gray-800'}`}
+                            >
+                                {method.replace('_', ' ')}
+                            </div>
+                        ))}
                     </div>
-                    {voucherStats.message && (
-                        <p className={`text-xs ${voucherStats.isValid ? 'text-green-400' : 'text-red-400'}`}>
-                            {voucherStats.message}
+                </section>
+
+                {/* Voucher Section */}
+                <section>
+                    <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+                        <span className="bg-[var(--blood-red)] w-6 h-6 flex items-center justify-center rounded-full text-xs">4</span>
+                        Voucher (Optional)
+                    </h3>
+                    <div className="bg-[#0a0a0a] p-4 rounded-xl border border-[var(--glass-border)] space-y-3">
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                placeholder="Enter Code (e.g. DISKON10)"
+                                className="flex-1 bg-black/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:border-[var(--blood-red)] outline-none uppercase"
+                                value={voucherCode}
+                                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                            />
+                            <button
+                                onClick={handleApplyVoucher}
+                                disabled={checkingVoucher || !selectedProduct}
+                                className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg font-bold transition-all border border-gray-600 disabled:opacity-50"
+                            >
+                                {checkingVoucher ? '...' : 'APPLY'}
+                            </button>
+                        </div>
+                        {voucherStats.message && (
+                            <p className={`text-xs ${voucherStats.isValid ? 'text-green-400' : 'text-red-400'}`}>
+                                {voucherStats.message}
+                            </p>
+                        )}
+
+                        {voucherStats.isValid && (
+                            <div className="flex justify-between items-center text-sm bg-green-900/10 p-2 rounded border border-green-900/50">
+                                <span className="text-green-400">Discount Applied:</span>
+                                <span className="font-bold text-green-400">- Rp {voucherStats.discount.toLocaleString()}</span>
+                            </div>
+                        )}
+                    </div>
+                </section>
+
+                {/* Submit */}
+                <div className="pt-4">
+                    {/* Price Summary before Button */}
+                    <div className="mb-4 text-right">
+                        <p className="text-gray-400 text-sm">Total Payment</p>
+                        <p className="text-3xl font-bold text-[var(--blood-red)]">
+                            Rp {(voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)).toLocaleString()}
                         </p>
-                    )}
-
-                    {voucherStats.isValid && (
-                        <div className="flex justify-between items-center text-sm bg-green-900/10 p-2 rounded border border-green-900/50">
-                            <span className="text-green-400">Discount Applied:</span>
-                            <span className="font-bold text-green-400">- Rp {voucherStats.discount.toLocaleString()}</span>
+                    </div>
+                    {error && (
+                        <div className="bg-red-900/50 border border-red-500 p-3 rounded mb-4 flex items-center gap-2 text-red-200 text-sm">
+                            <AlertCircle size={16} /> {error}
                         </div>
                     )}
-                </div>
-            </section>
 
-            {/* Submit */}
-            <div className="pt-4">
-                {/* Price Summary before Button */}
-                <div className="mb-4 text-right">
-                    <p className="text-gray-400 text-sm">Total Payment</p>
-                    <p className="text-3xl font-bold text-[var(--blood-red)]">
-                        Rp {(voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)).toLocaleString()}
-                    </p>
+                    <button
+                        onClick={handleOrder}
+                        disabled={isProcessing}
+                        className="w-full bg-gradient-to-r from-[var(--blood-red)] to-red-900 hover:to-[var(--hell-fire)] text-white font-black py-4 rounded-xl text-lg shadow-[0_0_20px_rgba(138,0,0,0.5)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {isProcessing ? 'Summoning Invoice...' : 'ORDER NOW 🩸'}
+                    </button>
                 </div>
-                {error && (
-                    <div className="bg-red-900/50 border border-red-500 p-3 rounded mb-4 flex items-center gap-2 text-red-200 text-sm">
-                        <AlertCircle size={16} /> {error}
-                    </div>
-                )}
-
-                <button
-                    onClick={handleOrder}
-                    disabled={isProcessing}
-                    className="w-full bg-gradient-to-r from-[var(--blood-red)] to-red-900 hover:to-[var(--hell-fire)] text-white font-black py-4 rounded-xl text-lg shadow-[0_0_20px_rgba(138,0,0,0.5)] transition-all transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    {isProcessing ? 'Summoning Invoice...' : 'ORDER NOW 🩸'}
-                </button>
             </div>
         </div>
     );

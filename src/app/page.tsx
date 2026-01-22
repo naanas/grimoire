@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import api from '@/lib/api';
+import BannerCarousel from '@/components/BannerCarousel';
 
 export type Category = {
   id: string;
@@ -43,27 +44,8 @@ export default function Home() {
       <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[var(--void)] to-transparent z-0 pointer-events-none"></div>
 
       {/* Hero Section */}
-      <section className="text-center space-y-6 pt-24 md:pt-32 relative z-10 w-full">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2, ease: "circOut" }}
-          className="relative"
-        >
-          {/* Massive Background Text - Responsive Size */}
-          <h1 className="text-[5rem] md:text-[12rem] leading-none font-[family-name:var(--font-cinzel)] font-black text-[#111] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 whitespace-nowrap opacity-40 select-none pointer-events-none blur-[2px]">
-            GRIMOIRE
-          </h1>
-
-          <div className="relative z-20 px-4" style={{ willChange: "transform, opacity" }}>
-            <h1 className="text-5xl md:text-9xl font-[family-name:var(--font-cinzel)] font-black text-transparent bg-clip-text bg-gradient-to-b from-gray-200 via-gray-500 to-black drop-shadow-[0_10px_30px_rgba(0,0,0,1)] tracking-tighter">
-              GRIMOIRE
-            </h1>
-            <p className="text-sm md:text-2xl text-[var(--blood-red)] font-bold tracking-[0.5em] md:tracking-[1em] uppercase mt-4 text-glow opacity-90">
-              Resurrect Your Game
-            </p>
-          </div>
-        </motion.div>
+      <section className="text-center space-y-6 pt-20 md:pt-24 relative z-10 w-full flex justify-center">
+        <BannerCarousel />
       </section>
 
       {/* Game Grid */}

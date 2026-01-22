@@ -95,31 +95,49 @@ export default function TopupPage() {
 
     if (result) {
         return (
-            <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center">
-                <div className="text-center space-y-6 animate-in fade-in zoom-in duration-500 max-w-md w-full">
-                    <CheckCircle size={80} className="text-green-500 mx-auto" />
-                    <h2 className="text-3xl font-bold text-white">Deposit Created!</h2>
+            <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center relative">
+                {/* Background Pattern/Glow */}
+                <div className="absolute inset-0 bg-[#3a0505] opacity-40 z-0">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--blood-red)_0%,_transparent_70%)] opacity-20"></div>
+                </div>
 
-                    <div className="bg-[#0a0a0a] p-6 rounded-xl border border-[var(--dark-blood)] text-left space-y-3 shadow-2xl">
-                        <p className="flex justify-between"><span className="text-gray-500">Invoice</span> <span className="font-mono text-white">{result.invoice}</span></p>
-                        <div className="border-t border-gray-800 my-2 pt-2 flex justify-between text-lg">
-                            <span className="text-gray-400">Amount</span>
-                            <span className="text-[var(--blood-red)] font-bold">Rp {result.amount.toLocaleString()}</span>
+                <div className="relative z-10 text-center space-y-8 animate-in fade-in zoom-in duration-500 max-w-md w-full">
+
+                    {/* Icon */}
+                    <div className="flex justify-center mb-6">
+                        <div className="rounded-full border-[6px] border-[#00ff4c] p-2">
+                            <CheckCircle size={80} className="text-[#00ff4c] fill-none stroke-[3px]" />
                         </div>
                     </div>
 
+                    <h2 className="text-4xl font-bold text-white tracking-wide drop-shadow-lg">Deposit Created!</h2>
+
+                    {/* Card */}
+                    <div className="bg-[#0a0a0a] p-8 rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] border border-[#222]">
+                        <div className="flex justify-between items-center py-4 border-b border-gray-800">
+                            <span className="text-gray-400 text-lg">Invoice</span>
+                            <span className="font-mono text-white text-lg tracking-wider">{result.invoice}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-4">
+                            <span className="text-gray-400 text-lg">Amount</span>
+                            <span className="text-[#ff1f1f] font-bold text-xl tracking-wide">Rp {result.amount.toLocaleString()}</span>
+                        </div>
+                    </div>
+
+                    {/* Pay Button */}
                     {!result.paymentUrl && result.invoice ? (
-                        <div className="text-green-500 font-bold bg-green-900/20 p-4 rounded-xl">
-                            Payment Confirmed! Balance Updated.
+                        <div className="w-full bg-[#1a4d2e] border border-[#00ff4c] text-[#00ff4c] font-bold py-4 rounded-xl text-lg uppercase tracking-widest shadow-lg">
+                            Payment Confirmed
                         </div>
                     ) : (
                         <a href={result.paymentUrl} target="_self"
-                            className="inline-block w-full bg-[var(--blood-red)] hover:bg-red-700 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg animate-pulse text-lg">
+                            className="block w-full bg-[#8a0000] hover:bg-[#a30000] text-white font-bold py-4 rounded-xl text-lg uppercase tracking-widest shadow-[0_5px_20px_rgba(138,0,0,0.4)] transition-all transform hover:scale-[1.02]">
                             PAY NOW via {paymentMethod}
                         </a>
                     )}
 
-                    <button onClick={() => window.location.href = '/history'} className="block mx-auto text-gray-400 hover:text-white underline">
+                    {/* History Link */}
+                    <button onClick={() => window.location.href = '/history'} className="block mx-auto text-gray-400 hover:text-white underline underline-offset-4 text-sm tracking-wide transition-colors">
                         Check Status in History
                     </button>
                 </div>

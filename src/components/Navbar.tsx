@@ -95,7 +95,7 @@ export default function Navbar() {
                     {/* Desktop Menu - User Only */}
                     {user && (
                         <div className="hidden md:flex items-center space-x-8">
-                            {['Home', 'History', 'Games'].map((item) => (
+                            {['Home', 'History', 'Games', 'Leaderboard'].map((item) => (
                                 <Link
                                     key={item}
                                     href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
@@ -152,7 +152,7 @@ export default function Navbar() {
                         exit={{ opacity: 0, y: -20 }}
                         className="absolute top-full left-0 right-0 mt-2 p-6 rounded-3xl glass-panel bg-black/90 border border-white/10 shadow-2xl flex flex-col space-y-4 md:hidden"
                     >
-                        {user && ['Home', 'History', 'Games'].map((item) => (
+                        {user && ['Home', 'History', 'Games', 'Leaderboard'].map((item) => (
                             <Link
                                 key={item}
                                 href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}

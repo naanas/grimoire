@@ -20,10 +20,7 @@ export default async function OrderPage({ params }: { params: Promise<{ slug: st
                 Topup <span className="text-white">{gameName}</span>
             </h1>
 
-            <div className="bg-[#111] border border-[#222] rounded-xl p-6 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--blood-red)]/20 blur-3xl rounded-full pointer-events-none"></div>
-                <OrderForm gameSlug={slug} />
-            </div>
+            <OrderForm gameSlug={slug} />
         </div>
     );
 }

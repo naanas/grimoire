@@ -44,7 +44,7 @@ export default function Home() {
       <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[var(--void)] to-transparent z-0 pointer-events-none"></div>
 
       {/* Hero Section */}
-      <section className="text-center space-y-6 pt-20 md:pt-24 relative z-10 w-full flex justify-center">
+      <section className="text-center space-y-6 pt-4 md:pt-8 relative z-10 w-full flex justify-center">
         <BannerCarousel />
       </section>
 

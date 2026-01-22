@@ -122,8 +122,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         }
 
         // Guest Contact Validation
-        if (!user && !guestContact) {
-            setError("Please provide a WhatsApp number or Email!");
+        // Guest Contact Validation
+        if (!user && (!guestContact || guestContact.length < 9)) {
+            setError("Please provide a valid WhatsApp number!");
             return;
         }
 
@@ -202,9 +203,30 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         <button onClick={() => window.location.reload()} className="text-sm text-gray-400 underline hover:text-white">Refresh Status</button>
                     </div>
                 ) : (
-                    <button onClick={() => window.location.href = '/'} className="inline-block w-full max-w-md bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-xl transition-all">
-                        Make Another Order
-                    </button>
+                    <div className="space-y-4">
+                        {/* Manual Check Status Button */}
+                        <button
+                            onClick={async () => {
+                                const btn = document.getElementById('btn-check-status');
+                                if (btn) btn.innerHTML = 'Checking...';
+                                try {
+                                    await api.post(`/check-status/${urlTrxId}`);
+                                    window.location.reload();
+                                } catch (e) {
+                                    alert('Failed to check status');
+                                    if (btn) btn.innerHTML = 'Check Provider Status';
+                                }
+                            }}
+                            id="btn-check-status"
+                            className="block w-full text-xs text-[var(--blood-red)] border border-[var(--blood-red)] rounded py-2 hover:bg-[var(--blood-red)] hover:text-white transition-all"
+                        >
+                            Check Provider Status (Manual)
+                        </button>
+
+                        <button onClick={() => window.location.href = '/'} className="inline-block w-full max-w-md bg-gray-800 hover:bg-gray-700 text-white font-bold py-4 px-8 rounded-xl transition-all">
+                            Make Another Order
+                        </button>
+                    </div>
                 )}
             </div>
         );
@@ -270,15 +292,15 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         </div>
                     ) : (
                         <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
-                            <label className="text-xs text-gray-400 ml-1">Contact Info (For Invoice)</label>
+                            <label className="text-xs text-gray-400 ml-1">WhatsApp Number <span className="text-red-500">*</span></label>
                             <input
                                 type="text"
-                                placeholder="Your WhatsApp / Email"
+                                placeholder="08xxxxxxxxxx"
                                 className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
                                 value={guestContact}
-                                onChange={(e) => setGuestContact(e.target.value)}
+                                onChange={(e) => setGuestContact(e.target.value.replace(/\D/g, ''))} // Only numbers
                             />
-                            <p className="text-[10px] text-gray-600 ml-1">*Login to skip this step & get points!</p>
+                            <p className="text-[10px] text-gray-600 ml-1">*Required for Invoice & Notification</p>
                         </div>
                     )}
                 </div>

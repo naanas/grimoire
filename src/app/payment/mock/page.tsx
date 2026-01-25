@@ -1,11 +1,11 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import api from '@/lib/api';
 import { Loader2, CheckCircle, Smartphone } from 'lucide-react';
 
-export default function MockPaymentPage() {
+function MockPaymentContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const trxId = searchParams.get('id');
@@ -73,5 +73,13 @@ export default function MockPaymentPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function MockPaymentPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center text-white"><Loader2 className="animate-spin" /></div>}>
+            <MockPaymentContent />
+        </Suspense>
     );
 }

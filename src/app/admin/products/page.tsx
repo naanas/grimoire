@@ -9,6 +9,8 @@ export default function ProductsPage() {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editForm, setEditForm] = useState<any>({});
 
+    const [syncing, setSyncing] = useState(false);
+
     useEffect(() => {
         fetchProducts();
     }, []);
@@ -21,6 +23,24 @@ export default function ProductsPage() {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleSync = async () => {
+        if (!confirm('Sync products from Provider? This will update prices.')) return;
+        setSyncing(true);
+        try {
+            const res = await api.post('/admin/products/sync');
+            if (res.data.success) {
+                alert(`Sync Complete! Updated: ${res.data.data.updatedCount}, Created: ${res.data.data.createdCount}`);
+                fetchProducts(); // Refresh list
+            } else {
+                alert('Sync Failed: ' + res.data.message);
+            }
+        } catch (error: any) {
+            alert('Sync Error: ' + error.message);
+        } finally {
+            setSyncing(false);
         }
     };
 
@@ -46,9 +66,14 @@ export default function ProductsPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-white">Product Inventory</h1>
-                <div className="bg-red-900/20 text-red-500 px-4 py-2 rounded-lg text-sm border border-red-900/50">
-                    Automated Sync Active
-                </div>
+                <button
+                    onClick={handleSync}
+                    disabled={syncing}
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-50"
+                >
+                    {syncing ? <Loader2 className="animate-spin" size={16} /> : <Search size={16} />}
+                    {syncing ? 'Syncing...' : 'Sync Products'}
+                </button>
             </div>
 
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">

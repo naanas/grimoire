@@ -116,12 +116,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         if (storedUser) setUser(JSON.parse(storedUser));
 
         // 1. Fetch Products
-        api.get('/products')
+        // 1. Fetch Products efficiently (Server-side Filter)
+        setLoading(true);
+        api.get(`/products?category=${gameSlug}`)
             .then(res => {
                 if (res.data.success) {
-                    const allProducts = res.data.data;
-                    const filtered = allProducts.filter((p: Product) => p.category?.slug === gameSlug);
-                    setProducts(filtered.length > 0 ? filtered : allProducts);
+                    setProducts(res.data.data);
                 }
             })
             .catch(err => console.error(err))
@@ -268,10 +268,19 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                     const btn = document.getElementById('btn-check-status');
                                     if (btn) btn.innerHTML = 'Checking...';
                                     try {
-                                        await api.post(`/check-status/${urlTrxId}`);
-                                        window.location.reload();
+                                        const checkRes = await api.post(`/check-status/${urlTrxId}`);
+                                        if (checkRes.data.success && checkRes.data.data.status) {
+                                            // Update Local Result State directly
+                                            setResult((prev: any) => ({
+                                                ...prev,
+                                                status: checkRes.data.data.status
+                                            }));
+                                        } else {
+                                            alert('Status Unchanged');
+                                        }
                                     } catch (e) {
                                         alert('Failed to check status');
+                                    } finally {
                                         if (btn) btn.innerHTML = 'Sync Provider Status';
                                     }
                                 }}
@@ -335,17 +344,20 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                     value={targetId}
                                     onChange={(e) => setTargetId(e.target.value)}
                                 />
-                                {/* Loading / Result Indicator */}
+                                { /* Loading Indicator (Inside) */}
                                 <div className="absolute right-3 top-1/2 -translate-y-1/2">
                                     {nickCheckLoading && <Loader2 className="animate-spin text-gray-400" size={18} />}
-                                    {!nickCheckLoading && nickResult && (
-                                        <span className="text-xs font-bold text-green-500 bg-green-900/20 px-2 py-1 rounded animate-in fade-in">
-                                            {nickResult}
-                                        </span>
-                                    )}
                                 </div>
                             </div>
+                            { /* Nickname Result (Below) */}
+                            {!nickCheckLoading && nickResult && (
+                                <div className="flex items-center gap-2 text-xs font-bold text-green-500 bg-green-900/10 border border-green-900/30 px-3 py-2 rounded animate-in fade-in slide-in-from-top-1">
+                                    <CheckCircle size={14} />
+                                    <span>{nickResult}</span>
+                                </div>
+                            )}
                         </div>
+
                         {gameSlug === 'mobile-legends' && (
                             <div className="space-y-2">
                                 <label className="text-xs text-gray-400 ml-1">Zone ID</label>
@@ -442,13 +454,17 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             )}
                         </div>
 
-                        {['QRIS', 'VA_BCA', 'VA_MANDIRI'].map(method => (
+                        {/* Payment Options */}
+                        {[
+                            { code: 'QRIS', label: 'QRIS (All E-Wallet)' },
+                            { code: 'VA', label: 'Virtual Account (Bank)' }
+                        ].map(method => (
                             <div
-                                key={method}
-                                onClick={() => setPaymentMethod(method)}
-                                className={`cursor-pointer border rounded-lg p-3 text-center transition-all flex items-center justify-center ${paymentMethod === method ? 'bg-white text-black font-bold' : 'bg-[#0a0a0a] border-gray-800'}`}
+                                key={method.code}
+                                onClick={() => setPaymentMethod(method.code)}
+                                className={`cursor-pointer border rounded-lg p-3 text-center transition-all flex items-center justify-center ${paymentMethod === method.code ? 'bg-white text-black font-bold' : 'bg-[#0a0a0a] border-gray-800'}`}
                             >
-                                {method.replace('_', ' ')}
+                                {method.label}
                             </div>
                         ))}
                     </div>
@@ -515,7 +531,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         {isProcessing ? 'Summoning Invoice...' : 'ORDER NOW 🩸'}
                     </button>
                 </div>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }

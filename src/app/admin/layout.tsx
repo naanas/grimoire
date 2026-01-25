@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         const userStr = localStorage.getItem('user');
 
         if (!token || !userStr) {
-            router.push('/admin/login');
+            router.push('/login');
             return;
         }
 
@@ -32,14 +32,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 router.push('/');
             }
         } catch (e) {
-            router.push('/admin/login');
+            router.push('/login');
         }
     }, [router]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        router.push('/admin/login');
+        router.push('/login');
     };
 
     const menuItems = [
@@ -48,19 +48,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { icon: Package, label: 'Products', href: '/admin/products' },
     ];
 
-    // Don't render layout on login page
-    if (pathname === '/admin/login') {
-        return <>{children}</>;
-    }
+
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white flex">
             {/* Sidebar */}
+            {/* Sidebar */}
             <aside
-                className={`fixed inset-y-0 left-0 z-50 w-64 bg-neutral-950 border-r border-neutral-800 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-                    } md:relative md:translate-x-0`}
+                className={`fixed top-24 bottom-0 left-0 z-50 w-64 bg-neutral-950 border-r border-neutral-800 transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                    } md:relative md:translate-x-0 md:top-0 md:h-auto`}
             >
-                <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-800">
+                <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-800 shrink-0">
                     <span className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
                         Admin Panel
                     </span>
@@ -72,7 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </button>
                 </div>
 
-                <nav className="p-4 space-y-2">
+                <nav className="p-4 space-y-2 flex-1 overflow-y-auto">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
                         const isActive = pathname === item.href;
@@ -81,9 +79,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <Link
                                 key={item.href}
                                 href={item.href}
+                                onClick={() => setIsSidebarOpen(false)}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${isActive
-                                        ? 'bg-red-900/20 text-red-500 font-medium'
-                                        : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
+                                    ? 'bg-red-900/20 text-red-500 font-medium'
+                                    : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
                                     }`}
                             >
                                 <Icon size={20} />
@@ -93,7 +92,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     })}
                 </nav>
 
-                <div className="absolute bottom-0 w-full p-4 border-t border-neutral-800">
+                <div className="p-4 border-t border-neutral-800 shrink-0">
                     <button
                         onClick={handleLogout}
                         className="flex items-center gap-3 px-4 py-3 w-full text-left text-neutral-400 hover:text-red-500 hover:bg-red-900/10 rounded-lg transition-all"
@@ -103,6 +102,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     </button>
                 </div>
             </aside>
+
+            {/* Mobile Backdrop */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-[45] md:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
 
             {/* Main Content */}
             <main className="flex-1 min-h-screen flex flex-col">

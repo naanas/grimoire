@@ -75,7 +75,8 @@ export default function AdminDashboard() {
                 </div>
 
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-neutral-400">
+                    {/* Desktop View */}
+                    <table className="w-full text-left text-sm text-neutral-400 hidden md:table">
                         <thead className="text-xs uppercase bg-neutral-950 text-neutral-500">
                             <tr>
                                 <th className="px-4 py-3 rounded-l-lg">User</th>
@@ -102,6 +103,28 @@ export default function AdminDashboard() {
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Mobile View */}
+                    <div className="space-y-4 md:hidden">
+                        {stats?.recentTransactions?.map((trx: any) => (
+                            <div key={trx.id} className="bg-neutral-800/30 p-4 rounded-lg space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="font-medium text-white">{trx.product?.name || 'Unknown Item'}</div>
+                                        <div className="text-xs text-neutral-500">{new Date(trx.createdAt).toLocaleDateString()}</div>
+                                    </div>
+                                    <StatusBadge status={trx.status} />
+                                </div>
+                                <div className="flex justify-between items-center text-sm">
+                                    <div className="text-neutral-400">
+                                        {trx.user?.name || 'Guest'}
+                                        <div className="text-xs">{trx.user?.email || trx.guestContact}</div>
+                                    </div>
+                                    <div className="text-white font-medium">Rp {trx.amount.toLocaleString()}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

@@ -105,6 +105,15 @@ export default function Navbar() {
                                     <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[var(--blood-red)] group-hover:w-full transition-all duration-300"></span>
                                 </Link>
                             ))}
+                            {user?.role === 'ADMIN' && (
+                                <Link
+                                    href="/admin"
+                                    className="relative text-sm font-medium text-red-500 hover:text-red-400 transition-colors group"
+                                >
+                                    Dashboard
+                                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-red-400 group-hover:w-full transition-all duration-300"></span>
+                                </Link>
+                            )}
                         </div>
                     )}
 
@@ -162,6 +171,15 @@ export default function Navbar() {
                                 {item}
                             </Link>
                         ))}
+                        {user?.role === 'ADMIN' && (
+                            <Link
+                                href="/admin"
+                                className="text-red-500 hover:text-red-400 text-center py-2 text-lg font-bold border-b border-white/5"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Dashboard
+                            </Link>
+                        )}
 
                         <div className="flex flex-col gap-3 mt-4 border-t border-white/10 pt-4">
                             {user ? (

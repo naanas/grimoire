@@ -53,7 +53,8 @@ export default function ProductsPage() {
 
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-neutral-400">
+                    {/* Desktop View */}
+                    <table className="w-full text-left text-sm text-neutral-400 hidden md:table">
                         <thead className="bg-neutral-950 text-neutral-500 text-xs uppercase">
                             <tr>
                                 <th className="px-6 py-4">SKU Code</th>
@@ -130,6 +131,54 @@ export default function ProductsPage() {
                             ))}
                         </tbody>
                     </table>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4 p-4">
+                        {products.map((p) => (
+                            <div key={p.id} className="bg-neutral-800/30 p-4 rounded-lg border border-neutral-800 space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <div className="text-xs font-mono text-neutral-500 mb-1">{p.sku_code}</div>
+                                        <div className="font-medium text-white">{p.name}</div>
+                                        <div className="text-xs text-neutral-400 mt-1">{p.category.name}</div>
+                                    </div>
+                                    <div className={`w-2 h-2 rounded-full ${p.isActive ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                </div>
+
+                                <div className="flex justify-between items-center pt-2 border-t border-neutral-800">
+                                    {editingId === p.id ? (
+                                        <div className="flex w-full gap-2 items-center">
+                                            <input
+                                                type="number"
+                                                value={editForm.price_sell}
+                                                onChange={(e) => setEditForm({ ...editForm, price_sell: Number(e.target.value) })}
+                                                className="flex-1 bg-neutral-950 border border-red-900 text-white px-2 py-1 rounded text-sm focus:outline-none"
+                                            />
+                                            <button onClick={() => handleSave(p.id)} className="p-1.5 bg-emerald-900/30 text-emerald-500 rounded">
+                                                <Check size={16} />
+                                            </button>
+                                            <button onClick={() => setEditingId(null)} className="p-1.5 bg-red-900/30 text-red-500 rounded">
+                                                <X size={16} />
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs text-neutral-500">Selling Price</span>
+                                                <span className="text-emerald-400 font-bold">Rp {p.price_sell.toLocaleString()}</span>
+                                            </div>
+                                            <button
+                                                onClick={() => handleEdit(p)}
+                                                className="p-2 text-neutral-500 hover:text-white bg-neutral-800 rounded"
+                                            >
+                                                <Edit2 size={16} />
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

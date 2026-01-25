@@ -40,8 +40,12 @@ function LoginContent() {
                 localStorage.setItem('token', res.data.data.token);
                 localStorage.setItem('user', JSON.stringify(res.data.data.user));
 
-                // Redirect to Home
-                window.location.href = '/';
+                // Redirect based on Role
+                if (res.data.data.user.role === 'ADMIN') {
+                    window.location.href = '/admin';
+                } else {
+                    window.location.href = '/';
+                }
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Login Failed');

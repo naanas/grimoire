@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Flame } from 'lucide-react';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -10,62 +10,49 @@ export default function Navbar() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            // 1. Load from LocalStorage first for speed
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
-                try {
-                    setUser(JSON.parse(storedUser));
-                } catch (e) {
-                    console.error("Invalid user data in localStorage");
-                    localStorage.removeItem('user');
+            const loadUser = () => {
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    try {
+                        setUser(JSON.parse(storedUser));
+                    } catch (e) {
+                        localStorage.removeItem('user');
+                    }
                 }
-            }
+            };
 
-            // 2. Fetch fresh data from API
-            const token = localStorage.getItem('token');
-            if (token) {
-                import('@/lib/api').then((mod) => {
-                    mod.default.get('/auth/me')
-                        .then(res => {
+            // Initial Load
+            loadUser();
+
+            // Fetch fresh data
+            const fetchFresh = () => {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    import('@/lib/api').then((mod) => {
+                        mod.default.get('/auth/me').then(res => {
                             if (res.data.success) {
                                 setUser(res.data.data);
                                 localStorage.setItem('user', JSON.stringify(res.data.data));
                             }
-                        })
-                        .catch(() => {
-                            // If token invalid, maybe logout? Or just silent fail.
-                        });
-                });
+                        }).catch(() => { });
+                    });
+                }
+            };
+            fetchFresh();
 
-                // 3. IDLE TIMER LOGIC
-                let idleTimer: NodeJS.Timeout;
-                const TIMEOUT = 10 * 60 * 1000; // 10 Minutes
+            // LISTENERS FOR BALANCE UPDATES
+            // 1. Storage Event (Cross-tab)
+            window.addEventListener('storage', loadUser);
+            // 2. Focus Event (Tab switch)
+            window.addEventListener('focus', fetchFresh);
+            // 3. Custom Event (Same tab)
+            window.addEventListener('balance_updated', loadUser);
 
-                const resetTimer = () => {
-                    clearTimeout(idleTimer);
-                    idleTimer = setTimeout(() => {
-                        alert("Session Expired due to inactivity.");
-                        handleLogout();
-                    }, TIMEOUT);
-                };
-
-                // Listeners for activity
-                window.addEventListener('mousemove', resetTimer);
-                window.addEventListener('keydown', resetTimer);
-                window.addEventListener('click', resetTimer);
-                window.addEventListener('scroll', resetTimer);
-
-                // Start timer initially
-                resetTimer();
-
-                return () => {
-                    clearTimeout(idleTimer);
-                    window.removeEventListener('mousemove', resetTimer);
-                    window.removeEventListener('keydown', resetTimer);
-                    window.removeEventListener('click', resetTimer);
-                    window.removeEventListener('scroll', resetTimer);
-                };
-            }
+            return () => {
+                window.removeEventListener('storage', loadUser);
+                window.removeEventListener('focus', fetchFresh);
+                window.removeEventListener('balance_updated', loadUser);
+            };
         }
     }, []);
 
@@ -77,142 +64,172 @@ export default function Navbar() {
 
     return (
         <motion.nav
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="fixed top-4 left-0 right-0 z-50 flex justify-center px-4"
+            initial={{ y: -100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "circOut" }}
+            className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-2 px-4 pointer-events-none"
         >
-            <div className="w-full max-w-7xl relative">
-                <div className="w-full glass-panel rounded-full px-6 py-4 flex items-center justify-between backdrop-blur-3xl bg-black/50 border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)] z-50 relative">
+            <div className="w-full max-w-7xl relative pointer-events-auto">
+                {/* 
+                  SATANIC SHAPE NAV 
+                  Using clip-path for "Demon Blade" aesthetic
+                */}
+                <div
+                    className="w-full bg-black/90 backdrop-blur-md border-b-2 border-[var(--blood-red)]/50 relative shadow-[0_10px_40px_rgba(0,0,0,0.8)]"
+                    style={{
+                        clipPath: "polygon(2% 0, 98% 0, 100% 100%, 80% 100%, 75% 85%, 25% 85%, 20% 100%, 0 100%)",
+                        paddingBottom: "1.5rem" // Space for the cutouts
+                    }}
+                >
+                    {/* Top Glow Line */}
+                    <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50"></div>
 
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center group">
-                        <span className="text-lg md:text-2xl font-[family-name:var(--font-cinzel)] font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-red-200 to-red-500 bg-[length:200%_auto] animate-gradient group-hover:text-glow transition-all duration-300">
-                            GRIMOIRE
-                        </span>
-                    </Link>
+                    <div className="px-8 py-3 flex items-center justify-between relative z-50">
 
-                    {/* Desktop Menu - Public & User */}
-                    <div className="hidden md:flex items-center space-x-8">
-                        {(user
-                            ? ['Home', 'History', 'Games', 'Leaderboard']
-                            : ['Home', 'Games', 'Leaderboard']
-                        ).map((item) => (
-                            <Link
-                                key={item}
-                                href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                className="relative text-sm font-medium text-gray-300 hover:text-white transition-colors group"
-                            >
-                                {item}
-                                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[var(--blood-red)] group-hover:w-full transition-all duration-300"></span>
-                            </Link>
-                        ))}
-                        {user?.role === 'ADMIN' && (
-                            <Link
-                                href="/admin"
-                                className="relative text-sm font-medium text-red-500 hover:text-red-400 transition-colors group"
-                            >
-                                Dashboard
-                                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-red-400 group-hover:w-full transition-all duration-300"></span>
-                            </Link>
-                        )}
-                    </div>
+                        {/* LEFT WING: Logo */}
+                        <Link href="/" className="flex items-center group relative">
+                            <div className="absolute -inset-4 bg-red-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <Flame className="text-[var(--blood-red)] mr-2 animate-pulse" size={24} />
+                            <span className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-white tracking-[0.2em] group-hover:text-red-500 transition-colors uppercase">
+                                Grimoire
+                            </span>
+                        </Link>
 
-                    {/* Desktop Action */}
-                    <div className="hidden md:flex items-center space-x-4">
-                        {user ? (
-                            <>
-                                <div className="flex flex-col items-end mr-4">
-                                    <span className="text-xs text-gray-400">Balance</span>
-                                    <span className="text-sm font-bold text-[var(--blood-red)]">Rp {user.balance?.toLocaleString() || 0}</span>
+                        {/* CENTER EYE (Decorative) */}
+                        <div className="absolute left-1/2 -translate-x-1/2 top-0 md:top-2 w-32 h-10 flex justify-center pointer-events-none opacity-20 md:opacity-100">
+                            <div className="w-[1px] h-full bg-gradient-to-b from-red-500 to-transparent"></div>
+                        </div>
+
+                        {/* DESKTOP MENU */}
+                        <div className="hidden md:flex items-center space-x-12">
+                            {(user
+                                ? ['Home', 'History', 'Games', 'Leaderboard']
+                                : ['Home', 'Games', 'Leaderboard']
+                            ).map((item) => (
+                                <Link
+                                    key={item}
+                                    href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                                    className="relative text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-all group"
+                                >
+                                    <span className="relative z-10">{item}</span>
+                                    <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-1 h-1 bg-[var(--blood-red)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                                    <span className="absolute -inset-2 bg-red-900/10 scale-0 group-hover:scale-100 transition-transform duration-300 -skew-x-12"></span>
+                                </Link>
+                            ))}
+                            {user?.role === 'ADMIN' && (
+                                <Link
+                                    href="/admin"
+                                    className="text-xs font-bold uppercase tracking-widest text-[var(--blood-red)] hover:text-red-400 transition-colors relative"
+                                >
+                                    Dashboard
+                                    <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* RIGHT WING: Auth / Profile */}
+                        <div className="hidden md:flex items-center">
+                            {user ? (
+                                <div className="flex items-center gap-6">
+                                    <div className="text-right">
+                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">Soul Balance</div>
+                                        <div className="text-sm font-bold text-[var(--blood-red)] font-mono">Rp {user.balance?.toLocaleString() || 0}</div>
+                                    </div>
+
+                                    <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
+
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
+                                        <button onClick={handleLogout} className="text-[10px] bg-red-950/50 hover:bg-red-900 border border-red-900/50 text-red-500 px-2 py-1 uppercase tracking-widest transition-all">
+                                            Exile
+                                        </button>
+                                    </div>
+                                    <Link href="/topup" className="bg-white text-black hover:bg-red-500 hover:text-white px-4 py-2 font-black text-xs uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group">
+                                        <span className="relative z-10">Topup</span>
+                                    </Link>
                                 </div>
-                                <Link href="/topup" className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-full text-xs font-bold uppercase transition-all border border-gray-700">
-                                    Topup
-                                </Link>
-                                <div className="h-6 w-[1px] bg-gray-700 mx-2"></div>
-                                <span className="text-sm font-bold text-white">{user.name}</span>
-                                <button onClick={handleLogout} className="text-xs text-red-500 hover:text-red-400 ml-2">LOGOUT</button>
-                            </>
-                        ) : (
-                            <>
-                                <Link href="/login" className="text-gray-400 hover:text-white text-sm font-medium transition-colors">
-                                    Login
-                                </Link>
-                                <Link href="/register" className="bg-[var(--dark-blood)] hover:bg-[var(--blood-red)] text-white px-6 py-2 rounded-full text-xs font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(187,10,30,0.3)] hover:shadow-[0_0_25px_rgba(255,31,31,0.6)] border border-[var(--glass-border)]">
-                                    Register
-                                </Link>
-                            </>
-                        )}
-                    </div>
+                            ) : (
+                                <div className="flex items-center gap-6">
+                                    <Link href="/login" className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
+                                        Login
+                                    </Link>
+                                    <Link href="/register" className="bg-[var(--blood-red)] hover:bg-red-600 text-black px-6 py-2 rounded-none font-black text-xs tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(187,10,30,0.4)] clip-path-button">
+                                        Join Us
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
 
-                    {/* Mobile Menu Button */}
-                    <button
-                        className="md:hidden text-white hover:text-red-400 transition-colors"
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        {isOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
+                        {/* Mobile Menu Button */}
+                        <button
+                            className="md:hidden text-white hover:text-red-500 transition-colors"
+                            onClick={() => setIsOpen(!isOpen)}
+                        >
+                            {isOpen ? <X size={24} /> : <Menu size={24} />}
+                        </button>
+                    </div>
                 </div>
+
+                {/* DECORATIVE BOTTOM PIECE (The downward sharp point) */}
+                <div className="absolute top-[calc(100%-1.6rem)] left-1/2 -translate-x-1/2 w-40 h-8 bg-black/90 border-b border-r border-l border-[var(--blood-red)] text-center flex items-center justify-center pointer-events-auto"
+                    style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }}>
+                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_10px_red]"></div>
+                </div>
+
 
                 {/* Mobile Dropdown */}
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="absolute top-full left-0 right-0 mt-2 p-6 rounded-3xl glass-panel bg-black/90 border border-white/10 shadow-2xl flex flex-col space-y-4 md:hidden"
+                        initial={{ opacity: 0, scaleY: 0 }}
+                        animate={{ opacity: 1, scaleY: 1 }}
+                        exit={{ opacity: 0, scaleY: 0 }}
+                        className="absolute top-full left-0 right-0 mt-4 bg-black border border-red-900 p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
                     >
-                        {(user
-                            ? ['Home', 'History', 'Games', 'Leaderboard']
-                            : ['Home', 'Games', 'Leaderboard']
-                        ).map((item) => (
-                            <Link
-                                key={item}
-                                href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                className="text-gray-300 hover:text-white text-center py-2 text-lg font-medium border-b border-white/5 last:border-0"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                {item}
-                            </Link>
+                        {/* Mobile Menu Items */}
+                        {(user ? ['Home', 'History', 'Games', 'Leaderboard'] : ['Home', 'Games', 'Leaderboard']).map((item) => (
+                            <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-gray-400 hover:text-white uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold" onClick={() => setIsOpen(false)}>{item}</Link>
                         ))}
-                        {user?.role === 'ADMIN' && (
-                            <Link
-                                href="/admin"
-                                className="text-red-500 hover:text-red-400 text-center py-2 text-lg font-bold border-b border-white/5"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                Dashboard
-                            </Link>
-                        )}
 
-                        <div className="flex flex-col gap-3 mt-4 border-t border-white/10 pt-4">
-                            {user ? (
-                                <>
-                                    <div className="flex justify-between items-center text-white px-2">
-                                        <span>Balance</span>
-                                        <span className="font-bold text-[var(--blood-red)]">Rp {user.balance?.toLocaleString() || 0}</span>
-                                    </div>
-                                    <Link href="/topup" onClick={() => setIsOpen(false)} className="w-full text-center bg-gray-800 hover:bg-gray-700 text-white px-4 py-3 rounded-xl text-sm font-bold uppercase transition-all">
-                                        Topup Balance
-                                    </Link>
-                                    <button onClick={handleLogout} className="w-full text-center text-red-500 hover:text-red-400 py-2">
-                                        Logout ({user.name})
-                                    </button>
-                                </>
-                            ) : (
-                                <>
-                                    <Link href="/login" onClick={() => setIsOpen(false)} className="w-full text-center text-gray-300 hover:text-white py-2">
-                                        Login
-                                    </Link>
-                                    <Link href="/register" onClick={() => setIsOpen(false)} className="w-full text-center bg-[var(--dark-blood)] hover:bg-[var(--blood-red)] text-white px-6 py-3 rounded-xl text-sm font-bold tracking-widest uppercase transition-all shadow-[0_0_15px_rgba(187,10,30,0.3)] border border-[var(--glass-border)]">
-                                        Register
-                                    </Link>
-                                </>
-                            )}
-                        </div>
+                        {/* Auth actions for mobile */}
+                        {user ? (
+                            <div className="pt-4 border-t border-red-900/30 space-y-4">
+                                {/* Balance Info */}
+                                <div className="flex justify-between items-center text-sm">
+                                    <span className="text-gray-500 uppercase tracking-widest text-xs">Soul Balance</span>
+                                    <span className="text-[var(--blood-red)] font-black text-lg font-mono">Rp {user.balance?.toLocaleString() || 0}</span>
+                                </div>
+
+                                <Link
+                                    href="/topup"
+                                    onClick={() => setIsOpen(false)}
+                                    className="block w-full text-center bg-white text-black font-black py-3 uppercase tracking-widest clip-path-slant"
+                                >
+                                    Topup
+                                </Link>
+
+                                <button onClick={handleLogout} className="w-full text-left text-red-500 uppercase tracking-widest text-sm py-2 hover:text-red-400">
+                                    Exile (Logout)
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
+                                <Link href="/login" onClick={() => setIsOpen(false)} className="text-white uppercase tracking-widest text-center text-sm py-2">Login</Link>
+                                <Link href="/register" onClick={() => setIsOpen(false)} className="bg-[var(--blood-red)] text-black font-bold uppercase tracking-widest text-center py-3 clip-path-slant">Join Us</Link>
+                            </div>
+                        )}
                     </motion.div>
                 )}
             </div>
+
+            {/* Global Styles for Clip Path if not in CSS */}
+            <style jsx global>{`
+                .clip-path-slant {
+                    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
+                }
+                .clip-path-button {
+                    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+                }
+            `}</style>
         </motion.nav>
     );
 }

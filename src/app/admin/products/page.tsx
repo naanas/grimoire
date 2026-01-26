@@ -146,7 +146,7 @@ export default function ProductsPage() {
                                         ) : (
                                             <button
                                                 onClick={() => handleEdit(p)}
-                                                className="p-2 text-neutral-500 hover:text-white hover:bg-neutral-800 rounded transition-all opacity-0 group-hover:opacity-100"
+                                                className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded transition-all"
                                             >
                                                 <Edit2 size={16} />
                                             </button>

@@ -72,7 +72,7 @@ export default function Navbar() {
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/';
     };
 
     return (
@@ -92,30 +92,31 @@ export default function Navbar() {
                         </span>
                     </Link>
 
-                    {/* Desktop Menu - User Only */}
-                    {user && (
-                        <div className="hidden md:flex items-center space-x-8">
-                            {['Home', 'History', 'Games', 'Leaderboard'].map((item) => (
-                                <Link
-                                    key={item}
-                                    href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                    className="relative text-sm font-medium text-gray-300 hover:text-white transition-colors group"
-                                >
-                                    {item}
-                                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[var(--blood-red)] group-hover:w-full transition-all duration-300"></span>
-                                </Link>
-                            ))}
-                            {user?.role === 'ADMIN' && (
-                                <Link
-                                    href="/admin"
-                                    className="relative text-sm font-medium text-red-500 hover:text-red-400 transition-colors group"
-                                >
-                                    Dashboard
-                                    <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-red-400 group-hover:w-full transition-all duration-300"></span>
-                                </Link>
-                            )}
-                        </div>
-                    )}
+                    {/* Desktop Menu - Public & User */}
+                    <div className="hidden md:flex items-center space-x-8">
+                        {(user
+                            ? ['Home', 'History', 'Games', 'Leaderboard']
+                            : ['Home', 'Games', 'Leaderboard']
+                        ).map((item) => (
+                            <Link
+                                key={item}
+                                href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
+                                className="relative text-sm font-medium text-gray-300 hover:text-white transition-colors group"
+                            >
+                                {item}
+                                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-[var(--blood-red)] group-hover:w-full transition-all duration-300"></span>
+                            </Link>
+                        ))}
+                        {user?.role === 'ADMIN' && (
+                            <Link
+                                href="/admin"
+                                className="relative text-sm font-medium text-red-500 hover:text-red-400 transition-colors group"
+                            >
+                                Dashboard
+                                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-red-400 group-hover:w-full transition-all duration-300"></span>
+                            </Link>
+                        )}
+                    </div>
 
                     {/* Desktop Action */}
                     <div className="hidden md:flex items-center space-x-4">
@@ -161,7 +162,10 @@ export default function Navbar() {
                         exit={{ opacity: 0, y: -20 }}
                         className="absolute top-full left-0 right-0 mt-2 p-6 rounded-3xl glass-panel bg-black/90 border border-white/10 shadow-2xl flex flex-col space-y-4 md:hidden"
                     >
-                        {user && ['Home', 'History', 'Games', 'Leaderboard'].map((item) => (
+                        {(user
+                            ? ['Home', 'History', 'Games', 'Leaderboard']
+                            : ['Home', 'Games', 'Leaderboard']
+                        ).map((item) => (
                             <Link
                                 key={item}
                                 href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}

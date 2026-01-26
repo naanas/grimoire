@@ -94,6 +94,7 @@ const TransactionDetail = ({ id }: { id: string }) => {
     const [loading, setLoading] = useState(true);
 
     const fetchStatus = () => {
+        if (!id || id === 'null') return;
         setLoading(true);
         api.get(`/check/${id}`)
             .then(res => {
@@ -105,8 +106,33 @@ const TransactionDetail = ({ id }: { id: string }) => {
             .finally(() => setLoading(false));
     };
 
+    const handleRefresh = () => {
+        if (!id || id === 'null') return;
+        setLoading(true);
+        // Use POST /check-status to trigger Provider Check
+        api.post(`/check-status/${id}`)
+            .then(res => {
+                if (res.data.success) {
+                    // Update trx data with new status
+                    // Ensure we merge or refetch. The response data usually contains { status: ... }
+                    // Let's refetch to be sure or use returned data if complete.
+                    // Controller returns { data: { status: '...' } } usually.
+                    // Better to refetch full details or update local state partial.
+                    fetchStatus(); // Refetch full details
+                    alert(res.data.message || 'Status Updated');
+                } else {
+                    alert(res.data.message || 'Check Failed');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Failed to check status');
+            })
+            .finally(() => setLoading(false));
+    };
+
     useEffect(() => {
-        fetchStatus();
+        if (id && id !== 'null') fetchStatus();
     }, [id]);
 
     // Initial loading state
@@ -147,7 +173,7 @@ const TransactionDetail = ({ id }: { id: string }) => {
 
                 {/* Refresh Button */}
                 <button
-                    onClick={fetchStatus}
+                    onClick={handleRefresh}
                     disabled={loading}
                     className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-700 hover:bg-gray-800 rounded-full text-xs text-white transition-all disabled:opacity-50"
                 >

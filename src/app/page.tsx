@@ -17,6 +17,7 @@ export type Category = {
 export default function Home() {
   const [games, setGames] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [visibleCount, setVisibleCount] = useState(8);
 
   useEffect(() => {
     api.get('/categories')
@@ -78,12 +79,12 @@ export default function Home() {
           whileInView={{ opacity: 1 }}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
         >
-          {games.filter(g => g.name && g.slug).map((game, i) => (
+          {games.filter(g => g.name && g.slug).slice(0, visibleCount).map((game, i) => (
             <Link href={`/order/${game.slug}`} key={game.id} className="block group">
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, duration: 0.5, ease: "easeOut" }}
+                transition={{ delay: i * 0.05, duration: 0.5, ease: "easeOut" }}
                 whileHover={{ y: -10, scale: 1.02 }}
                 className="relative h-[320px] md:h-[420px] rounded-sm obsidian-panel overflow-hidden transition-all duration-300 md:duration-500 hover:shadow-[0_0_30px_rgba(187,10,30,0.3)] hover:border-[var(--blood-red)]"
               >
@@ -94,7 +95,7 @@ export default function Home() {
                 <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[var(--blood-red)] to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-700 z-10"></div>
 
                 <div className="relative z-20 h-full flex flex-col items-center justify-end pb-8 p-4 md:pb-12 md:p-6">
-                  {/* Game Image */}
+                  {/* Game Images */}
                   <div className="absolute top-8 md:top-10 inset-x-0 flex justify-center items-center h-[180px] md:h-[200px]" style={{ willChange: "transform" }}>
                     <div className="relative w-[70%] md:w-[80%] h-[70%] md:h-[80%] transition-transform duration-500 group-hover:scale-110">
                       <Image
@@ -119,6 +120,21 @@ export default function Home() {
             </Link>
           ))}
         </motion.div>
+
+        {/* Load More Button */}
+        {games.length > 8 && (
+          <div className="mt-12 text-center">
+            <button
+              onClick={() => setVisibleCount(visibleCount >= games.length ? 8 : games.length)}
+              className="group relative px-8 py-3 bg-transparent overflow-hidden rounded-full border border-gray-600 hover:border-[var(--blood-red)] transition-all duration-300"
+            >
+              <div className="absolute inset-0 w-0 bg-[var(--blood-red)] transition-all duration-[250ms] ease-out group-hover:w-full opacity-20"></div>
+              <span className="relative text-gray-400 group-hover:text-white font-bold tracking-widest uppercase text-sm">
+                {visibleCount >= games.length ? 'Show Less' : 'View All Games'}
+              </span>
+            </button>
+          </div>
+        )}
       </section>
     </div>
   );

@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Loader2, Wallet, CreditCard, CheckCircle, XCircle, Zap, ShieldAlert, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
 
+
 const DEPOSIT_AMOUNTS = [10000, 25000, 50000, 100000, 250000, 500000];
 
 // --- VISUAL COMPONENTS ---

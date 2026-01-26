@@ -72,17 +72,23 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
     const [nickCheckLoading, setNickCheckLoading] = useState(false);
     const [nickResult, setNickResult] = useState<string | null>(null);
+    const [nickError, setNickError] = useState<string | null>(null);
 
+    // ID Checking Logic
     useEffect(() => {
         const checkId = async () => {
             if (!targetId || targetId.length < 4) {
                 setNickResult(null);
+                setNickError(null);
                 return;
             }
             if (categoryConfig?.requiresZoneId && (!zoneId || zoneId.length < 3)) return;
             if (categoryConfig?.requiresServerId && (!serverId || serverId.length < 3)) return;
 
             setNickCheckLoading(true);
+            setNickError(null);
+            setNickResult(null);
+
             try {
                 const res = await api.post('/check-id', {
                     gameCode: categoryConfig?.code || gameSlug,
@@ -93,9 +99,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     setNickResult(res.data.data.username || "Valid User");
                 } else {
                     setNickResult(null);
+                    setNickError("Account Not Found / Invalid Server");
                 }
             } catch (e) {
                 setNickResult(null);
+                setNickError("Account Not Found");
             } finally {
                 setNickCheckLoading(false);
             }
@@ -108,6 +116,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         return () => clearTimeout(timer);
     }, [targetId, zoneId, gameSlug, categoryConfig, serverId]);
 
+    // Initialize Data
     useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
@@ -128,6 +137,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             .finally(() => setLoading(false));
     }, [gameSlug]);
 
+    // Check Transaction from URL
     useEffect(() => {
         if (urlTrxId) {
             setIsProcessing(true);
@@ -150,6 +160,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         }
     }, [gameSlug, urlTrxId]);
 
+    // Poll Status
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (result && (result.status === 'PENDING' || result.status === 'PROCESSING')) {
@@ -217,7 +228,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     if (result) {
         return (
             <div className="min-h-[60vh] pt-4 pb-12 px-4 flex items-start justify-center relative">
-                <div className="text-center space-y-8 animate-in fade-in zoom-in duration-500 max-w-md w-full">
+                <div className="text-center space-y-8 animate-in fade-in zoom-in duration-500 max-w-md w-full relative z-10">
                     {/* Status Icon */}
                     <div className="flex justify-center mb-6">
                         {result.status === 'SUCCESS' ? (
@@ -363,7 +374,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         )}
                     </div>
 
-                    {/* Nickname Check Result Display */}
+                    {/* Nickname Check Result / Error Display */}
                     <div className="mt-4 min-h-[40px]">
                         {nickCheckLoading && (
                             <div className="flex items-center gap-3 text-gray-400 animate-pulse">
@@ -381,6 +392,19 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                 <div>
                                     <p className="text-[10px] text-green-700 uppercase tracking-widest font-bold leading-none mb-1">Target Acquired</p>
                                     <p className="text-green-400 font-bold text-sm tracking-wide font-mono">{nickResult}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {!nickCheckLoading && nickError && (
+                            <div className="flex items-center gap-3 bg-red-950/20 border border-red-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
+                                style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
+                                <div className="bg-red-900/40 p-1 rounded-sm">
+                                    <XCircle size={16} className="text-red-500" />
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-red-700 uppercase tracking-widest font-bold leading-none mb-1">Target Unknown</p>
+                                    <p className="text-red-400 font-bold text-sm tracking-wide font-mono">{nickError}</p>
                                 </div>
                             </div>
                         )}

@@ -68,8 +68,8 @@ const HistoryList = () => {
                                     <td className="px-6 py-4">Rp {trx.amount.toLocaleString()}</td>
                                     <td className="px-6 py-4">
                                         <span className={`px-2 py-1 rounded text-xs font-bold ${trx.status === 'SUCCESS' ? 'bg-green-900 text-green-300' :
-                                                trx.status === 'PENDING' ? 'bg-yellow-900 text-yellow-300' :
-                                                    'bg-red-900 text-red-300'
+                                            trx.status === 'PENDING' ? 'bg-yellow-900 text-yellow-300' :
+                                                'bg-red-900 text-red-300'
                                             }`}>
                                             {trx.status}
                                         </span>
@@ -125,14 +125,25 @@ const TransactionDetail = ({ id }: { id: string }) => {
             <div className="text-center mb-8">
                 {trx.status === 'SUCCESS' && <CheckCircle className="mx-auto text-green-500 mb-2 w-16 h-16" />}
                 {trx.status === 'FAILED' && <XCircle className="mx-auto text-red-500 mb-2 w-16 h-16" />}
-                {trx.status === 'PENDING' && <Clock className="mx-auto text-yellow-500 mb-2 w-16 h-16 animate-pulse" />}
+                {(trx.status === 'PENDING' || trx.status === 'PROCESSING') && <Clock className="mx-auto text-yellow-500 mb-2 w-16 h-16 animate-pulse" />}
 
                 <h1 className={`text-2xl font-bold ${trx.status === 'SUCCESS' ? 'text-green-500' :
                     trx.status === 'FAILED' ? 'text-red-500' : 'text-yellow-500'
                     }`}>
-                    Payment {trx.status}
+                    {trx.status === 'SUCCESS' ? (trx.type === 'DEPOSIT' ? 'Deposit Successful!' : 'Topup Successful!') :
+                        trx.status === 'PROCESSING' ? 'Order Processing...' :
+                            trx.status === 'FAILED' ? 'Transaction Failed' :
+                                'Waiting for Payment'}
                 </h1>
                 <p className="text-gray-400 text-sm mt-1 mb-4">Invoice: {trx.invoice}</p>
+
+                {/* SN / Provider Message */}
+                {trx.sn && (
+                    <div className="bg-gray-900/50 border border-gray-700 p-3 rounded-lg mb-4 text-left max-w-sm mx-auto">
+                        <p className="text-xs text-gray-500 uppercase font-bold mb-1">SN / Status Info</p>
+                        <p className="text-sm font-mono text-white break-all">{trx.sn}</p>
+                    </div>
+                )}
 
                 {/* Refresh Button */}
                 <button

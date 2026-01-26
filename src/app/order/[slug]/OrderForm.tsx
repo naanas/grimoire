@@ -10,7 +10,11 @@ type Product = {
     sku_code: string;
     name: string;
     price_sell: number;
-    category: { slug: string };
+    category: {
+        slug: string;
+        requiresZoneId?: boolean;
+        requiresServerId?: boolean;
+    };
 };
 
 export default function OrderForm({ gameSlug }: { gameSlug: string }) {
@@ -18,10 +22,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const urlTrxId = searchParams.get('id');
 
     const [products, setProducts] = useState<Product[]>([]);
+    const [categoryConfig, setCategoryConfig] = useState<any>(null);
     const [loading, setLoading] = useState(true);
 
     const [targetId, setTargetId] = useState(''); // Game User ID
     const [zoneId, setZoneId] = useState('');
+    const [serverId, setServerId] = useState('');
     const [guestContact, setGuestContact] = useState(''); // WA/Email for Guest
 
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -80,15 +86,16 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 return;
             }
 
-            // For MLBB require Zone ID before checking
-            if (gameSlug === 'mobile-legends' && (!zoneId || zoneId.length < 3)) return;
+            // Dynamic Requirement Check
+            if (categoryConfig?.requiresZoneId && (!zoneId || zoneId.length < 3)) return;
+            if (categoryConfig?.requiresServerId && (!serverId || serverId.length < 3)) return;
 
             setNickCheckLoading(true);
             try {
                 const res = await api.post('/check-id', {
-                    gameSlug,
+                    gameCode: categoryConfig?.code || gameSlug, // Send Code preferred
                     userId: targetId,
-                    zoneId
+                    zoneId: zoneId || serverId // Some games use Server ID as Zone ID in provider
                 });
                 if (res.data.success) {
                     setNickResult(res.data.data.username || "Valid User");
@@ -116,12 +123,18 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         if (storedUser) setUser(JSON.parse(storedUser));
 
         // 1. Fetch Products
-        // 1. Fetch Products efficiently (Server-side Filter)
+        // 1. Fetch Products & Category Config
         setLoading(true);
-        api.get(`/products?category=${gameSlug}`)
-            .then(res => {
-                if (res.data.success) {
-                    setProducts(res.data.data);
+        Promise.all([
+            api.get(`/products?category=${gameSlug}`),
+            api.get(`/categories/${gameSlug}`)
+        ])
+            .then(([resProducts, resCat]) => {
+                if (resProducts.data.success) {
+                    setProducts(resProducts.data.data);
+                }
+                if (resCat.data.success) {
+                    setCategoryConfig(resCat.data.data);
                 }
             })
             .catch(err => console.error(err))
@@ -150,6 +163,34 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 .finally(() => setIsProcessing(false));
         }
     }, [gameSlug, urlTrxId]);
+
+    // Auto-Poll Status if Pending/Processing
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+
+        if (result && (result.status === 'PENDING' || result.status === 'PROCESSING')) {
+            interval = setInterval(async () => {
+                try {
+                    // Use the dedicated check-status endpoint (or simple get check)
+                    const checkRes = await api.post(`/check-status/${result.id || urlTrxId}`);
+                    if (checkRes.data.success) {
+                        const newStatus = checkRes.data.data.status;
+                        if (newStatus !== result.status) {
+                            setResult((prev: any) => ({ ...prev, status: newStatus }));
+                        }
+                        // Stop polling if final state
+                        if (newStatus === 'SUCCESS' || newStatus === 'FAILED') {
+                            clearInterval(interval);
+                        }
+                    }
+                } catch (e) {
+                    // Ignore errors during poll
+                }
+            }, 5000); // 5 Seconds
+        }
+
+        return () => clearInterval(interval);
+    }, [result, urlTrxId]);
 
     // Check Mock Mode from Env
     const [isMockMode, setIsMockMode] = useState(false);
@@ -181,7 +222,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             const res = await api.post('/create', {
                 productId: selectedProduct.id,
                 userId: targetId, // Target Game ID
-                zoneId,
+                zoneId: zoneId || serverId, // Use Zone or Server ID
                 paymentMethod,
                 authUserId: user?.id, // Real DB User ID for tracking & Balance
                 guestContact: user ? undefined : guestContact, // Send guest contact only if not logged in
@@ -234,8 +275,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                     <h2 className="text-4xl font-bold text-white tracking-wide drop-shadow-lg">
                         {result.status === 'SUCCESS' ? 'Topup Successful!' :
-                            result.status === 'FAILED' ? 'Transaction Failed' :
-                                'Order Created!'}
+                            result.status === 'PROCESSING' ? 'Order Processing!' :
+                                result.status === 'FAILED' ? 'Transaction Failed' :
+                                    'Order Created!'}
                     </h2>
 
                     {/* Card */}
@@ -244,13 +286,13 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             <span className="text-gray-400 text-lg">Invoice</span>
                             <span className="font-mono text-white text-lg tracking-wider">{result.invoice}</span>
                         </div>
-                        <div className="flex justify-between items-center py-4 border-b border-gray-800">
+                        <div className="flex justify-between items-start py-4 border-b border-gray-800">
                             <span className="text-gray-400 text-lg">Item</span>
-                            <span className="text-white font-bold text-lg">{result.productName}</span>
+                            <span className="text-white font-bold text-lg text-right flex-1 ml-4">{result.productName}</span>
                         </div>
                         <div className="flex justify-between items-center py-4">
                             <span className="text-gray-400 text-lg">Amount</span>
-                            <span className="text-[#ff1f1f] font-bold text-xl tracking-wide">Rp {result.amount.toLocaleString()}</span>
+                            <span className="text-[#ff1f1f] font-bold text-xl tracking-wide">Rp {Math.floor(result.amount).toLocaleString()}</span>
                         </div>
                     </div>
 
@@ -301,20 +343,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         back to home
                     </button>
 
-                    {/* DEV: MOCK PROVIDER CALLBACK */}
-                    {isMockMode && (result.status === 'PROCESSING' || result.status === 'PAID') && (
-                        <button
-                            onClick={async () => {
-                                try {
-                                    await api.post('/dev/mock-callback', { id: result.id || urlTrxId });
-                                    window.location.reload();
-                                } catch (e) { alert('Mock Error'); }
-                            }}
-                            className="block w-full bg-blue-900/50 border border-blue-500 text-blue-300 rounded py-2 hover:bg-blue-800 transition-all text-xs font-mono mb-2"
-                        >
-                            🛠️ [DEV] Force Provider Success
-                        </button>
-                    )}
+
                 </div>
             </div>
         );
@@ -358,7 +387,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             )}
                         </div>
 
-                        {gameSlug === 'mobile-legends' && (
+                        {categoryConfig?.requiresZoneId && (
                             <div className="space-y-2">
                                 <label className="text-xs text-gray-400 ml-1">Zone ID</label>
                                 <input
@@ -367,6 +396,19 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                     className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
                                     value={zoneId}
                                     onChange={(e) => setZoneId(e.target.value)}
+                                />
+                            </div>
+                        )}
+
+                        {categoryConfig?.requiresServerId && (
+                            <div className="space-y-2">
+                                <label className="text-xs text-gray-400 ml-1">Server ID</label>
+                                <input
+                                    type="text"
+                                    placeholder="Type Server ID"
+                                    className="bg-[#050505] border border-gray-800 p-3 rounded-lg focus:border-[var(--blood-red)] outline-none text-white w-full transition-colors"
+                                    value={serverId}
+                                    onChange={(e) => setServerId(e.target.value)}
                                 />
                             </div>
                         )}

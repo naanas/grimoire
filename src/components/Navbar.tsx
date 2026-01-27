@@ -75,29 +75,29 @@ export default function Navbar() {
                   Using clip-path for "Demon Blade" aesthetic
                 */}
                 <div
-                    className="w-full bg-black/90 backdrop-blur-md border-b-2 border-[var(--blood-red)]/50 relative shadow-[0_10px_40px_rgba(0,0,0,0.8)]"
+                    className="w-full bg-[var(--void-black)]/95 backdrop-blur-md border-b-2 border-[var(--glass-border)] relative shadow-[0_10px_40px_rgba(0,0,0,0.9)]"
                     style={{
                         clipPath: "polygon(2% 0, 98% 0, 100% 100%, 80% 100%, 75% 85%, 25% 85%, 20% 100%, 0 100%)",
                         paddingBottom: "1.5rem" // Space for the cutouts
                     }}
                 >
                     {/* Top Glow Line */}
-                    <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50"></div>
+                    <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--blood-red)] to-transparent opacity-60"></div>
 
                     <div className="px-8 py-3 flex items-center justify-between relative z-50">
 
                         {/* LEFT WING: Logo */}
                         <Link href="/" className="flex items-center group relative">
-                            <div className="absolute -inset-4 bg-red-500/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                            <div className="absolute -inset-4 bg-[var(--blood-red)]/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                             <Flame className="text-[var(--blood-red)] mr-2 animate-pulse" size={24} />
-                            <span className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-white tracking-[0.2em] group-hover:text-red-500 transition-colors uppercase">
+                            <span className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-white tracking-[0.2em] group-hover:text-[var(--blood-red)] transition-colors uppercase">
                                 Grimoire
                             </span>
                         </Link>
 
                         {/* CENTER EYE (Decorative) */}
                         <div className="absolute left-1/2 -translate-x-1/2 top-0 md:top-2 w-32 h-10 flex justify-center pointer-events-none opacity-20 md:opacity-100">
-                            <div className="w-[1px] h-full bg-gradient-to-b from-red-500 to-transparent"></div>
+                            <div className="w-[1px] h-full bg-gradient-to-b from-[var(--blood-red)] to-transparent"></div>
                         </div>
 
                         {/* DESKTOP MENU */}
@@ -109,11 +109,11 @@ export default function Navbar() {
                                 <Link
                                     key={item}
                                     href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                    className="relative text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white transition-all group"
+                                    className="relative text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-white transition-all group"
                                 >
                                     <span className="relative z-10">{item}</span>
                                     <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-1 h-1 bg-[var(--blood-red)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                                    <span className="absolute -inset-2 bg-red-900/10 scale-0 group-hover:scale-100 transition-transform duration-300 -skew-x-12"></span>
+                                    <span className="absolute -inset-2 bg-[var(--dark-blood)]/20 scale-0 group-hover:scale-100 transition-transform duration-300 -skew-x-12"></span>
                                 </Link>
                             ))}
                             {user?.role === 'ADMIN' && (
@@ -122,7 +122,7 @@ export default function Navbar() {
                                     className="text-xs font-bold uppercase tracking-widest text-[var(--blood-red)] hover:text-red-400 transition-colors relative"
                                 >
                                     Dashboard
-                                    <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+                                    <span className="absolute -top-1 -right-2 w-2 h-2 bg-[var(--blood-red)] rounded-full animate-ping"></span>
                                 </Link>
                             )}
                         </div>
@@ -132,28 +132,28 @@ export default function Navbar() {
                             {user ? (
                                 <div className="flex items-center gap-6">
                                     <div className="text-right">
-                                        <div className="text-[10px] text-gray-500 uppercase tracking-wider">Soul Balance</div>
-                                        <div className="text-sm font-bold text-[var(--blood-red)] font-mono">Rp {user.balance?.toLocaleString() || 0}</div>
+                                        <div className="text-[10px] text-stone-500 uppercase tracking-wider">Soul Balance</div>
+                                        <div className="text-sm font-bold text-[var(--blood-red)] font-mono text-glow">Rp {user.balance?.toLocaleString() || 0}</div>
                                     </div>
 
                                     <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
 
                                     <div className="flex items-center gap-3">
                                         <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
-                                        <button onClick={handleLogout} className="text-[10px] bg-red-950/50 hover:bg-red-900 border border-red-900/50 text-red-500 px-2 py-1 uppercase tracking-widest transition-all">
+                                        <button onClick={handleLogout} className="text-[10px] bg-[var(--dark-blood)]/30 hover:bg-[var(--dark-blood)] border border-[var(--dark-blood)]/50 text-red-500 px-2 py-1 uppercase tracking-widest transition-all">
                                             Exile
                                         </button>
                                     </div>
-                                    <Link href="/topup" className="bg-white text-black hover:bg-red-500 hover:text-white px-4 py-2 font-black text-xs uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group">
+                                    <Link href="/topup" className="bg-white text-black hover:bg-[var(--blood-red)] hover:text-white px-4 py-2 font-black text-xs uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group">
                                         <span className="relative z-10">Topup</span>
                                     </Link>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-6">
-                                    <Link href="/login" className="text-gray-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
+                                    <Link href="/login" className="text-stone-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
                                         Login
                                     </Link>
-                                    <Link href="/register" className="bg-[var(--blood-red)] hover:bg-red-600 text-black px-6 py-2 rounded-none font-black text-xs tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(187,10,30,0.4)] clip-path-button">
+                                    <Link href="/register" className="bg-[var(--blood-red)] hover:bg-[var(--hell-fire)] text-black px-6 py-2 rounded-none font-black text-xs tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(187,10,30,0.4)] clip-path-button">
                                         Join Us
                                     </Link>
                                 </div>
@@ -162,7 +162,7 @@ export default function Navbar() {
 
                         {/* Mobile Menu Button */}
                         <button
-                            className="md:hidden text-white hover:text-red-500 transition-colors"
+                            className="md:hidden text-white hover:text-[var(--blood-red)] transition-colors"
                             onClick={() => setIsOpen(!isOpen)}
                         >
                             {isOpen ? <X size={24} /> : <Menu size={24} />}
@@ -171,9 +171,9 @@ export default function Navbar() {
                 </div>
 
                 {/* DECORATIVE BOTTOM PIECE (The downward sharp point) */}
-                <div className="absolute top-[calc(100%-1.6rem)] left-1/2 -translate-x-1/2 w-40 h-8 bg-black/90 border-b border-r border-l border-[var(--blood-red)] text-center flex items-center justify-center pointer-events-auto"
+                <div className="absolute top-[calc(100%-1.6rem)] left-1/2 -translate-x-1/2 w-40 h-8 bg-[var(--void-black)]/95 border-b border-r border-l border-[var(--glass-border)] text-center flex items-center justify-center pointer-events-auto"
                     style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }}>
-                    <div className="w-1.5 h-1.5 bg-red-500 rounded-full shadow-[0_0_10px_red]"></div>
+                    <div className="w-1.5 h-1.5 bg-[var(--blood-red)] rounded-full shadow-[0_0_10px_red]"></div>
                 </div>
 
 
@@ -183,19 +183,19 @@ export default function Navbar() {
                         initial={{ opacity: 0, scaleY: 0 }}
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0 }}
-                        className="absolute top-full left-0 right-0 mt-4 bg-black border border-red-900 p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
+                        className="absolute top-full left-0 right-0 mt-4 bg-[var(--void-black)] border border-[var(--dark-blood)] p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
                     >
                         {/* Mobile Menu Items */}
                         {(user ? ['Home', 'History', 'Games', 'Leaderboard'] : ['Home', 'Games', 'Leaderboard']).map((item) => (
-                            <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-gray-400 hover:text-white uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold" onClick={() => setIsOpen(false)}>{item}</Link>
+                            <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-stone-400 hover:text-white uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold" onClick={() => setIsOpen(false)}>{item}</Link>
                         ))}
 
                         {/* Auth actions for mobile */}
                         {user ? (
-                            <div className="pt-4 border-t border-red-900/30 space-y-4">
+                            <div className="pt-4 border-t border-[var(--dark-blood)]/30 space-y-4">
                                 {/* Balance Info */}
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-500 uppercase tracking-widest text-xs">Soul Balance</span>
+                                    <span className="text-stone-500 uppercase tracking-widest text-xs">Soul Balance</span>
                                     <span className="text-[var(--blood-red)] font-black text-lg font-mono">Rp {user.balance?.toLocaleString() || 0}</span>
                                 </div>
 

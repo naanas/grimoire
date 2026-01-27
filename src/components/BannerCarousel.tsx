@@ -24,7 +24,7 @@ export default function BannerCarousel() {
             .finally(() => setLoading(false));
     }, []);
 
-    if (loading) return <div className="h-[200px] md:h-[350px] w-full bg-neutral-900/50 animate-pulse rounded-xl" />;
+    if (loading) return <div className="h-[200px] md:h-[350px] w-full bg-[var(--void-black)] animate-pulse rounded-xl border border-[var(--glass-border)]" />;
 
     if (banners.length === 0) {
         // Fallback if no banners
@@ -40,7 +40,7 @@ export default function BannerCarousel() {
                 autoplay={{ delay: 5000, disableOnInteraction: false }}
                 pagination={{ clickable: true }}
                 loop={true}
-                className="rounded-xl overflow-hidden shadow-2xl shadow-red-900/20 border border-neutral-800"
+                className="rounded-xl overflow-hidden shadow-2xl shadow-[var(--blood-red)]/20 border border-[var(--glass-border)]"
             >
                 {banners.map((banner) => (
                     <SwiperSlide key={banner.id}>
@@ -52,10 +52,10 @@ export default function BannerCarousel() {
                                 className="object-cover"
                                 priority
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
                             {banner.title && (
                                 <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 max-w-lg">
-                                    <h2 className="text-xl md:text-3xl font-bold text-white mb-2 drop-shadow-md">{banner.title}</h2>
+                                    <h2 className="text-xl md:text-3xl font-bold text-white mb-2 drop-shadow-md font-[family-name:var(--font-cinzel)]">{banner.title}</h2>
                                 </div>
                             )}
                         </div>

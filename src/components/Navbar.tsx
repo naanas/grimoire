@@ -75,7 +75,7 @@ export default function Navbar() {
                   Using clip-path for "Demon Blade" aesthetic
                 */}
                 <div
-                    className="w-full bg-[var(--void-black)]/95 backdrop-blur-md border-b-2 border-[var(--glass-border)] relative shadow-[0_10px_40px_rgba(0,0,0,0.9)]"
+                    className="w-full bg-[var(--void-black)]/80 backdrop-blur-lg border-b-2 border-[var(--glass-border)] relative shadow-[0_10px_40px_rgba(0,0,0,0.9)]"
                     style={{
                         clipPath: "polygon(2% 0, 98% 0, 100% 100%, 80% 100%, 75% 85%, 25% 85%, 20% 100%, 0 100%)",
                         paddingBottom: "1.5rem" // Space for the cutouts
@@ -183,7 +183,7 @@ export default function Navbar() {
                         initial={{ opacity: 0, scaleY: 0 }}
                         animate={{ opacity: 1, scaleY: 1 }}
                         exit={{ opacity: 0, scaleY: 0 }}
-                        className="absolute top-full left-0 right-0 mt-4 bg-[var(--void-black)] border border-[var(--dark-blood)] p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
+                        className="absolute top-full left-0 right-0 mt-4 bg-[var(--void-black)]/90 backdrop-blur-xl border border-[var(--dark-blood)] p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
                     >
                         {/* Mobile Menu Items */}
                         {(user ? ['Home', 'History', 'Games', 'Leaderboard'] : ['Home', 'Games', 'Leaderboard']).map((item) => (

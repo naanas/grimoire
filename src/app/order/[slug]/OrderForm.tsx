@@ -24,6 +24,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [products, setProducts] = useState<Product[]>([]);
     const [categoryConfig, setCategoryConfig] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [showAllProducts, setShowAllProducts] = useState(false);
 
     const [targetId, setTargetId] = useState('');
     const [zoneId, setZoneId] = useState('');
@@ -421,33 +422,47 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     {loading ? (
                         <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[var(--blood-red)]" size={32} /></div>
                     ) : (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                            {products.map(p => (
-                                <div
-                                    key={p.id}
-                                    onClick={() => setSelectedProduct(p)}
-                                    className={`
+                        <>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                                {(showAllProducts ? products : products.slice(0, 10)).map(p => (
+                                    <div
+                                        key={p.id}
+                                        onClick={() => setSelectedProduct(p)}
+                                        className={`
                                         cursor-pointer relative p-4 flex flex-col justify-between min-h-[100px] group transition-all duration-300
                                         ${selectedProduct?.id === p.id
-                                            ? 'bg-red-950/30 border border-[var(--blood-red)] shadow-[0_0_20px_rgba(187,10,30,0.2)]'
-                                            : 'bg-black border border-gray-900 hover:border-gray-700 hover:bg-gray-900/50'}
+                                                ? 'bg-red-950/30 border border-[var(--blood-red)] shadow-[0_0_20px_rgba(187,10,30,0.2)]'
+                                                : 'bg-black border border-gray-900 hover:border-gray-700 hover:bg-gray-900/50'}
                                     `}
-                                    style={{ clipPath: "polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%)" }}
-                                >
-                                    <div className="absolute top-0 right-0 p-1">
-                                        <div className={`w-2 h-2 rounded-full ${selectedProduct?.id === p.id ? 'bg-[var(--blood-red)]' : 'bg-gray-800 group-hover:bg-gray-600'}`}></div>
+                                        style={{ clipPath: "polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%)" }}
+                                    >
+                                        <div className="absolute top-0 right-0 p-1">
+                                            <div className={`w-2 h-2 rounded-full ${selectedProduct?.id === p.id ? 'bg-[var(--blood-red)]' : 'bg-gray-800 group-hover:bg-gray-600'}`}></div>
+                                        </div>
+
+                                        <p className="font-bold text-xs md:text-sm text-gray-200 group-hover:text-white mb-2 leading-tight">{p.name}</p>
+                                        <p className="text-[var(--blood-red)] font-mono text-sm font-bold">Rp {p.price_sell.toLocaleString()}</p>
+
+                                        {/* Selection Glow */}
+                                        {selectedProduct?.id === p.id && (
+                                            <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 pointer-events-none"></div>
+                                        )}
                                     </div>
+                                ))}
+                            </div>
 
-                                    <p className="font-bold text-xs md:text-sm text-gray-200 group-hover:text-white mb-2 leading-tight">{p.name}</p>
-                                    <p className="text-[var(--blood-red)] font-mono text-sm font-bold">Rp {p.price_sell.toLocaleString()}</p>
-
-                                    {/* Selection Glow */}
-                                    {selectedProduct?.id === p.id && (
-                                        <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 pointer-events-none"></div>
-                                    )}
+                            {/* Expand/Collapse Button */}
+                            {products.length > 10 && (
+                                <div className="mt-6 text-center">
+                                    <button
+                                        onClick={() => setShowAllProducts(!showAllProducts)}
+                                        className="group relative px-8 py-2 bg-transparent overflow-hidden border border-gray-800 hover:border-[var(--blood-red)] transition-all duration-300 clip-path-button text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-white"
+                                    >
+                                        {showAllProducts ? 'Show Less' : `Show All Items (${products.length})`}
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
+                            )}
+                        </>
                     )}
                 </section>
 

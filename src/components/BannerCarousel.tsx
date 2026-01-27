@@ -40,7 +40,7 @@ export default function BannerCarousel() {
                 autoplay={{ delay: 5000, disableOnInteraction: false }}
                 pagination={{ clickable: true }}
                 loop={true}
-                className="rounded-xl overflow-hidden shadow-2xl shadow-[var(--blood-red)]/20 border border-[var(--glass-border)]"
+                className="rounded-xl overflow-hidden shadow-[0_0_40px_rgba(187,10,30,0.3)] border border-[var(--glass-border)] group"
             >
                 {banners.map((banner) => (
                     <SwiperSlide key={banner.id}>
@@ -49,13 +49,13 @@ export default function BannerCarousel() {
                                 src={banner.imageUrl}
                                 alt={banner.title || 'Banner'}
                                 fill
-                                className="object-cover"
+                                className="object-cover transition-transform duration-700 group-hover:scale-105"
                                 priority
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
                             {banner.title && (
                                 <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 max-w-lg">
-                                    <h2 className="text-xl md:text-3xl font-bold text-white mb-2 drop-shadow-md font-[family-name:var(--font-cinzel)]">{banner.title}</h2>
+                                    <h2 className="text-xl md:text-4xl font-black text-white mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] font-[family-name:var(--font-cinzel)] tracking-wider">{banner.title}</h2>
                                 </div>
                             )}
                         </div>

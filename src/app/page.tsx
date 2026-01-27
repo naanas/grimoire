@@ -77,7 +77,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-8"
         >
           {games.filter(g => g.name && g.slug).slice(0, visibleCount).map((game, i) => (
             <Link href={`/order/${game.slug}`} key={game.id} className="block group">
@@ -86,7 +86,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.5, ease: "easeOut" }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="relative h-[320px] md:h-[420px] rounded-sm obsidian-panel overflow-hidden transition-all duration-300 md:duration-500 hover:shadow-[0_0_30px_rgba(187,10,30,0.3)] hover:border-[var(--blood-red)]"
+                className="relative h-[220px] md:h-[420px] rounded-sm obsidian-panel overflow-hidden transition-all duration-300 md:duration-500 hover:shadow-[0_0_30px_rgba(187,10,30,0.3)] hover:border-[var(--blood-red)]"
               >
                 {/* Dark Vignette Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-80 z-10"></div>
@@ -96,7 +96,7 @@ export default function Home() {
 
                 <div className="relative z-20 h-full flex flex-col items-center justify-end pb-8 p-4 md:pb-12 md:p-6">
                   {/* Game Images */}
-                  <div className="absolute top-8 md:top-10 inset-x-0 flex justify-center items-center h-[180px] md:h-[200px]" style={{ willChange: "transform" }}>
+                  <div className="absolute top-8 md:top-10 inset-x-0 flex justify-center items-center h-[120px] md:h-[200px]" style={{ willChange: "transform" }}>
                     <div className="relative w-[70%] md:w-[80%] h-[70%] md:h-[80%] transition-transform duration-500 group-hover:scale-110">
                       <Image
                         src={game.image || 'https://via.placeholder.com/200?text=No+Image'}
@@ -111,7 +111,7 @@ export default function Home() {
 
                   {/* Title */}
                   <div className="relative z-30 text-center">
-                    <h3 className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-gray-400 group-hover:text-white transition-colors tracking-wide uppercase border-b-2 border-transparent group-hover:border-[var(--blood-red)] pb-2" style={{ willChange: "color, border-color" }}>
+                    <h3 className="text-sm md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-gray-400 group-hover:text-white transition-colors tracking-wide uppercase border-b-2 border-transparent group-hover:border-[var(--blood-red)] pb-2" style={{ willChange: "color, border-color" }}>
                       {game.name}
                     </h3>
                   </div>

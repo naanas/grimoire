@@ -1,66 +1,13 @@
 'use client';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Menu, X, Flame } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
-    const [user, setUser] = useState<any>(null);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const loadUser = () => {
-                const storedUser = localStorage.getItem('user');
-                if (storedUser) {
-                    try {
-                        setUser(JSON.parse(storedUser));
-                    } catch (e) {
-                        localStorage.removeItem('user');
-                    }
-                }
-            };
-
-            // Initial Load
-            loadUser();
-
-            // Fetch fresh data
-            const fetchFresh = () => {
-                const token = localStorage.getItem('token');
-                if (token) {
-                    import('@/lib/api').then((mod) => {
-                        mod.default.get('/auth/me').then(res => {
-                            if (res.data.success) {
-                                setUser(res.data.data);
-                                localStorage.setItem('user', JSON.stringify(res.data.data));
-                            }
-                        }).catch(() => { });
-                    });
-                }
-            };
-            fetchFresh();
-
-            // LISTENERS FOR BALANCE UPDATES
-            // 1. Storage Event (Cross-tab)
-            window.addEventListener('storage', loadUser);
-            // 2. Focus Event (Tab switch)
-            window.addEventListener('focus', fetchFresh);
-            // 3. Custom Event (Same tab)
-            window.addEventListener('balance_updated', loadUser);
-
-            return () => {
-                window.removeEventListener('storage', loadUser);
-                window.removeEventListener('focus', fetchFresh);
-                window.removeEventListener('balance_updated', loadUser);
-            };
-        }
-    }, []);
-
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/';
-    };
+    const { user, logout: handleLogout } = useAuth();
 
     return (
         <motion.nav

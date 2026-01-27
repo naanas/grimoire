@@ -4,6 +4,26 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket } from 'lucide-react';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15
+        }
+    }
+};
+
+const sectionVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { type: 'spring', stiffness: 50, damping: 20 }
+    }
+};
 
 type Product = {
     id: string;
@@ -315,7 +335,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
     // --- ORDER FORM UI ---
     return (
-        <div className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full max-w-4xl mx-auto"
+        <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+            className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full max-w-4xl mx-auto"
             style={{ clipPath: "polygon(0 0, 100% 0, 100% 98%, 98% 100%, 2% 100%, 0 98%)" }}>
 
             {/* Top Red Line */}
@@ -324,7 +348,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             <div className="p-4 md:p-8 space-y-8 relative z-10">
 
                 {/* 1. Account Data */}
-                <section>
+                <motion.section variants={sectionVariants}>
                     <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
                         <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">01</span>
                         ACCOUNT DATA
@@ -410,10 +434,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             </div>
                         )}
                     </div>
-                </section>
+                </motion.section>
 
                 {/* 2. Select Nominal */}
-                <section>
+                <motion.section variants={sectionVariants}>
                     <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
                         <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">02</span>
                         SELECT ITEM
@@ -464,10 +488,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             )}
                         </>
                     )}
-                </section>
+                </motion.section>
 
                 {/* 3. Select Payment */}
-                <section>
+                <motion.section variants={sectionVariants}>
                     <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
                         <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">03</span>
                         PAYMENT
@@ -510,10 +534,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             </div>
                         ))}
                     </div>
-                </section>
+                </motion.section>
 
                 {/* 4. Voucher & Contact */}
-                <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <motion.section variants={sectionVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Guest Contact */}
                     {!user && (
                         <div className="space-y-4">
@@ -563,7 +587,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             </div>
                         )}
                     </div>
-                </section>
+                </motion.section>
 
                 {/* Footer / Submit */}
                 <div className="border-t border-dashed border-gray-800 pt-6 mt-8">
@@ -598,6 +622,6 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
                 }
             `}</style>
-        </div>
+        </motion.div>
     );
 }

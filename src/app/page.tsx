@@ -34,14 +34,6 @@ export default function Home() {
     fetchData();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white" suppressHydrationWarning>
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-center justify-start min-h-screen gap-12 overflow-hidden relative bg-[#0a0a0a]">
 
@@ -55,9 +47,9 @@ export default function Home() {
 
       {/* Sections */}
       <div className="flex flex-col gap-12 w-full items-center z-10 px-4 md:px-0 mb-12">
-        <GameSection title="Terlaris" icon="🔥" games={bestSelling} />
+        <GameSection title="Terlaris" icon="🔥" games={bestSelling} loading={loading} />
 
-        <GameSection title="Populer" icon="👾" games={popular} />
+        <GameSection title="Populer" icon="👾" games={popular} loading={loading} />
       </div>
 
       {/* Footer Info Section */}

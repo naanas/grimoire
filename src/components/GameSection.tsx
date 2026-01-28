@@ -8,11 +8,11 @@ interface GameSectionProps {
     className?: string;
 }
 
-export default function GameSection({ title, icon, games, className = "" }: GameSectionProps) {
-    if (!games || games.length === 0) return null;
+export default function GameSection({ title, icon, games, className = "", loading = false }: GameSectionProps & { loading?: boolean }) {
+    if (!loading && (!games || games.length === 0)) return null;
 
     return (
-        <section className={`w-full max-w-7xl px-2 md:px-4 ${className}`}>
+        <section className={`w-full max-w-7xl px-4 md:px-0 ${className}`}>
             <div className="flex items-center gap-3 mb-6">
                 {/* Title Decoration */}
                 {icon && <span className="text-2xl">{icon}</span>}
@@ -23,9 +23,14 @@ export default function GameSection({ title, icon, games, className = "" }: Game
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {games.map((game, i) => (
-                    <GameCard key={game.id} game={game} index={i} />
-                ))}
+                {loading
+                    ? Array.from({ length: 6 }).map((_, i) => (
+                        <div key={i} className="aspect-[3/4] rounded-xl bg-white/5 animate-pulse border border-white/10" />
+                    ))
+                    : games.map((game, i) => (
+                        <GameCard key={game.id} game={game} index={i} />
+                    ))
+                }
             </div>
         </section>
     );

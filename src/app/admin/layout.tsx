@@ -8,7 +8,8 @@ import {
     Package,
     LogOut,
     Menu,
-    X
+    X,
+    MessageCircle
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
         { icon: ShoppingCart, label: 'Transactions', href: '/admin/transactions' },
         { icon: Package, label: 'Products', href: '/admin/products' },
+        { icon: MessageCircle, label: 'Support Chat', href: '/admin/chat' },
     ];
 
 

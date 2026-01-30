@@ -27,7 +27,7 @@ export default function TransactionsPage() {
     const fetchTransactions = async () => {
         setLoading(true);
         try {
-            const res = await api.get(`/admin/transactions?page=${page}&limit=20&search=${debouncedSearch}`);
+            const res = await api.get(`/admin/transactions?page=${page}&limit=10&search=${debouncedSearch}`);
             const data = res.data;
             if (data.success) {
                 setTransactions(data.data.transactions);

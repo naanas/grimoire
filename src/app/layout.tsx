@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import ChatWidget from '@/components/ChatWidget';
+import LayoutWrapper from '@/components/LayoutWrapper';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel' });
@@ -22,13 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${cinzel.variable} bg-[var(--background)] text-white min-h-screen selection:bg-[var(--blood-red)] selection:text-white antialiased`} suppressHydrationWarning>
-        <BackgroundEffects />
-        <Navbar />
-        <main className="relative z-10 flex flex-col flex-grow min-h-screen pt-20">
-          {children}
-        </main>
-        <Footer />
-        <ChatWidget />
+        <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );

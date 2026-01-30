@@ -9,7 +9,9 @@ import {
     LogOut,
     Menu,
     X,
-    MessageCircle
+    MessageCircle,
+    Tag,
+    Globe
 } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -47,17 +49,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
         { icon: ShoppingCart, label: 'Transactions', href: '/admin/transactions' },
         { icon: Package, label: 'Products', href: '/admin/products' },
+        { icon: Tag, label: 'Categories', href: '/admin/categories' },
         { icon: MessageCircle, label: 'Support Chat', href: '/admin/chat' },
     ];
 
-
+    const publicLinks = [
+        { icon: Globe, label: 'Website Home', href: '/' },
+        { icon: LayoutDashboard, label: 'Leaderboard', href: '/leaderboard' },
+        { icon: ShoppingCart, label: 'Topup Balance', href: '/topup' },
+    ];
 
     return (
         <div className="min-h-screen bg-neutral-900 text-white flex">
             {/* Sidebar */}
-            {/* Sidebar */}
             <aside
-                className={`fixed top-24 bottom-0 left-0 z-50 w-64 bg-neutral-950 border-r border-neutral-800 transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-neutral-950 border-r border-neutral-800 transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                     } md:relative md:translate-x-0 md:top-0 md:h-auto`}
             >
                 <div className="h-16 flex items-center justify-between px-6 border-b border-neutral-800 shrink-0">
@@ -92,6 +98,28 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             </Link>
                         );
                     })}
+
+                    <div className="mt-8 pt-4 border-t border-neutral-800">
+                        <div className="px-4 text-xs font-semibold text-neutral-500 uppercase mb-2">
+                            Public Site
+                        </div>
+                        <div className="space-y-1">
+                            {publicLinks.map((item) => {
+                                const Icon = item.icon;
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={item.href}
+                                        onClick={() => setIsSidebarOpen(false)}
+                                        className="flex items-center gap-3 px-4 py-2 text-neutral-400 hover:text-white hover:bg-neutral-900 rounded-lg transition-all"
+                                    >
+                                        <Icon size={18} />
+                                        <span className="text-sm">{item.label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </nav>
 
                 <div className="p-4 border-t border-neutral-800 shrink-0">
@@ -123,6 +151,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     >
                         <Menu size={24} />
                     </button>
+                    <span className="ml-4 font-bold text-lg">Admin Panel</span>
                 </header>
 
                 <div className="flex-1 p-6 overflow-auto">

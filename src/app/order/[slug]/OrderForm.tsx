@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
-import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { PAYMENT_CHANNELS, PaymentChannel } from '@/lib/PaymentChannels';
+import { io } from 'socket.io-client';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -47,15 +49,18 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [products, setProducts] = useState<Product[]>([]);
     const [categoryConfig, setCategoryConfig] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [showAllProducts, setShowAllProducts] = useState(false);
 
+    // Form Inputs
     const [targetId, setTargetId] = useState('');
     const [zoneId, setZoneId] = useState('');
     const [serverId, setServerId] = useState('');
     const [guestContact, setGuestContact] = useState('');
 
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState('QRIS');
+
+    // Payment State
+    const [paymentMethod, setPaymentMethod] = useState(''); // 'va', 'qris', 'cstore', 'BALANCE'
+    const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
 
     // Voucher State
     const [voucherCode, setVoucherCode] = useState('');
@@ -198,7 +203,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             productName: trx.product?.name,
                             amount: trx.amount,
                             paymentUrl: trx.paymentUrl,
-                            status: trx.status
+                            paymentNo: trx.paymentNo,
+                            paymentName: trx.paymentChannel || trx.paymentMethod,
+                            status: trx.status || 'PENDING',
+                            expired: trx.expired // Assuming backend sends this or we infer
                         });
                     }
                 })
@@ -211,23 +219,52 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     useEffect(() => {
         let interval: NodeJS.Timeout;
         if (result && (result.status === 'PENDING' || result.status === 'PROCESSING')) {
+            console.log("🔄 Polling Started for:", result.id, "Status:", result.status);
             interval = setInterval(async () => {
                 try {
+                    console.log("📡 Checking Status...");
                     const checkRes = await api.post(`/check-status/${result.id || urlTrxId}`);
+                    console.log("📩 Status Response:", checkRes.data);
                     if (checkRes.data.success) {
                         const newStatus = checkRes.data.data.status;
                         if (newStatus !== result.status) {
+                            console.log("✅ Status Changed!", newStatus);
                             setResult((prev: any) => ({ ...prev, status: newStatus }));
                         }
                         if (newStatus === 'SUCCESS' || newStatus === 'FAILED') {
                             clearInterval(interval);
                         }
                     }
-                } catch (e) { }
-            }, 5000);
+                } catch (e) {
+                    console.error("❌ Polling Error:", e);
+                }
+            }, 2000); // 2s Interval
         }
         return () => clearInterval(interval);
-    }, [result, urlTrxId]);
+    }, [result?.status, urlTrxId]); // Depend on status string specifically to re-eval
+
+    // ⚡ Real-Time Socket Update
+    useEffect(() => {
+        if (!result?.id) return;
+        const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace('/api', '');
+        const socket = io(socketUrl);
+
+        socket.on('connect', () => {
+            console.log("🔌 Socket Connected for Order:", result.id);
+            socket.emit('join_session', result.id); // Trx ID as Room
+        });
+
+        socket.on('transaction_update', (data: any) => {
+            console.log("⚡ Socket Update Received:", data);
+            if (data.status && data.status !== result.status) {
+                setResult((prev: any) => ({ ...prev, status: data.status }));
+            }
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [result?.id]);
 
     const handleOrder = async () => {
         if (!targetId || !selectedProduct) {
@@ -238,22 +275,37 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             setError("Please provide a valid WhatsApp number!");
             return;
         }
+        if (!paymentMethod && !selectedChannel) {
+            setError("Please select a payment method!");
+            return;
+        }
 
         setIsProcessing(true);
         setError('');
+
+        const currentChannel = paymentMethod === 'BALANCE' ? null : selectedChannel;
 
         try {
             const res = await api.post('/create', {
                 productId: selectedProduct.id,
                 userId: targetId,
                 zoneId: zoneId || serverId,
-                paymentMethod,
+                paymentMethod: paymentMethod === 'BALANCE' ? 'BALANCE' : currentChannel?.method,
+                paymentChannel: paymentMethod === 'BALANCE' ? undefined : currentChannel?.code,
                 authUserId: user?.id,
                 guestContact: user ? undefined : guestContact,
                 voucherCode: voucherStats.isValid ? voucherCode : undefined
             });
 
             if (res.data.success) {
+                // If Redirect (Url exists and no paymentNo), we might still want to auto-redirect?
+                // But User requested Embedded. Direct Payment returns PaymentNo/QrString.
+                // Redirect Payment returns Url.
+                if (res.data.data.paymentUrl && !res.data.data.paymentNo) {
+                    // Fallback to legacy behavior if backend returns URL only
+                    window.location.href = res.data.data.paymentUrl;
+                    return;
+                }
                 setResult(res.data.data);
             }
         } catch (err: any) {
@@ -283,6 +335,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                 <div className="absolute inset-0 bg-[#00ff4c] blur-2xl opacity-20 animate-pulse"></div>
                                 <CheckCircle size={80} className="text-[#00ff4c] relative z-10" />
                             </div>
+                        ) : result.status === 'PROCESSING' ? (
+                            <div className="relative">
+                                <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-pulse"></div>
+                                <Loader2 size={80} className="text-blue-500 relative z-10 animate-spin" />
+                            </div>
                         ) : result.status === 'FAILED' ? (
                             <XCircle size={80} className="text-red-500" />
                         ) : (
@@ -294,11 +351,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         {result.status === 'SUCCESS' ? 'Topup Complete' :
                             result.status === 'PROCESSING' ? 'Processing...' :
                                 result.status === 'FAILED' ? 'Transaction Failed' :
-                                    'Order Created'}
+                                    'WAITS FOR PAYMENT'}
                     </h2>
 
                     {/* Receipt Card */}
-                    <div className="bg-black border border-gray-800 p-8 relative overflow-hidden group" style={{ clipPath: "polygon(5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%, 0 5%)" }}>
+                    <div className="bg-black border border-gray-800 p-8 relative overflow-hidden group text-left" style={{ clipPath: "polygon(5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%, 0 5%)" }}>
                         <div className="absolute top-0 left-0 w-full h-1 bg-[var(--blood-red)] shadow-[0_0_10px_red]"></div>
 
                         <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
@@ -309,47 +366,90 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             <span className="text-gray-500 text-xs uppercase tracking-widest">Item</span>
                             <span className="text-white font-bold text-sm text-right flex-1 ml-4">{result.productName}</span>
                         </div>
-                        <div className="flex justify-between items-center py-4">
+
+                        {/* PAYMENT DETAILS (EMBEDDED) - Show if PENDING or Undefined (Initial) */}
+                        {(result.status === 'PENDING' || !result.status) && (
+                            <div className="py-6 space-y-4">
+                                {result.paymentNo ? (
+                                    <div className="bg-gray-900/50 p-4 border border-gray-800 rounded text-center">
+                                        <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">{result.paymentName || 'Payment Code'}</p>
+
+                                        {/* QRIS Display Logic: Check name OR if content looks like a QR string (long) */}
+                                        {(result.paymentName?.toLowerCase().includes('qris') || (result.paymentNo && result.paymentNo.length > 50)) ? (
+                                            <div className="flex justify-center my-4 flex-col items-center">
+                                                {/* Check if paymentNo is URL (Image) or String (Raw Data) */}
+                                                {result.paymentNo.startsWith('http') ? (
+                                                    <img src={result.paymentNo} className="w-48 h-48 bg-white p-2 rounded" alt="QRIS" />
+                                                ) : (
+                                                    <img
+                                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(result.paymentNo)}`}
+                                                        className="w-48 h-48 bg-white p-2 rounded"
+                                                        alt="QRIS Code"
+                                                    />
+                                                )}
+                                                <p className="text-[10px] text-gray-500 mt-2">Scan QRIS above to pay</p>
+                                            </div>
+                                        ) : (
+                                            // VA / Retail Logic
+                                            <div className="relative group cursor-pointer" onClick={() => {
+                                                navigator.clipboard.writeText(result.paymentNo);
+                                                alert('Copied!');
+                                            }}>
+                                                <p className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest break-all">{result.paymentNo}</p>
+                                                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-[var(--blood-red)] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    CLICK TO COPY
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {result.expired && <p className="text-red-400 text-[10px] mt-2 font-mono">Expires in: {result.expired} hrs</p>}
+                                    </div>
+                                ) : (
+                                    // Legacy / Fallback for non-direct or if PaymentNo missing
+                                    result.paymentUrl && (
+                                        <div className="text-center">
+                                            <p className="text-xs text-gray-400 mb-2">Redirect Required</p>
+                                            <a href={result.paymentUrl} target="_self" className="block w-full bg-[var(--blood-red)] hover:bg-red-700 text-black font-bold py-3 px-4 text-xs uppercase tracking-widest rounded transition-all">
+                                                PAY NOW
+                                            </a>
+                                        </div>
+                                    )
+                                )}
+                            </div>
+                        )}
+
+                        <div className="flex justify-between items-center py-4 border-t border-gray-900 border-dashed">
                             <span className="text-gray-500 text-xs uppercase tracking-widest">Total</span>
                             <span className="text-[var(--blood-red)] font-black text-xl tracking-wide">Rp {Math.floor(result.amount).toLocaleString()}</span>
                         </div>
                     </div>
 
                     {/* Actions */}
-                    {!result.status || result.status === 'PENDING' ? (
-                        <div className="space-y-4">
-                            <a href={result.paymentUrl} target="_self"
-                                className="block w-full bg-[var(--blood-red)] hover:bg-red-700 text-black font-black py-4 text-sm uppercase tracking-[0.2em] transition-all clip-path-button shadow-[0_0_20px_rgba(187,10,30,0.4)]">
-                                PROCEED TO PAYMENT
-                            </a>
-                            <button
-                                id="btn-check-status"
-                                onClick={async (e) => {
-                                    const btn = e.currentTarget;
-                                    btn.innerText = 'SYNCING...';
-                                    try {
-                                        const checkRes = await api.post(`/check-status/${urlTrxId}`);
-                                        if (checkRes.data.success && checkRes.data.data.status) {
-                                            setResult((prev: any) => ({ ...prev, status: checkRes.data.data.status }));
-                                        } else {
-                                            alert('Status Unchanged');
-                                        }
-                                    } catch (e) {
-                                        alert('Failed to check');
-                                    } finally {
-                                        btn.innerText = 'SYNC STATUS';
+                    <div className="space-y-4">
+
+                        <button
+                            id="btn-check-status"
+                            onClick={async (e) => {
+                                const btn = e.currentTarget;
+                                btn.innerText = 'SYNCING...';
+                                try {
+                                    const checkRes = await api.post(`/check-status/${urlTrxId || result.id}`);
+                                    if (checkRes.data.success && checkRes.data.data.status) {
+                                        setResult((prev: any) => ({ ...prev, status: checkRes.data.data.status }));
+                                    } else {
+                                        alert('Status Unchanged');
                                     }
-                                }}
-                                className="block w-full border border-gray-800 text-gray-500 hover:text-white hover:border-gray-500 py-3 text-xs uppercase tracking-widest transition-all"
-                            >
-                                SYNC STATUS
-                            </button>
-                        </div>
-                    ) : (
-                        <div className={`w-full border py-4 text-sm font-bold uppercase tracking-widest ${result.status === 'SUCCESS' ? 'border-green-500 text-green-500 bg-green-950/20' : 'border-red-500 text-red-500 bg-red-950/20'}`}>
-                            TRANSACTION {result.status}
-                        </div>
-                    )}
+                                } catch (e) {
+                                    alert('Failed to check');
+                                } finally {
+                                    btn.innerText = 'SYNC STATUS';
+                                }
+                            }}
+                            className="block w-full border border-gray-800 text-gray-500 hover:text-white hover:border-gray-500 py-3 text-xs uppercase tracking-widest transition-all"
+                        >
+                            SYNC STATUS
+                        </button>
+                    </div>
 
                     <button onClick={() => window.location.href = '/'} className="text-xs text-gray-600 hover:text-[var(--blood-red)] uppercase tracking-widest transition-colors mt-8">
                         Return to Void
@@ -365,7 +465,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             variants={containerVariants}
             initial="hidden"
             animate="show"
-            className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full max-w-4xl mx-auto"
+            className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full max-w-5xl mx-auto"
             style={{ clipPath: "polygon(0 0, 100% 0, 100% 98%, 98% 100%, 2% 100%, 0 98%)" }}>
 
             {/* Top Red Line */}
@@ -574,47 +674,96 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 </motion.section>
 
 
-                {/* 3. Select Payment */}
+                {/* 3. Select Payment (UPDATED for Direct Payment) */}
                 <motion.section variants={sectionVariants}>
                     <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
                         <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">03</span>
                         PAYMENT
                     </h3>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        {/* Balance Option */}
+                    {/* Balance First */}
+                    <div className="mb-6">
                         <div
                             onClick={() => {
                                 if (user && user.balance >= (selectedProduct?.price_sell || 0)) {
                                     setPaymentMethod('BALANCE');
+                                    setSelectedChannel(null);
                                 }
                             }}
                             className={`
-                                cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all relative
+                                cursor-pointer border p-4 flex items-center gap-4 transition-all relative rounded-lg
                                 ${paymentMethod === 'BALANCE' ? 'bg-white text-black border-white' : 'bg-black border-gray-800 hover:border-gray-600'}
                                 ${(!user || (selectedProduct && user.balance < selectedProduct?.price_sell)) ? 'opacity-50 grayscale cursor-not-allowed' : ''}
                             `}
                         >
-                            <Wallet size={20} className={paymentMethod === 'BALANCE' ? 'text-black' : 'text-gray-500'} />
-                            <span className="text-xs font-bold uppercase tracking-wider">Balance</span>
-                            {user && <span className="text-[10px] font-mono">Rp {user.balance.toLocaleString()}</span>}
+                            <Wallet size={24} className={paymentMethod === 'BALANCE' ? 'text-black' : 'text-gray-500'} />
+                            <div className="flex-1">
+                                <p className="text-sm font-bold uppercase tracking-wider">My Balance</p>
+                                {user ? (
+                                    <p className="text-xs font-mono">Rp {user.balance.toLocaleString()}</p>
+                                ) : (
+                                    <p className="text-[10px] text-gray-500">Login to use balance</p>
+                                )}
+                            </div>
+                            {paymentMethod === 'BALANCE' && <CheckCircle className="text-green-500" size={20} />}
                         </div>
+                    </div>
 
-                        {/* Other Options */}
-                        {[
-                            { code: 'QRIS', label: 'QRIS', icon: Zap },
-                            { code: 'VA', label: 'Virtual Acc', icon: CreditCard }
-                        ].map(method => (
-                            <div
-                                key={method.code}
-                                onClick={() => setPaymentMethod(method.code)}
-                                className={`
-                                    cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all
-                                    ${paymentMethod === method.code ? 'bg-white text-black border-white' : 'bg-black border-gray-800 hover:border-gray-600 text-gray-500 hover:text-white'}
-                                `}
-                            >
-                                <method.icon size={20} />
-                                <span className="text-xs font-bold uppercase tracking-wider">{method.label}</span>
+                    {/* Direct Payment Channels */}
+                    <div className="space-y-6">
+                        {/* Group by Channel Group (QRIS, VA, Retail) */}
+                        {Object.entries(PAYMENT_CHANNELS.reduce((acc, ch) => {
+                            if (!acc[ch.group]) acc[ch.group] = [];
+                            acc[ch.group].push(ch);
+                            return acc;
+                        }, {} as Record<string, PaymentChannel[]>)).map(([group, channels]) => (
+                            <div key={group}>
+                                <h4 className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-3 pl-1 border-l-2 border-[var(--blood-red)]">{group}</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                    {channels.map((channel) => {
+                                        const currentPrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
+                                        const isBelowMin = channel.minAmount && currentPrice < channel.minAmount;
+
+                                        return (
+                                            <div
+                                                key={channel.code}
+                                                onClick={() => {
+                                                    if (!isBelowMin) {
+                                                        setPaymentMethod(channel.method); // 'va', 'qris', etc
+                                                        setSelectedChannel(channel);
+                                                    }
+                                                }}
+                                                className={`
+                                                    cursor-pointer border p-3 flex flex-col items-center justify-center gap-2 transition-all rounded text-center h-[100px] relative
+                                                    ${selectedChannel?.code === channel.code ? 'bg-[#1a0505] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)]' : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
+                                                    ${isBelowMin ? 'opacity-40 grayscale cursor-not-allowed' : ''}
+                                                `}
+                                            >
+                                                {/* Logo Placeholder or Text */}
+                                                {/* Since we don't have actual images yet, use text or icon fallback */}
+                                                <div className="flex-1 flex items-center justify-center">
+                                                    {channel.group === 'QRIS' ? <Zap size={24} className="text-white" /> :
+                                                        channel.group === 'Retail' ? <Store size={24} className="text-blue-400" /> :
+                                                            <CreditCard size={24} className="text-gray-400" />}
+                                                </div>
+
+                                                <span className={`text-[10px] font-bold uppercase tracking-wider ${selectedChannel?.code === channel.code ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
+                                                    {channel.name}
+                                                </span>
+
+                                                {isBelowMin && (
+                                                    <span className="text-[8px] text-red-500 font-mono absolute bottom-1">
+                                                        Min {channel.minAmount?.toLocaleString()}
+                                                    </span>
+                                                )}
+
+                                                {selectedChannel?.code === channel.code && (
+                                                    <div className="absolute top-2 right-2 w-2 h-2 bg-[var(--blood-red)] rounded-full animate-pulse"></div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         ))}
                     </div>

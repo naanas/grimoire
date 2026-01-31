@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Search, Loader2, Edit2, Check, X, Tag, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
 import api from '@/lib/api';
+import { io } from 'socket.io-client';
 
 export default function ProductsPage() {
     const [products, setProducts] = useState<any[]>([]);
@@ -11,6 +12,7 @@ export default function ProductsPage() {
     const [editForm, setEditForm] = useState<any>({});
 
     const [syncing, setSyncing] = useState(false);
+    const [syncProgress, setSyncProgress] = useState(0);
 
     // Filters & Pagination
     const [search, setSearch] = useState('');
@@ -38,6 +40,21 @@ export default function ProductsPage() {
     useEffect(() => {
         fetchProducts();
     }, [debouncedSearch, selectedCategory, page]);
+
+    // Socket Listener for Sync Progress
+    useEffect(() => {
+        const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000');
+
+        socket.on('admin_sync_progress', (data: any) => {
+            if (data && typeof data.percentage === 'number') {
+                setSyncProgress(data.percentage);
+            }
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
     const fetchCategories = async () => {
         try {
@@ -71,8 +88,9 @@ export default function ProductsPage() {
     const handleSync = async () => {
         if (!confirm('Sync products from Provider? This will update prices.')) return;
         setSyncing(true);
+        setSyncProgress(0);
         try {
-            const res = await api.post('/admin/products/sync');
+            const res = await api.post('/admin/products/sync', {}, { timeout: 600000 });
             if (res.data.success) {
                 alert(`Sync Complete! Updated: ${res.data.data.updatedCount || res.data.data.updated}, Created: ${res.data.data.createdCount || res.data.data.created}`);
                 fetchProducts(); // Refresh list
@@ -116,7 +134,7 @@ export default function ProductsPage() {
                         className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all disabled:opacity-50 whitespace-nowrap"
                     >
                         {syncing ? <Loader2 className="animate-spin" size={16} /> : <Search size={16} />}
-                        {syncing ? 'Syncing...' : 'Sync Products'}
+                        {syncing ? `Syncing... ${syncProgress}%` : 'Sync Products'}
                     </button>
                 </div>
             </div>

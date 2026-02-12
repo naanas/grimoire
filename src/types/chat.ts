@@ -1,5 +1,6 @@
 export interface ChatMessage {
     id: string;
+    sessionId: string;
     sender: 'USER' | 'ADMIN';
     content: string;
     createdAt: string;

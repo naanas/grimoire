@@ -87,14 +87,14 @@ export default function AdminChatPage() {
         newSocket.on('admin_notification', (data) => {
             if (data.type === 'NEW_MESSAGE') {
                 console.log("New User Message:", data);
-                // Refresh session list to show updated time/unread status logic (if implemented)
-                // Or just push to current messages if it matches selected session
-                if (selectedSessionId === data.sessionId) {
-                    setMessages(prev => [...prev, data.message]);
-                    setIsTyping(false); // Stop typing
-                } else {
-                    // Maybe show specific indicator? For now just refresh list
+
+                // If it's the current session, we ignore it because 'receive_message' listener will handle it.
+                // If it's another session, we refresh the list to show new message preview/unread status.
+                if (selectedSessionIdRef.current !== data.sessionId) {
                     fetchSessions();
+                } else {
+                    // Optionally trigger a silent Read update? 
+                    // For now, receive_message handles the UI.
                 }
             }
         });
@@ -145,6 +145,10 @@ export default function AdminChatPage() {
         // Be careful not to duplicate listeners if using 'receive_message' global.
         // It's better to ensure cleanup.
         const msgListener = (message: ChatMessage) => {
+            // CRITICAL FIX: Ensure the message belongs to the current session.
+            // Since the socket might still be joined to previous session rooms, we must filter.
+            if (message.sessionId !== selectedSessionId) return;
+
             setMessages(prev => {
                 // Avoid duplicates if 'admin_notification' also adds it?
                 // Actually 'admin_notification' is for notifications. 

@@ -66,6 +66,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [voucherCode, setVoucherCode] = useState('');
     const [checkingVoucher, setCheckingVoucher] = useState(false);
     const [voucherStats, setVoucherStats] = useState({ isValid: false, discount: 0, finalPrice: 0, message: '' });
+    const [checkingStatus, setCheckingStatus] = useState(false);
 
     useEffect(() => {
         setVoucherStats({ isValid: false, discount: 0, finalPrice: selectedProduct?.price_sell || 0, message: '' });
@@ -429,9 +430,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                         <button
                             id="btn-check-status"
-                            onClick={async (e) => {
-                                const btn = e.currentTarget;
-                                btn.innerText = 'SYNCING...';
+                            onClick={async () => {
+                                setCheckingStatus(true);
                                 try {
                                     const checkRes = await api.post(`/check-status/${urlTrxId || result.id}`);
                                     if (checkRes.data.success && checkRes.data.data.status) {
@@ -442,12 +442,13 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                 } catch (e) {
                                     alert('Failed to check');
                                 } finally {
-                                    btn.innerText = 'SYNC STATUS';
+                                    setCheckingStatus(false);
                                 }
                             }}
-                            className="block w-full border border-gray-800 text-gray-500 hover:text-white hover:border-gray-500 py-3 text-xs uppercase tracking-widest transition-all"
+                            disabled={checkingStatus}
+                            className="block w-full border border-gray-800 text-gray-500 hover:text-white hover:border-gray-500 py-3 text-xs uppercase tracking-widest transition-all disabled:opacity-50"
                         >
-                            SYNC STATUS
+                            {checkingStatus ? 'SYNCING...' : 'SYNC STATUS'}
                         </button>
                     </div>
 
@@ -752,8 +753,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                 </span>
 
                                                 {isBelowMin && (
-                                                    <span className="text-[8px] text-red-500 font-mono absolute bottom-1">
-                                                        Min {channel.minAmount?.toLocaleString()}
+                                                    <span suppressHydrationWarning className="text-[8px] text-red-500 font-mono absolute bottom-1">
+                                                        Min {channel.minAmount?.toLocaleString('id-ID')}
                                                     </span>
                                                 )}
 
@@ -810,8 +811,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             </button>
                         </div>
                         {voucherStats.isValid && (
-                            <div className="text-xs text-green-500 font-mono flex items-center gap-2">
-                                <CheckCircle size={12} /> Discount Applied: -Rp {voucherStats.discount.toLocaleString()}
+                            <div suppressHydrationWarning className="text-xs text-green-500 font-mono flex items-center gap-2">
+                                <CheckCircle size={12} /> Discount Applied: -Rp {voucherStats.discount.toLocaleString('id-ID')}
                             </div>
                         )}
                         {voucherStats.message && !voucherStats.isValid && (
@@ -827,9 +828,19 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 mb-6">
                         <div className="text-right w-full md:w-auto md:text-left">
                             <p className="text-gray-500 text-[10px] uppercase tracking-widest mb-1">Total Payment</p>
-                            <p className="text-4xl font-black text-[var(--blood-red)] font-[family-name:var(--font-cinzel)]">
-                                Rp {(voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)).toLocaleString()}
-                            </p>
+                            <div className="flex flex-col items-end md:items-start">
+                                {selectedChannel && (selectedChannel.flatFee || selectedChannel.percentFee) && (
+                                    <span suppressHydrationWarning className="text-xs text-red-400 font-mono mb-1">
+                                        + Fee Rp {Math.floor((selectedChannel.flatFee || 0) + ((selectedChannel.percentFee || 0) / 100 * (voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)))).toLocaleString('id-ID')}
+                                    </span>
+                                )}
+                                <p suppressHydrationWarning className="text-4xl font-black text-[var(--blood-red)] font-[family-name:var(--font-cinzel)]">
+                                    Rp {(
+                                        (voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)) +
+                                        (selectedChannel ? Math.floor((selectedChannel.flatFee || 0) + ((selectedChannel.percentFee || 0) / 100 * (voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)))) : 0)
+                                    ).toLocaleString('id-ID')}
+                                </p>
+                            </div>
                         </div>
 
                         <button

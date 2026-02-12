@@ -168,15 +168,7 @@ export default function Navbar() {
                 )}
             </div>
 
-            {/* Global Styles for Clip Path if not in CSS */}
-            <style jsx global>{`
-                .clip-path-slant {
-                    clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
-                }
-                .clip-path-button {
-                    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-                }
-            `}</style>
+
         </motion.nav>
     );
 }

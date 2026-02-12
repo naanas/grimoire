@@ -2,7 +2,8 @@ export type PaymentChannel = {
     code: string;
     name: string;
     method: 'va' | 'qris' | 'cstore' | 'ewallet';
-    fee?: number;
+    flatFee?: number;
+    percentFee?: number;
     logo?: string;
     group: 'Virtual Account' | 'Retail' | 'QRIS' | 'E-Wallet';
     minAmount?: number;
@@ -16,7 +17,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'qris',
         group: 'QRIS',
         logo: '/payment/qris.png',
-        minAmount: 1000
+        minAmount: 1000,
+        percentFee: 0.7
     },
     // Virtual Accounts
     {
@@ -25,7 +27,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'va',
         group: 'Virtual Account',
         logo: '/payment/bca.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 4500
     },
     {
         code: 'mandiri',
@@ -33,7 +36,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'va',
         group: 'Virtual Account',
         logo: '/payment/mandiri.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 4000
     },
     {
         code: 'bni',
@@ -41,7 +45,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'va',
         group: 'Virtual Account',
         logo: '/payment/bni.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 4500
     },
     {
         code: 'bri',
@@ -49,7 +54,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'va',
         group: 'Virtual Account',
         logo: '/payment/bri.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 3500
     },
     {
         code: 'cimb',
@@ -57,7 +63,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'va',
         group: 'Virtual Account',
         logo: '/payment/cimb.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 4500
     },
     {
         code: 'permata',
@@ -65,7 +72,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'va',
         group: 'Virtual Account',
         logo: '/payment/permata.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 4500
     },
     // Retail
     {
@@ -74,7 +82,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'cstore',
         group: 'Retail',
         logo: '/payment/indomaret.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 3500
     },
     {
         code: 'alfamart',
@@ -82,7 +91,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'cstore',
         group: 'Retail',
         logo: '/payment/alfamart.png',
-        minAmount: 10000
+        minAmount: 10000,
+        flatFee: 3500
     },
     // E-Wallets
     {
@@ -91,7 +101,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'ewallet',
         group: 'E-Wallet',
         logo: '/payment/dana.png',
-        minAmount: 10000
+        minAmount: 10000,
+        percentFee: 1.5
     },
     {
         code: 'ovo',
@@ -99,7 +110,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'ewallet',
         group: 'E-Wallet',
         logo: '/payment/ovo.png',
-        minAmount: 10000
+        minAmount: 10000,
+        percentFee: 1.5
     },
     {
         code: 'shopeepay',
@@ -107,7 +119,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'ewallet',
         group: 'E-Wallet',
         logo: '/payment/shopeepay.png',
-        minAmount: 10000
+        minAmount: 10000,
+        percentFee: 2.0
     },
     {
         code: 'linkaja',
@@ -115,6 +128,7 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         method: 'ewallet',
         group: 'E-Wallet',
         logo: '/payment/linkaja.png',
-        minAmount: 10000
+        minAmount: 10000,
+        percentFee: 1.5
     }
 ];

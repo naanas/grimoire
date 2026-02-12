@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { usePathname } from 'next/navigation';
 import Navbar from './Navbar';
 import Footer from './Footer';
@@ -17,7 +18,9 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     return (
         <>
-            <NavigationLoader />
+            <Suspense fallback={null}>
+                <NavigationLoader />
+            </Suspense>
             <BackgroundEffects />
             <Navbar />
             <main className="relative z-10 flex flex-col flex-grow min-h-screen pt-20">

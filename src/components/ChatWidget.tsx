@@ -43,14 +43,30 @@ export default function ChatWidget() {
     // Check for existing session in localStorage
     // Check for existing session in localStorage
     useEffect(() => {
-        const storedSessionId = localStorage.getItem('chatSessionId');
-        if (storedSessionId && !hasJoined) {
-            // Validate if session is still valid?
-            // We just set it, and if it fails (403 or 404), fetchHistory will catch it and clear it.
-            setSessionId(storedSessionId);
-            setHasJoined(true);
+        // If user logs in, we should check if the current session is valid for them.
+        // For simplicity, if we have a user, we should try to fetch THEIR active session from server
+        // instead of relying on localStorage which might be a guest session.
+        if (user) {
+            const storedSessionId = localStorage.getItem('chatSessionId');
+            if (storedSessionId) {
+                // Check if it's a guest session (we can't easily know without fetching, but we can just clear it and let startChat logic handle it)
+                // Better: Try to join. If it fails (403), handleSessionEnded() will clear it.
+                // But we want to prefer the USER's active session if it exists on server.
+                // So let's try to fetch user session first.
+                startChat();
+            } else {
+                // No local session, but maybe user has one on server?
+                startChat();
+            }
+        } else {
+            // Guest mode: check local storage
+            const storedSessionId = localStorage.getItem('chatSessionId');
+            if (storedSessionId && !hasJoined) {
+                setSessionId(storedSessionId);
+                setHasJoined(true);
+            }
         }
-    }, []); // Run ONCE on mount
+    }, [user]); // Run when user changes
 
     // Initialize Socket
     useEffect(() => {

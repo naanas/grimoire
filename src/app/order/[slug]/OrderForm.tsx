@@ -174,7 +174,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             // Update: Fetch products with variations included
             api.get(`/products?category=${gameSlug}&includeVariations=true`),
             api.get(`/categories/${gameSlug}`),
-            api.get('/config/payment') // Fetch Payment Gateway Config
+            api.get('/config') // Fetch Payment Gateway Config
         ])
             .then(([resProducts, resCat, resConfig]) => {
                 if (resProducts.data.success) {
@@ -184,9 +184,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     setCategoryConfig(resCat.data.data);
                 }
                 if (resConfig.data.success) {
-                    console.log("💳 Payment Gateway:", resConfig.data.data.gateway);
+                    console.log("💳 Payment Gateway:", resConfig.data.data.PAYMENT_GATEWAY);
                     // We can store this in a state if needed for UI adjustments
-                    // setGateway(resConfig.data.data.gateway);
+                    // setGateway(resConfig.data.data.PAYMENT_GATEWAY);
                 }
             })
             .catch(err => console.error(err))

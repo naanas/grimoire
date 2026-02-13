@@ -173,14 +173,20 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         Promise.all([
             // Update: Fetch products with variations included
             api.get(`/products?category=${gameSlug}&includeVariations=true`),
-            api.get(`/categories/${gameSlug}`)
+            api.get(`/categories/${gameSlug}`),
+            api.get('/config/payment') // Fetch Payment Gateway Config
         ])
-            .then(([resProducts, resCat]) => {
+            .then(([resProducts, resCat, resConfig]) => {
                 if (resProducts.data.success) {
                     setProducts(resProducts.data.data);
                 }
                 if (resCat.data.success) {
                     setCategoryConfig(resCat.data.data);
+                }
+                if (resConfig.data.success) {
+                    console.log("💳 Payment Gateway:", resConfig.data.data.gateway);
+                    // We can store this in a state if needed for UI adjustments
+                    // setGateway(resConfig.data.data.gateway);
                 }
             })
             .catch(err => console.error(err))
@@ -299,14 +305,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             });
 
             if (res.data.success) {
-                // If Redirect (Url exists and no paymentNo), we might still want to auto-redirect?
-                // But User requested Embedded. Direct Payment returns PaymentNo/QrString.
-                // Redirect Payment returns Url.
-                if (res.data.data.paymentUrl && !res.data.data.paymentNo) {
-                    // Fallback to legacy behavior if backend returns URL only
-                    window.location.href = res.data.data.paymentUrl;
-                    return;
-                }
+                // REMOVED AUTO REDIRECT for Embedded Experience
+                // The UI already handles showing PaymentNo / QR if checking result state.
                 setResult(res.data.data);
             }
         } catch (err: any) {

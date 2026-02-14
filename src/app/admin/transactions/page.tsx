@@ -1,17 +1,19 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Search, Loader2, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Search, Loader2, ArrowLeft, ArrowRight, RotateCcw } from 'lucide-react';
 import api from '@/lib/api';
+import { toast } from 'react-hot-toast';
 
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [retryingIds, setRetryingIds] = useState<string[]>([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [search, setSearch] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
 
-    // Debounce Search
+    // ... (keep debounce logic)
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(search);
@@ -37,6 +39,25 @@ export default function TransactionsPage() {
             console.error(error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRetry = async (trxId: string) => {
+        if (retryingIds.includes(trxId)) return;
+
+        setRetryingIds(prev => [...prev, trxId]);
+        try {
+            const res = await api.post(`/admin/transactions/${trxId}/retry`);
+            if (res.data.success) {
+                toast.success('Transaction retried successfully!');
+                fetchTransactions(); // Refresh list
+            } else {
+                toast.error(res.data.message || 'Retry failed');
+            }
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || 'Failed to retry transaction');
+        } finally {
+            setRetryingIds(prev => prev.filter(id => id !== trxId));
         }
     };
 
@@ -78,6 +99,7 @@ export default function TransactionsPage() {
                                     <th className="px-6 py-4 font-medium">Amount</th>
                                     <th className="px-6 py-4 font-medium">Status</th>
                                     <th className="px-6 py-4 font-medium">Date</th>
+                                    <th className="px-6 py-4 font-medium text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-800">
@@ -94,6 +116,23 @@ export default function TransactionsPage() {
                                             <StatusBadge status={trx.status} />
                                         </td>
                                         <td className="px-6 py-4 text-xs">{new Date(trx.createdAt).toLocaleDateString()}</td>
+                                        <td className="px-6 py-4 text-right">
+                                            {(trx.status === 'FAILED' || trx.status === 'PROVIDER_FAILED' || trx.status === 'PROCESSING') && (
+                                                <button
+                                                    onClick={() => handleRetry(trx.id)}
+                                                    disabled={retryingIds.includes(trx.id)}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white border border-red-600/20 transition-all text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    title="Retry Provisioning"
+                                                >
+                                                    {retryingIds.includes(trx.id) ? (
+                                                        <Loader2 className="animate-spin" size={14} />
+                                                    ) : (
+                                                        <RotateCcw size={14} />
+                                                    )}
+                                                    Retry
+                                                </button>
+                                            )}
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -118,7 +157,19 @@ export default function TransactionsPage() {
                                             <div className="text-neutral-300">{trx.user?.name || 'Guest'}</div>
                                             <div className="text-[10px] text-neutral-500">{new Date(trx.createdAt).toLocaleString()}</div>
                                         </div>
-                                        <div className="text-white font-bold text-lg">Rp {trx.amount.toLocaleString()}</div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <div className="text-white font-bold text-lg">Rp {trx.amount.toLocaleString()}</div>
+                                            {(trx.status === 'FAILED' || trx.status === 'PROVIDER_FAILED' || trx.status === 'PROCESSING') && (
+                                                <button
+                                                    onClick={() => handleRetry(trx.id)}
+                                                    disabled={retryingIds.includes(trx.id)}
+                                                    className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-red-600/10 text-red-500 border border-red-600/20 text-[10px] font-bold uppercase tracking-wider"
+                                                >
+                                                    {retryingIds.includes(trx.id) ? <Loader2 className="animate-spin" size={12} /> : <RotateCcw size={12} />}
+                                                    Retry
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -159,11 +210,12 @@ function StatusBadge({ status }: { status: string }) {
         PENDING: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
         FAILED: 'bg-red-500/10 text-red-500 border-red-500/20',
         PROCESSING: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+        PROVIDER_FAILED: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
     };
 
     return (
         <span className={`px-2.5 py-1 rounded-md text-[10px] uppercase font-bold tracking-wider border ${styles[status] || 'bg-neutral-800 text-neutral-400'}`}>
-            {status}
+            {status.replace('_', ' ')}
         </span>
     );
 }

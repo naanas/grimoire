@@ -4,7 +4,7 @@ import { Save, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '@/lib/api';
 
-export default function TripaySettingsPage() {
+export default function TripaySettings() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [config, setConfig] = useState<Record<string, string>>({});
@@ -101,28 +101,25 @@ export default function TripaySettingsPage() {
     );
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8 pb-20">
+        <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-white">Tripay Configuration</h1>
-                    <p className="text-neutral-400 mt-1">Manage Sandbox and Production credentials for Tripay Payment Gateway.</p>
+                    <h2 className="text-xl font-bold text-white">Tripay Connection</h2>
+                    <p className="text-neutral-400 mt-1 text-sm">Manage Sandbox and Production credentials.</p>
                 </div>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-[0_0_15px_rgba(220,38,38,0.5)] hover:shadow-[0_0_25px_rgba(220,38,38,0.7)]"
+                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                 >
-                    {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} className="group-hover:scale-110 transition-transform" />}
-                    Simpan Perubahan
+                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    Simpan
                 </button>
             </div>
 
             {/* Environment Mode */}
             <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-6">
-                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <span className="w-1 h-6 bg-red-600 rounded-full"></span>
-                    Active Environment
-                </h2>
+                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Environment</h3>
 
                 <div className="grid md:grid-cols-2 gap-4">
                     <button
@@ -152,40 +149,34 @@ export default function TripaySettingsPage() {
                     </button>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-blue-900/10 border border-blue-900/30 rounded-lg text-blue-400 text-sm">
-                    <AlertCircle size={18} className="shrink-0" />
-                    <p>Current Mode: <b className="text-white">{config['TRIPAY_MODE'] || 'NOT SET (Defaulting to ENV)'}</b></p>
+                <div className="flex items-center gap-3 p-3 bg-blue-900/10 border border-blue-900/30 rounded-lg text-blue-400 text-xs">
+                    <AlertCircle size={16} className="shrink-0" />
+                    <p>Current Active Mode: <b className="text-white">{config['TRIPAY_MODE'] || 'NOT SET (System Default)'}</b></p>
                 </div>
             </div>
 
             <div className="grid gap-8 md:grid-cols-2">
                 {/* Sandbox Credentials */}
-                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <span className="text-6xl font-black text-white">SB</span>
-                    </div>
-                    <h2 className="text-lg font-semibold text-white border-b border-neutral-800 pb-4">
+                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-4">
+                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider border-b border-neutral-800 pb-2">
                         Sandbox Credentials
-                    </h2>
-                    <div className="space-y-4">
-                        <InputField label="API Key (Sandbox)" confKey="TRIPAY_SB_API_KEY" type="password" />
-                        <InputField label="Private Key (Sandbox)" confKey="TRIPAY_SB_PRIVATE_KEY" type="password" />
-                        <InputField label="Merchant Code (Sandbox)" confKey="TRIPAY_SB_MERCHANT_CODE" />
+                    </h3>
+                    <div className="space-y-4 pt-2">
+                        <InputField label="API Key" confKey="TRIPAY_SB_API_KEY" type="password" />
+                        <InputField label="Private Key" confKey="TRIPAY_SB_PRIVATE_KEY" type="password" />
+                        <InputField label="Merchant Code" confKey="TRIPAY_SB_MERCHANT_CODE" />
                     </div>
                 </div>
 
                 {/* Production Credentials */}
-                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-6 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <span className="text-6xl font-black text-white">PROD</span>
-                    </div>
-                    <h2 className="text-lg font-semibold text-white border-b border-neutral-800 pb-4">
+                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-4">
+                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider border-b border-neutral-800 pb-2">
                         Production Credentials
-                    </h2>
-                    <div className="space-y-4">
-                        <InputField label="API Key (Production)" confKey="TRIPAY_PROD_API_KEY" type="password" />
-                        <InputField label="Private Key (Production)" confKey="TRIPAY_PROD_PRIVATE_KEY" type="password" />
-                        <InputField label="Merchant Code (Production)" confKey="TRIPAY_PROD_MERCHANT_CODE" />
+                    </h3>
+                    <div className="space-y-4 pt-2">
+                        <InputField label="API Key" confKey="TRIPAY_PROD_API_KEY" type="password" />
+                        <InputField label="Private Key" confKey="TRIPAY_PROD_PRIVATE_KEY" type="password" />
+                        <InputField label="Merchant Code" confKey="TRIPAY_PROD_MERCHANT_CODE" />
                     </div>
                 </div>
             </div>

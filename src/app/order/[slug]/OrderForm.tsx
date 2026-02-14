@@ -94,7 +94,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 });
 
                 if (res.data.success) {
-                    const realFee = res.data.data.total_fee.merchant;
+                    const realFee = res.data.data.total_fee.customer;
                     setDynamicFee(realFee);
                     console.log(`📡 [DYNAMIC-FEE] Sync: Rp${realFee}`);
                 }

@@ -89,7 +89,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             setLoadingFee(true);
             try {
                 const amount = voucherStats.isValid ? voucherStats.finalPrice : selectedProduct.price_sell;
-                const res = await api.get(`/transaction/calculate-fee`, {
+                const res = await api.get(`/calculate-fee`, {
                     params: { code: selectedChannel.code, amount }
                 });
 

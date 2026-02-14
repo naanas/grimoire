@@ -1,6 +1,6 @@
-'use client';
 import { Settings as SettingsIcon } from 'lucide-react';
 import TripaySettings from '@/components/admin/TripaySettings';
+import PaymentGatewaySwitch from '@/components/admin/PaymentGatewaySwitch';
 
 export default function SettingsPage() {
     return (
@@ -15,6 +15,15 @@ export default function SettingsPage() {
 
             {/* Settings Sections */}
             <div className="space-y-12">
+                {/* Active Gateway Section */}
+                <section>
+                    <div className="mb-6 border-b border-neutral-800 pb-2">
+                        <h2 className="text-xl font-bold text-white">General Payment Settings</h2>
+                        <p className="text-sm text-neutral-500">Choose the active payment processor for the website.</p>
+                    </div>
+                    <PaymentGatewaySwitch />
+                </section>
+
                 {/* Tripay Section */}
                 <section>
                     <div className="mb-6 border-b border-neutral-800 pb-2">

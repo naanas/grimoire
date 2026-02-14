@@ -31,41 +31,7 @@ export default function AdminDashboard() {
         }
     };
 
-    const [gateway, setGateway] = useState<string>('IPAYMU');
-    const [isSaving, setIsSaving] = useState(false);
 
-    useEffect(() => {
-        fetchConfig();
-    }, []);
-
-    const fetchConfig = async () => {
-        try {
-            const res = await api.get('/config');
-            if (res.data.success) {
-                setGateway(res.data.data.PAYMENT_GATEWAY || 'IPAYMU');
-            }
-        } catch (error) {
-            console.error('Failed to fetch config', error);
-        }
-    };
-
-    const handleSaveConfig = async (newGateway: string) => {
-        if (newGateway === gateway) return;
-        if (!confirm(`Switch Payment Gateway to ${newGateway}?`)) return;
-
-        setIsSaving(true);
-        try {
-            const res = await api.put('/config', { key: 'PAYMENT_GATEWAY', value: newGateway });
-            if (res.data.success) {
-                setGateway(newGateway);
-            }
-        } catch (error) {
-            console.error('Failed to update config', error);
-            alert('Failed to update configuration');
-        } finally {
-            setIsSaving(false);
-        }
-    };
 
     if (isLoading) return <div className="text-white">Loading stats...</div>;
 
@@ -101,47 +67,7 @@ export default function AdminDashboard() {
                 />
             </div>
 
-            {/* Payment Configuration */}
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 mb-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                        <DollarSign size={20} className="text-emerald-500" />
-                        System Configuration
-                    </h2>
-                </div>
 
-                <div className="flex items-center gap-6">
-                    <div className="text-neutral-400 text-sm">Active Payment Gateway:</div>
-
-                    <div className="flex gap-4">
-                        <button
-                            onClick={() => handleSaveConfig('IPAYMU')}
-                            disabled={isSaving}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${gateway === 'IPAYMU'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                                }`}
-                        >
-                            IPAYMU (Legacy)
-                        </button>
-
-                        <button
-                            onClick={() => handleSaveConfig('TRIPAY')}
-                            disabled={isSaving}
-                            className={`px-4 py-2 rounded-lg font-medium transition-colors ${gateway === 'TRIPAY'
-                                ? 'bg-emerald-600 text-white'
-                                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
-                                }`}
-                        >
-                            TRIPAY (Recommended)
-                        </button>
-                    </div>
-                    {isSaving && <span className="text-xs text-neutral-500 animate-pulse">Saving...</span>}
-                </div>
-                <p className="text-xs text-neutral-500 mt-2">
-                    Switching this will immediately affect the checkout page for all users.
-                </p>
-            </div>
 
             {/* Recent Transactions */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">

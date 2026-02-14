@@ -363,25 +363,33 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         <div className="absolute top-0 left-0 w-full h-1 bg-[var(--blood-red)] shadow-[0_0_10px_red]"></div>
 
                         <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
-                            <span className="text-gray-500 text-xs uppercase tracking-widest">Invoices</span>
-                            <span className="font-mono text-white text-sm">{result.invoice}</span>
-                        </div>
-                        <div className="flex justify-between items-start py-4 border-b border-gray-900 border-dashed">
-                            <span className="text-gray-500 text-xs uppercase tracking-widest">Item</span>
-                            <span className="text-white font-bold text-sm text-right flex-1 ml-4">{result.productName}</span>
+                            <span className="text-gray-500 text-xs uppercase tracking-widest">Base Price</span>
+                            <span className="text-white font-mono text-sm">Rp {(result.basePrice || (result.amount - (result.adminFee || 0) + (result.discountAmount || 0))).toLocaleString()}</span>
                         </div>
 
-                        {/* PAYMENT DETAILS (EMBEDDED) - Show if PENDING or Undefined (Initial) */}
+                        {result.discountAmount > 0 && (
+                            <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed text-green-500">
+                                <span className="text-xs uppercase tracking-widest">Voucher Discount</span>
+                                <span className="font-mono text-sm">- Rp {result.discountAmount.toLocaleString()}</span>
+                            </div>
+                        )}
+
+                        {result.adminFee > 0 && (
+                            <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed text-blue-400">
+                                <span className="text-xs uppercase tracking-widest">Admin Fee ({result.paymentName || 'Gateway'})</span>
+                                <span className="font-mono text-sm">+ Rp {result.adminFee.toLocaleString()}</span>
+                            </div>
+                        )}
+
+                        {/* PAYMENT DETAILS (EMBEDDED) */}
                         {(result.status === 'PENDING' || !result.status) && (
                             <div className="py-6 space-y-4">
                                 {result.paymentNo ? (
                                     <div className="bg-gray-900/50 p-4 border border-gray-800 rounded text-center">
                                         <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">{result.paymentName || 'Payment Code'}</p>
 
-                                        {/* QRIS Display Logic: Check name OR if content looks like a QR string (long) */}
                                         {(result.paymentName?.toLowerCase().includes('qris') || (result.paymentNo && result.paymentNo.length > 50)) ? (
                                             <div className="flex justify-center my-4 flex-col items-center">
-                                                {/* Check if paymentNo is URL (Image) or String (Raw Data) */}
                                                 {result.paymentNo.startsWith('http') ? (
                                                     <img src={result.paymentNo} className="w-48 h-48 bg-white p-2 rounded" alt="QRIS" />
                                                 ) : (
@@ -394,7 +402,6 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                 <p className="text-[10px] text-gray-500 mt-2">Scan QRIS above to pay</p>
                                             </div>
                                         ) : (
-                                            // VA / Retail Logic
                                             <div className="relative group cursor-pointer" onClick={() => {
                                                 navigator.clipboard.writeText(result.paymentNo);
                                                 alert('Copied!');
@@ -405,11 +412,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                 </span>
                                             </div>
                                         )}
-
-                                        {result.expired && <p className="text-red-400 text-[10px] mt-2 font-mono">Expires in: {result.expired} hrs</p>}
                                     </div>
                                 ) : (
-                                    // Legacy / Fallback for non-direct or if PaymentNo missing
                                     result.paymentUrl && (
                                         <div className="text-center">
                                             <p className="text-xs text-gray-400 mb-2">Redirect Required</p>
@@ -423,7 +427,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         )}
 
                         <div className="flex justify-between items-center py-4 border-t border-gray-900 border-dashed">
-                            <span className="text-gray-500 text-xs uppercase tracking-widest">Total</span>
+                            <span className="text-gray-500 text-xs uppercase tracking-widest">Total Payable</span>
                             <span className="text-[var(--blood-red)] font-black text-xl tracking-wide">Rp {Math.floor(result.amount).toLocaleString()}</span>
                         </div>
                     </div>

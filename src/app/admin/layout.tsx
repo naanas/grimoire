@@ -51,6 +51,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { icon: Package, label: 'Products', href: '/admin/products' },
         { icon: Tag, label: 'Categories', href: '/admin/categories' },
         { icon: MessageCircle, label: 'Support Chat', href: '/admin/chat' },
+        { icon: Tag, label: 'Tripay Settings', href: '/admin/settings/tripay' },
     ];
 
     const publicLinks = [

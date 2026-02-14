@@ -126,6 +126,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     // ID Checking Logic
     useEffect(() => {
         const checkId = async () => {
+            // Skip check for PUBG
+            if (gameSlug.toLowerCase().includes('pubg')) return;
+
             if (!targetId || targetId.length < 4) {
                 setNickResult(null);
                 setNickError(null);

@@ -23,28 +23,31 @@ export default function RefundPolicy() {
 
                     <section>
                         <h2 className="text-xl font-bold text-white mb-3">2. Kondisi Pengembalian Dana (Refund)</h2>
-                        <p>
-                            Pengembalian dana hanya akan diproses jika terjadi kondisi berikut:
-                        </p>
                         <ul className="list-disc pl-5 space-y-2 mt-2">
-                            <li>Transaksi dinyatakan GAGAL oleh sistem kami, namun saldo Anda telah terpotong.</li>
-                            <li>Produk sedang gangguan atau stok kosong dalam waktu yang lama (lebih dari 24 jam) setelah pembayaran sukses.</li>
-                            <li>Terjadi kesalahan sistem fatal yang menyebabkan produk tidak terkirim.</li>
+                            <li>
+                                <b>Anggota (Login):</b> Jika transaksi dinyatakan GAGAL oleh sistem provider game namun saldo Anda telah terpotong, dana akan dikembalikan secara <b>OTOMATIS</b> ke dalam <b>Saldo Akun (Balance)</b> Grimoire Coins Anda. Saldo ini dapat digunakan kembali untuk bertransaksi kapan saja tanpa potongan biaya.
+                            </li>
+                            <li>
+                                <b>Tamu (Guest):</b> Jika Anda bertransaksi tanpa login dan terjadi kegagalan sistem, status transaksi akan ditandai sebagai <span className="text-yellow-500">REFUND NEEDED</span>. Anda wajib menghubungi Customer Service untuk proses verifikasi manual. Pengembalian dana mungkin diberikan dalam bentuk Kode Voucher dengan nilai setara.
+                            </li>
+                            <li>
+                                Produk sedang gangguan atau stok kosong dalam waktu yang lama (lebih dari 24 jam) setelah pembayaran sukses.
+                            </li>
                         </ul>
                     </section>
 
                     <section>
-                        <h2 className="text-xl font-bold text-white mb-3">3. Proses Pengajuan Refund</h2>
+                        <h2 className="text-xl font-bold text-white mb-3">3. Proses Pengajuan Refund (Khusus Guest)</h2>
                         <p>
-                            Jika Anda mengalami masalah seperti poin di atas, silakan hubungi Customer Service kami melalui WhatsApp dengan menyertakan:
+                            Bagi pengguna yang tidak login (Guest), silakan hubungi Customer Service kami melalui WhatsApp dengan menyertakan detail berikut untuk klaim refund manual:
                         </p>
                         <ul className="list-disc pl-5 space-y-2 mt-2">
                             <li>Nomor Invoice / Kode Transaksi.</li>
                             <li>Bukti Transfer / Screenshot Pembayaran.</li>
                             <li>Detail Masalah.</li>
                         </ul>
-                        <p className="mt-2">
-                            Tim kami akan melakukan pengecekan dalam waktu maksimal 1x24 jam kerja.
+                        <p className="mt-2 text-yellow-500 bg-yellow-500/10 p-4 rounded-lg border border-yellow-500/20">
+                            <b>Saran:</b> Kami sangat menyarankan Anda untuk <b>Mendaftar/Login</b> sebelum bertransaksi agar jika terjadi kegagalan, saldo dapat kembali otomatis (Instant Refund).
                         </p>
                     </section>
 

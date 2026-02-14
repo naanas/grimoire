@@ -33,9 +33,8 @@ export default function TripaySettingsPage() {
 
     const handleSave = async () => {
         setSaving(true);
+        let errorCount = 0;
         try {
-            // Save each field individually (since our API is key-value based)
-            // Ideally backend supports bulk update, but loop is fine for now
             const keysToSave = [
                 'TRIPAY_MODE',
                 'TRIPAY_SB_API_KEY', 'TRIPAY_SB_PRIVATE_KEY', 'TRIPAY_SB_MERCHANT_CODE',
@@ -43,14 +42,29 @@ export default function TripaySettingsPage() {
             ];
 
             for (const key of keysToSave) {
+                // Allow saving empty strings (backend now supports it)
                 if (config[key] !== undefined) {
-                    await api.put('/config', { key, value: config[key] });
+                    try {
+                        await api.put('/config', { key, value: config[key] });
+                    } catch (e) {
+                        console.error(`Failed to save ${key}`, e);
+                        errorCount++;
+                    }
                 }
             }
 
-            toast.success('Konfigurasi berhasil disimpan!');
+            if (errorCount === 0) {
+                toast.success('Konfigurasi berhasil disimpan!');
+            } else if (errorCount < keysToSave.length) {
+                toast.success(`Disimpan dengan ${errorCount} peringatan.`);
+            } else {
+                toast.error('Gagal menyimpan semua konfigurasi.');
+            }
+
+            // Refresh to ensure state is synced
+            fetchConfig();
         } catch (error) {
-            toast.error('Gagal menyimpan konfigurasi');
+            toast.error('Terjadi kesalahan sistem.');
         } finally {
             setSaving(false);
         }

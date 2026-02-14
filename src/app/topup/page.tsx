@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Loader2, Wallet, CreditCard, CheckCircle, XCircle, Zap, ShieldAlert, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
-
+import { PAYMENT_CHANNELS, PaymentChannel } from '@/lib/PaymentChannels';
 
 const DEPOSIT_AMOUNTS = [10000, 25000, 50000, 100000, 250000, 500000];
 
@@ -25,7 +25,8 @@ export default function TopupPage() {
     const [loading, setLoading] = useState(true);
 
     const [amount, setAmount] = useState<number | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState('QRIS');
+    const [paymentMethod, setPaymentMethod] = useState(''); // method: 'va', 'qris', etc
+    const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState('');
@@ -77,6 +78,11 @@ export default function TopupPage() {
             return;
         }
 
+        if (!selectedChannel) {
+            setError("Please select a payment channel!");
+            return;
+        }
+
         setIsProcessing(true);
         setError('');
 
@@ -84,7 +90,7 @@ export default function TopupPage() {
             const res = await api.post('/deposit', {
                 userId: user.id,
                 amount,
-                paymentMethod
+                paymentMethod: selectedChannel.code // Sending Code as requested/mapped in backend
             });
 
             if (res.data.success) {
@@ -272,24 +278,50 @@ export default function TopupPage() {
                                 <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">II</span>
                                 SELECT CHANNEL
                             </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                {[
-                                    { id: 'QRIS', label: 'QRIS', icon: Zap },
-                                    { id: 'VA_BCA', label: 'BCA VA', icon: CreditCard },
-                                    { id: 'VA_MANDIRI', label: 'Mandiri VA', icon: CreditCard }
-                                ].map(method => (
-                                    <div
-                                        key={method.id}
-                                        onClick={() => setPaymentMethod(method.id)}
-                                        className={`
-                                            cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all
-                                            ${paymentMethod === method.id
-                                                ? 'bg-white text-black border-white'
-                                                : 'bg-black border-gray-800 hover:border-gray-600 text-gray-500 hover:text-white'}
-                                        `}
-                                    >
-                                        <method.icon size={20} />
-                                        <span className="text-xs font-bold uppercase tracking-wider">{method.label}</span>
+
+                            <div className="space-y-6">
+                                {Object.entries(PAYMENT_CHANNELS.reduce((acc, ch) => {
+                                    if (!acc[ch.group]) acc[ch.group] = [];
+                                    acc[ch.group].push(ch);
+                                    return acc;
+                                }, {} as Record<string, PaymentChannel[]>)).map(([group, channels]) => (
+                                    <div key={group}>
+                                        <h4 className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-3 pl-2 border-l-2 border-[var(--blood-red)]">{group}</h4>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                            {channels.map(channel => (
+                                                <div
+                                                    key={channel.code}
+                                                    onClick={() => {
+                                                        const isBelowMin = amount && amount < (channel.minAmount || 0);
+                                                        if (!isBelowMin) {
+                                                            setSelectedChannel(channel);
+                                                            setPaymentMethod(channel.method);
+                                                        }
+                                                    }}
+                                                    className={`
+                                                        cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all relative overflow-hidden
+                                                        ${selectedChannel?.code === channel.code
+                                                            ? 'bg-red-950/20 border-[var(--blood-red)] text-white'
+                                                            : 'bg-black border-gray-800 hover:border-gray-600 text-gray-500 hover:text-white'}
+                                                        ${(amount && amount < (channel.minAmount || 0)) ? 'opacity-30 grayscale cursor-not-allowed' : ''}
+                                                    `}
+                                                    style={{ clipPath: "polygon(5% 0, 100% 0, 100% 90%, 95% 100%, 0 100%, 0 10%)" }}
+                                                >
+                                                    <div className="flex items-center justify-center h-8">
+                                                        {channel.group === 'QRIS' ? <Zap size={24} /> :
+                                                            channel.group === 'Retail' ? <CreditCard size={20} /> :
+                                                                <CreditCard size={20} />}
+                                                    </div>
+                                                    <span className="text-[10px] font-bold uppercase tracking-wider text-center">{channel.name}</span>
+
+                                                    {selectedChannel?.code === channel.code && (
+                                                        <div className="absolute top-1 right-1">
+                                                            <CheckCircle size={10} className="text-[var(--blood-red)]" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
                                 ))}
                             </div>

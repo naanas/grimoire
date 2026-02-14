@@ -363,7 +363,15 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         <div className="absolute top-0 left-0 w-full h-1 bg-[var(--blood-red)] shadow-[0_0_10px_red]"></div>
 
                         <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
-                            <span className="text-gray-500 text-xs uppercase tracking-widest">Base Price</span>
+                            <span className="text-gray-500 text-xs uppercase tracking-widest">Invoices</span>
+                            <span className="font-mono text-white text-sm">{result.invoice}</span>
+                        </div>
+                        <div className="flex justify-between items-start py-4 border-b border-gray-900 border-dashed">
+                            <span className="text-gray-500 text-xs uppercase tracking-widest">Item</span>
+                            <span className="text-white font-bold text-sm text-right flex-1 ml-4">{result.productName}</span>
+                        </div>
+                        <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
+                            <span className="text-gray-500 text-xs uppercase tracking-widest">Item Price</span>
                             <span className="text-white font-mono text-sm">Rp {(result.basePrice || (result.amount - (result.adminFee || 0) + (result.discountAmount || 0))).toLocaleString()}</span>
                         </div>
 
@@ -374,12 +382,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             </div>
                         )}
 
-                        {result.adminFee > 0 && (
-                            <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed text-blue-400">
-                                <span className="text-xs uppercase tracking-widest">Admin Fee ({result.paymentName || 'Gateway'})</span>
-                                <span className="font-mono text-sm">+ Rp {result.adminFee.toLocaleString()}</span>
-                            </div>
-                        )}
+                        <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed text-blue-400">
+                            <span className="text-xs uppercase tracking-widest">Admin Fee ({result.paymentName || 'Gateway'})</span>
+                            <span className="font-mono text-sm">+ Rp {(result.adminFee || 0).toLocaleString()}</span>
+                        </div>
 
                         {/* PAYMENT DETAILS (EMBEDDED) */}
                         {(result.status === 'PENDING' || !result.status) && (

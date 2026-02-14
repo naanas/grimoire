@@ -254,7 +254,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             paymentNo: trx.paymentNo,
                             paymentName: trx.paymentChannel || trx.paymentMethod,
                             status: trx.status || 'PENDING',
-                            expired: trx.expired // Assuming backend sends this or we infer
+                            adminFee: trx.adminFee || 0,
+                            discountAmount: trx.discountAmount || 0,
+                            sn: trx.sn,
+                            expired: trx.expired
                         });
                     }
                 })
@@ -274,12 +277,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     const checkRes = await api.post(`/check-status/${result.id || urlTrxId}`);
                     console.log("📩 Status Response:", checkRes.data);
                     if (checkRes.data.success) {
-                        const newStatus = checkRes.data.data.status;
-                        if (newStatus !== result.status) {
-                            console.log("✅ Status Changed!", newStatus);
-                            setResult((prev: any) => ({ ...prev, status: newStatus }));
+                        const trx = checkRes.data.data;
+                        if (trx.status !== result.status || trx.sn !== result.sn) {
+                            console.log("✅ Transaction Updated!", trx.status);
+                            setResult(trx);
                         }
-                        if (newStatus === 'SUCCESS' || newStatus === 'FAILED') {
+                        if (trx.status === 'SUCCESS' || trx.status === 'FAILED' || trx.status === 'EXPIRED') {
                             clearInterval(interval);
                         }
                     }

@@ -8,6 +8,7 @@ import BackgroundEffects from './BackgroundEffects';
 import ChatWidget from './ChatWidget';
 import NavigationLoader from './NavigationLoader';
 import IdleLogout from './IdleLogout';
+import { Toaster } from 'react-hot-toast';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -15,6 +16,23 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
 
     return (
         <>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 3000,
+                    style: {
+                        background: '#171717',
+                        color: '#fff',
+                        border: '1px solid #262626',
+                    },
+                    success: {
+                        iconTheme: {
+                            primary: '#ef4444', // Blood red for success matches theme
+                            secondary: '#fff',
+                        },
+                    },
+                }}
+            />
             <IdleLogout />
             {isAdmin ? (
                 children

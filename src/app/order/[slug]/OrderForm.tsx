@@ -73,6 +73,44 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         setVoucherCode('');
     }, [selectedProduct]);
 
+    // Dynamic Fee Sync
+    const [dynamicFee, setDynamicFee] = useState<number | null>(null);
+    const [loadingFee, setLoadingFee] = useState(false);
+
+    useEffect(() => {
+        const fetchFee = async () => {
+            if (!selectedProduct || !selectedChannel) {
+                setDynamicFee(null);
+                return;
+            }
+
+            // Only sync for TRX/Tripay channels (or implement general if needed)
+            // For now, let's hit our proxy whenever a channel is selected
+            setLoadingFee(true);
+            try {
+                const amount = voucherStats.isValid ? voucherStats.finalPrice : selectedProduct.price_sell;
+                const res = await api.get(`/transaction/calculate-fee`, {
+                    params: { code: selectedChannel.code, amount }
+                });
+
+                if (res.data.success) {
+                    const realFee = res.data.data.total_fee.merchant;
+                    setDynamicFee(realFee);
+                    console.log(`📡 [DYNAMIC-FEE] Sync: Rp${realFee}`);
+                }
+            } catch (err) {
+                console.error("Fee Sync Failed, using local fallback");
+                // Fallback to local calculation if proxy fails
+                const price = voucherStats.isValid ? voucherStats.finalPrice : selectedProduct.price_sell;
+                const fallback = Math.floor((selectedChannel.flatFee || 0) + ((selectedChannel.percentFee || 0) / 100 * price));
+                setDynamicFee(fallback);
+            } finally {
+                setLoadingFee(false);
+            }
+        };
+
+        fetchFee();
+    }, [selectedProduct, selectedChannel, voucherStats.isValid, voucherStats.finalPrice]);
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Initialize expanded sections when products change
@@ -842,16 +880,13 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         <div className="text-right w-full md:w-auto md:text-left">
                             <p className="text-gray-500 text-[10px] uppercase tracking-widest mb-1">Total Payment</p>
                             <div className="flex flex-col items-end md:items-start">
-                                {selectedChannel && (selectedChannel.flatFee || selectedChannel.percentFee) && (
+                                {selectedChannel && (dynamicFee !== null || loadingFee) && (
                                     <span suppressHydrationWarning className="text-xs text-red-400 font-mono mb-1">
-                                        + Fee Rp {Math.floor((selectedChannel.flatFee || 0) + ((selectedChannel.percentFee || 0) / 100 * (voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)))).toLocaleString('id-ID')}
+                                        {loadingFee ? '+ Calculating Fee...' : `+ Fee Rp ${dynamicFee?.toLocaleString('id-ID')}`}
                                     </span>
                                 )}
                                 <p suppressHydrationWarning className="text-4xl font-black text-[var(--blood-red)] font-[family-name:var(--font-cinzel)]">
-                                    Rp {(
-                                        (voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)) +
-                                        (selectedChannel ? Math.floor((selectedChannel.flatFee || 0) + ((selectedChannel.percentFee || 0) / 100 * (voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)))) : 0)
-                                    ).toLocaleString('id-ID')}
+                                    Rp {((voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)) + (dynamicFee || 0)).toLocaleString('id-ID')}
                                 </p>
                             </div>
                         </div>

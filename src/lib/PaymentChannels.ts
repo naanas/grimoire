@@ -18,7 +18,8 @@ export const PAYMENT_CHANNELS: PaymentChannel[] = [
         group: 'QRIS',
         logo: '/payment/qris.png',
         minAmount: 1000,
-        percentFee: 0.7
+        percentFee: 0.7,
+        flatFee: 750
     },
     // Virtual Accounts
     {

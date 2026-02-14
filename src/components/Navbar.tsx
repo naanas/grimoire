@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { Menu, X, Flame } from 'lucide-react';
@@ -34,9 +35,19 @@ export default function Navbar() {
                     <div className="px-8 py-3 flex items-center justify-between relative z-50">
 
                         {/* LEFT WING: Logo */}
-                        <Link href="/" className="flex items-center group relative">
+                        <Link href="/" className="flex items-center group relative gap-3">
                             <div className="absolute -inset-4 bg-[var(--blood-red)]/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <Flame className="text-[var(--blood-red)] mr-2 animate-pulse" size={24} />
+
+                            <div className="relative w-12 h-12">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Grimoire Logo"
+                                    fill
+                                    className="object-contain drop-shadow-[0_0_10px_rgba(187,10,30,0.6)]"
+                                    priority
+                                />
+                            </div>
+
                             <span className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-white tracking-[0.2em] group-hover:text-[var(--blood-red)] transition-colors uppercase">
                                 Grimoire
                             </span>

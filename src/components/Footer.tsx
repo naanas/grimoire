@@ -16,6 +16,8 @@ export default function Footer() {
                     <a href="/terms-of-service" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">Terms of Service</a>
                     <span className="text-stone-800">|</span>
                     <a href="/refund-policy" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">Refund Policy</a>
+                    <span className="text-stone-800">|</span>
+                    <a href="/about-us" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">About Us</a>
                 </div>
             </div>
         </footer>

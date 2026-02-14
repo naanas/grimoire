@@ -52,7 +52,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { icon: Package, label: 'Products', href: '/admin/products' },
         { icon: Tag, label: 'Categories', href: '/admin/categories' },
         { icon: MessageCircle, label: 'Support Chat', href: '/admin/chat' },
-        { icon: MessageCircle, label: 'Support Chat', href: '/admin/chat' },
         { icon: SettingsIcon, label: 'Settings', href: '/admin/settings' },
     ];
 

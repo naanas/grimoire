@@ -44,10 +44,10 @@ export default function InfoSection() {
                             <span>📍</span> <span>Indonesia, Jakarta Timur</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span>📧</span> <a href="mailto:support@grimoire.com" className="hover:text-yellow-500">support@grimoire.com</a>
+                            <span>📧</span> <a href="mailto:semicolonnn@gmail.com" className="hover:text-yellow-500">semicolonnn@gmail.com</a>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span>📞</span> <a href="https://wa.me/6281234567890" className="hover:text-yellow-500">+62 821-3107-7460</a>
+                            <span>📞</span> <a href="https://wa.me/6282131077460" className="hover:text-yellow-500">+62 821-3107-7460</a>
                         </div>
                     </div>
                 </div>

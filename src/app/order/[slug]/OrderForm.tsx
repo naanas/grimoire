@@ -13,17 +13,37 @@ const containerVariants: Variants = {
     show: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.15
+            staggerChildren: 0.1,
+            delayChildren: 0.2
         }
     }
 };
 
 const sectionVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 20 },
     show: {
         opacity: 1,
         y: 0,
-        transition: { type: 'spring' as const, stiffness: 50, damping: 20 }
+        transition: { type: 'tween', ease: 'easeOut', duration: 0.4 }
+    }
+};
+
+const productGridVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.05
+        }
+    }
+};
+
+const productItemVariants: Variants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    show: {
+        opacity: 1,
+        scale: 1,
+        transition: { type: 'tween', ease: 'backOut', duration: 0.3 }
     }
 };
 
@@ -691,36 +711,40 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                 return acc;
                                                             }, {} as Record<string, Product[]>)).map(([groupName, groupProducts]) => (
                                                                 <div key={groupName} className="space-y-3 mt-4 first:mt-2">
-                                                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+                                                                    <motion.div
+                                                                        variants={productGridVariants}
+                                                                        initial="hidden"
+                                                                        animate="show"
+                                                                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
+                                                                    >
                                                                         {groupProducts.sort((a, b) => a.price_sell - b.price_sell).map(p => (
-                                                                            <div
+                                                                            <motion.div
                                                                                 key={p.id}
+                                                                                variants={productItemVariants}
                                                                                 onClick={() => setSelectedProduct(p)}
                                                                                 className={`
-                                                                                    cursor-pointer relative px-3 py-2 flex items-center justify-between border rounded-md transition-all duration-200
+                                                                                    cursor-pointer relative px-3 py-3 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
                                                                                     ${selectedProduct?.id === p.id
-                                                                                        ? 'bg-[#2a0a0a] border-[var(--blood-red)] shadow-[0_0_10px_rgba(187,10,30,0.2)]'
-                                                                                        : 'bg-[#0f0f0f] border-gray-800 hover:border-gray-600 hover:bg-[#1f1f1f]'}
+                                                                                        ? 'bg-[#2a0a0a] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)] ring-opacity-50'
+                                                                                        : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
                                                                                 `}
                                                                             >
-                                                                                <div className="flex flex-col">
-                                                                                    <span className="text-[10px] sm:text-xs font-bold text-gray-300 leading-tight">
+                                                                                {/* Subtle Glow Background for Selected */}
+                                                                                {selectedProduct?.id === p.id && (
+                                                                                    <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 blur-xl"></div>
+                                                                                )}
+
+                                                                                <div className="flex flex-col items-center z-10 text-center gap-1">
+                                                                                    <span className={`text-[10px] sm:text-xs font-bold leading-tight ${selectedProduct?.id === p.id ? 'text-gray-100' : 'text-gray-400 group-hover/item:text-gray-200'}`}>
                                                                                         {p.name}
                                                                                     </span>
-                                                                                </div>
-
-                                                                                <div className="text-right">
-                                                                                    <span className={`text-xs sm:text-sm font-bold font-mono ${selectedProduct?.id === p.id ? 'text-white' : 'text-[var(--blood-red)]'}`}>
+                                                                                    <span className={`text-xs sm:text-sm font-mono font-bold ${selectedProduct?.id === p.id ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
                                                                                         {p.price_sell.toLocaleString()}
                                                                                     </span>
                                                                                 </div>
-
-                                                                                {selectedProduct?.id === p.id && (
-                                                                                    <div className="absolute top-0 right-0 w-2 h-2 bg-[var(--blood-red)] rounded-bl-md shadow-[0_0_5px_red]"></div>
-                                                                                )}
-                                                                            </div>
+                                                                            </motion.div>
                                                                         ))}
-                                                                    </div>
+                                                                    </motion.div>
                                                                 </div>
                                                             ))}
                                                         </div>

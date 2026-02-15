@@ -38,8 +38,8 @@ export default function Navbar() {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
                 className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-300 ${scrolled
-                        ? 'bg-black/95 border-red-900/50 py-3 backdrop-blur-md'
-                        : 'bg-gradient-to-b from-black/80 to-transparent border-white/5 py-5 backdrop-blur-sm'
+                    ? 'bg-black/95 border-red-900/50 py-3 backdrop-blur-md'
+                    : 'bg-gradient-to-b from-black/80 to-transparent border-white/5 py-5 backdrop-blur-sm'
                     }`}
             >
                 {/* Decorative Top Line */}
@@ -116,6 +116,9 @@ export default function Navbar() {
 
                                     {/* Dropdown Mini (Actions) */}
                                     <div className="absolute top-full right-0 mt-2 w-32 bg-black border border-white/10 p-1 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all transform origin-top-right z-50">
+                                        <Link href="/profile" className="block px-3 py-2 text-[10px] uppercase font-bold text-stone-300 hover:bg-red-900/30 hover:text-white transition-colors">
+                                            Profile
+                                        </Link>
                                         <Link href="/topup" className="block px-3 py-2 text-[10px] uppercase font-bold text-stone-300 hover:bg-red-900/30 hover:text-white transition-colors">
                                             Top Up
                                         </Link>
@@ -227,13 +230,16 @@ export default function Navbar() {
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-3">
+                                            <Link href="/profile" onClick={() => setIsOpen(false)} className="bg-white text-black text-center py-3 text-xs font-black uppercase tracking-widest hover:bg-stone-200">
+                                                Profile
+                                            </Link>
                                             <Link href="/topup" onClick={() => setIsOpen(false)} className="bg-white text-black text-center py-3 text-xs font-black uppercase tracking-widest hover:bg-stone-200">
                                                 Top Up
                                             </Link>
-                                            <button onClick={handleLogout} className="border border-red-900 text-red-500 text-center py-3 text-xs font-black uppercase tracking-widest hover:bg-red-950/30">
-                                                Log Out
-                                            </button>
                                         </div>
+                                        <button onClick={handleLogout} className="w-full border border-red-900 text-red-500 text-center py-3 text-xs font-black uppercase tracking-widest hover:bg-red-950/30">
+                                            Log Out
+                                        </button>
                                     </div>
                                 ) : (
                                     <div className="flex flex-col gap-3">

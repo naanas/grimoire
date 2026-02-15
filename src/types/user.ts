@@ -1,9 +1,10 @@
 export interface User {
-    id: string;
+    id: number;
     name: string;
     email: string;
-    role: 'USER' | 'ADMIN';
+    role: string;
     balance: number;
+    phoneNumber?: string;
     createdAt?: string;
     updatedAt?: string;
 }

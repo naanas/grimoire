@@ -31,12 +31,17 @@ export default function GamesPage() {
     }, []);
 
     const [searchQuery, setSearchQuery] = useState('');
-    const [activeFilter, setActiveFilter] = useState('All');
+    const [activeFilter, setActiveFilter] = useState('Top Up Game');
 
     // Simple filter logic (Tag data not real yet, but prepared)
     const filteredGames = games.filter(g => {
         const matchesSearch = g.name.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesFilter = activeFilter === 'All' || g.name.toLowerCase().includes(activeFilter.toLowerCase()); // Primitive tag matching for now
+
+        // Regrouping Logic: 'Voucher' vs 'Top Up Game'
+        const isVoucher = g.name.toLowerCase().includes('voucher') || g.slug.toLowerCase().includes('voucher');
+
+        const matchesFilter = activeFilter === 'Voucher' ? isVoucher : !isVoucher;
+
         return matchesSearch && matchesFilter;
     });
 
@@ -102,11 +107,11 @@ export default function GamesPage() {
 
                     {/* Filter Tags */}
                     <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto scrollbar-hide">
-                        {['All', 'Mobile', 'PC', 'FPS', 'RPG'].map((tag) => (
+                        {['Top Up Game', 'Voucher'].map((tag) => (
                             <button
                                 key={tag}
                                 onClick={() => setActiveFilter(tag)}
-                                className={`px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all whitespace-nowrap
+                                className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all whitespace-nowrap
                                     ${activeFilter === tag
                                         ? 'bg-[var(--blood-red)] text-white shadow-[0_0_10px_rgba(187,10,30,0.5)]'
                                         : 'bg-black/50 text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'

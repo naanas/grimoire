@@ -49,7 +49,13 @@ export default function Home() {
       <div className="flex flex-col gap-12 w-full items-center z-10 px-4 md:px-0 mb-12">
         <GameSection title="Terlaris" icon="🔥" games={bestSelling} loading={loading} />
 
-        <GameSection title="Populer" icon="👾" games={popular} loading={loading} />
+        <GameSection
+          title="Populer"
+          icon="👾"
+          games={popular.slice(0, 12)} // Limit to 2 rows (6x2)
+          loading={loading}
+          viewAllLink="/games"
+        />
       </div>
 
       {/* Footer Info Section */}

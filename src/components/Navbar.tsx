@@ -89,22 +89,35 @@ export default function Navbar() {
                         <div className="hidden md:flex items-center">
                             {user ? (
                                 <div className="flex items-center gap-6">
-                                    <div className="text-right">
-                                        <div className="text-[10px] text-stone-500 uppercase tracking-wider">Soul Balance</div>
-                                        <div className="text-sm font-bold text-[var(--blood-red)] font-mono text-glow">Rp {user.balance?.toLocaleString() || 0}</div>
+                                    <div className="flex flex-col items-end mr-2">
+                                        <span className="text-[10px] text-stone-500 uppercase tracking-widest leading-none mb-1">Soul Balance</span>
+                                        <span className="text-base font-black text-[var(--blood-red)] font-mono text-glow leading-none">
+                                            Rp {user.balance?.toLocaleString() || 0}
+                                        </span>
                                     </div>
 
-                                    <div className="h-8 w-[1px] bg-white/10 mx-2"></div>
+                                    <div className="h-8 w-[1px] bg-white/10"></div>
 
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
-                                        <button onClick={handleLogout} className="text-[10px] bg-[var(--dark-blood)]/30 hover:bg-[var(--dark-blood)] border border-[var(--dark-blood)]/50 text-red-500 px-2 py-1 uppercase tracking-widest transition-all">
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[10px] text-stone-500 uppercase tracking-widest text-right">Welcome</span>
+                                            <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
+                                        </div>
+
+                                        <button
+                                            onClick={handleLogout}
+                                            className="text-[10px] border border-red-900/30 text-red-500 hover:text-red-400 px-3 py-1 uppercase tracking-widest transition-all hover:bg-red-900/10 rounded-sm"
+                                        >
                                             Exile
                                         </button>
+
+                                        <Link
+                                            href="/topup"
+                                            className="bg-white text-black hover:bg-[var(--blood-red)] hover:text-white px-5 py-2 font-black text-xs uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group shadow-[0_0_10px_rgba(255,255,255,0.2)] hover:shadow-[0_0_15px_rgba(187,10,30,0.6)]"
+                                        >
+                                            <span className="relative z-10">Topup</span>
+                                        </Link>
                                     </div>
-                                    <Link href="/topup" className="bg-white text-black hover:bg-[var(--blood-red)] hover:text-white px-4 py-2 font-black text-xs uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group">
-                                        <span className="relative z-10">Topup</span>
-                                    </Link>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-6">
@@ -147,6 +160,18 @@ export default function Navbar() {
                         {(user ? ['Home', 'History', 'Games', 'Track', 'Leaderboard'] : ['Home', 'Games', 'Track', 'Leaderboard']).map((item) => (
                             <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-stone-400 hover:text-white uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold" onClick={() => setIsOpen(false)}>{item}</Link>
                         ))}
+
+                        {/* Admin Dashboard Mobile */}
+                        {user?.role === 'ADMIN' && (
+                            <Link
+                                href="/admin"
+                                onClick={() => setIsOpen(false)}
+                                className="text-[var(--blood-red)] hover:text-red-400 uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold flex items-center justify-between"
+                            >
+                                Dashboard
+                                <span className="w-2 h-2 bg-[var(--blood-red)] rounded-full animate-ping"></span>
+                            </Link>
+                        )}
 
                         {/* Auth actions for mobile */}
                         {user ? (

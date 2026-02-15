@@ -20,11 +20,11 @@ const containerVariants: Variants = {
 };
 
 const sectionVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 10 },
     show: {
         opacity: 1,
         y: 0,
-        transition: { type: 'tween', ease: 'easeOut', duration: 0.4 }
+        transition: { type: 'tween', ease: 'easeOut', duration: 0.3 }
     }
 };
 
@@ -33,17 +33,17 @@ const productGridVariants: Variants = {
     show: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.05
+            staggerChildren: 0.02
         }
     }
 };
 
 const productItemVariants: Variants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0 },
     show: {
         opacity: 1,
         scale: 1,
-        transition: { type: 'tween', ease: 'backOut', duration: 0.3 }
+        transition: { type: 'tween', ease: 'easeOut', duration: 0.2 }
     }
 };
 

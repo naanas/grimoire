@@ -61,8 +61,8 @@ export default function Navbar() {
                         {/* DESKTOP MENU */}
                         <div className="hidden md:flex items-center space-x-12">
                             {(user
-                                ? ['Home', 'History', 'Games', 'Leaderboard']
-                                : ['Home', 'Games', 'Leaderboard']
+                                ? ['Home', 'History', 'Games', 'Track', 'Leaderboard']
+                                : ['Home', 'Games', 'Track', 'Leaderboard']
                             ).map((item) => (
                                 <Link
                                     key={item}
@@ -144,7 +144,7 @@ export default function Navbar() {
                         className="absolute top-full left-0 right-0 mt-4 bg-[var(--void-black)]/90 backdrop-blur-xl border border-[var(--dark-blood)] p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
                     >
                         {/* Mobile Menu Items */}
-                        {(user ? ['Home', 'History', 'Games', 'Leaderboard'] : ['Home', 'Games', 'Leaderboard']).map((item) => (
+                        {(user ? ['Home', 'History', 'Games', 'Track', 'Leaderboard'] : ['Home', 'Games', 'Track', 'Leaderboard']).map((item) => (
                             <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-stone-400 hover:text-white uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold" onClick={() => setIsOpen(false)}>{item}</Link>
                         ))}
 

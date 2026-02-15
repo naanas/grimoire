@@ -39,11 +39,11 @@ const productGridVariants: Variants = {
 };
 
 const productItemVariants: Variants = {
-    hidden: { opacity: 0, y: 10 },
+    hidden: { opacity: 0 },
     show: {
         opacity: 1,
-        y: 0,
-        transition: { type: 'tween', ease: 'easeOut', duration: 0.3 }
+        scale: 1,
+        transition: { type: 'tween', ease: 'easeOut', duration: 0.2 }
     }
 };
 
@@ -131,17 +131,24 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
         fetchFee();
     }, [selectedProduct, selectedChannel, voucherStats.isValid, voucherStats.finalPrice]);
-    const [activeTab, setActiveTab] = useState<'TOPUP' | 'VOUCHER'>('TOPUP');
+    const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Initialize expanded sections when products change
     useEffect(() => {
         if (products.length > 0) {
-            const hasVouchers = products.some(p => p.group === 'Voucher' || p.category.name.toLowerCase().includes('voucher'));
-            if (hasVouchers) {
-                // Keep default TOPUP, but we know vouchers exist
-            }
+            const currentVarProducts = products.find(p => p.category.slug === gameSlug);
+            const currentVarName = currentVarProducts?.category?.name || 'Standard';
+            setExpandedSections(prev => prev.length === 0 ? [currentVarName] : prev);
         }
     }, [products, gameSlug]);
+
+    const toggleSection = (name: string) => {
+        setExpandedSections(prev =>
+            prev.includes(name)
+                ? prev.filter(s => s !== name)
+                : [...prev, name]
+        );
+    };
 
 
     const handleApplyVoucher = async () => {
@@ -653,92 +660,106 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[var(--blood-red)]" size={32} /></div>
                     ) : (
                         <div className="space-y-6">
-                            {/* TAB FILTER MENU */}
-                            <div className="flex items-center gap-4 border-b border-gray-800 pb-2 mb-6">
-                                <button
-                                    onClick={() => setActiveTab('TOPUP')}
-                                    className={`relative px-4 py-2 text-sm font-bold uppercase tracking-widest transition-colors ${activeTab === 'TOPUP' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
-                                >
-                                    Top Up Game
-                                    {activeTab === 'TOPUP' && (
-                                        <motion.div layoutId="activeTab" className="absolute bottom-[-9px] left-0 right-0 h-[2px] bg-[var(--blood-red)] shadow-[0_0_10px_red]" />
-                                    )}
-                                </button>
-                                <button
-                                    onClick={() => setActiveTab('VOUCHER')}
-                                    className={`relative px-4 py-2 text-sm font-bold uppercase tracking-widest transition-colors ${activeTab === 'VOUCHER' ? 'text-white' : 'text-gray-500 hover:text-gray-300'}`}
-                                >
-                                    Vouchers
-                                    {activeTab === 'VOUCHER' && (
-                                        <motion.div layoutId="activeTab" className="absolute bottom-[-9px] left-0 right-0 h-[2px] bg-[var(--blood-red)] shadow-[0_0_10px_red]" />
-                                    )}
-                                </button>
-                            </div>
-
-                            {/* Grouping Logic: Filter by Tab -> Group by Variation */}
+                            {/* Grouping Logic: Variation -> Product Group */}
                             {(() => {
-                                const filteredProducts = products.filter(p => {
-                                    const isVoucher = p.group === 'Voucher' || p.category.name.toLowerCase().includes('voucher');
-                                    return activeTab === 'VOUCHER' ? isVoucher : !isVoucher;
-                                });
-
-                                if (filteredProducts.length === 0) {
-                                    return <div className="text-center text-gray-500 py-12 italic">No items available in this category.</div>;
-                                }
-
-                                const grouped = filteredProducts.reduce((acc, product) => {
+                                const grouped = products.reduce((acc, product) => {
                                     const variationName = product.category?.name || 'Standard';
                                     if (!acc[variationName]) acc[variationName] = [];
                                     acc[variationName].push(product);
                                     return acc;
                                 }, {} as Record<string, Product[]>);
 
-                                return Object.entries(grouped).map(([variationName, variationProducts]) => (
-                                    <div key={variationName} className="space-y-4">
-                                        {/* Optional Header if multiple variations exist in same tab */}
-                                        {Object.keys(grouped).length > 1 && (
-                                            <h4 className="text-xs text-gray-500 uppercase tracking-widest font-bold border-l-2 border-[var(--blood-red)] pl-3">
-                                                {variationName.replace('Top Up', '').replace('Voucher', '').trim() || 'Items'}
-                                            </h4>
-                                        )}
+                                const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]));
+                                const hasMultipleVariations = sortedEntries.length > 1;
 
-                                        <motion.div
-                                            variants={productGridVariants}
-                                            initial="hidden"
-                                            animate="show"
-                                            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"
-                                        >
-                                            {variationProducts.sort((a, b) => a.price_sell - b.price_sell).map(p => (
-                                                <motion.div
-                                                    key={p.id}
-                                                    variants={productItemVariants}
-                                                    onClick={() => setSelectedProduct(p)}
-                                                    className={`
-                                                        cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
-                                                        ${selectedProduct?.id === p.id
-                                                            ? 'bg-[#2a0a0a] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)] ring-opacity-50'
-                                                            : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
-                                                    `}
+                                return sortedEntries.map(([variationName, variationProducts]) => {
+                                    const isExpanded = !hasMultipleVariations || expandedSections.includes(variationName);
+
+                                    return (
+                                        <div key={variationName} className={`rounded-xl border ${hasMultipleVariations ? 'border-gray-800' : 'border-transparent'}`}>
+
+                                            {/* Variation Header (Clickable if multiple) */}
+                                            {hasMultipleVariations && (
+                                                <button
+                                                    onClick={() => toggleSection(variationName)}
+                                                    className="w-full flex items-center justify-between p-4 bg-gray-900/20 hover:bg-gray-900/30 transition-colors rounded-t-xl"
                                                 >
-                                                    {/* Subtle Glow Background for Selected */}
-                                                    {selectedProduct?.id === p.id && (
-                                                        <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 blur-xl"></div>
-                                                    )}
-
-                                                    <div className="flex flex-col items-center z-10 text-center gap-1.5">
-                                                        <span className={`text-[10px] sm:text-xs font-bold leading-tight ${selectedProduct?.id === p.id ? 'text-gray-100' : 'text-gray-400 group-hover/item:text-gray-200'}`}>
-                                                            {p.name}
-                                                        </span>
-                                                        <span className={`text-sm sm:text-base font-mono font-bold ${selectedProduct?.id === p.id ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
-                                                            {p.price_sell.toLocaleString()}
-                                                        </span>
+                                                    <div className="flex items-center gap-3">
+                                                        <Globe size={16} className="text-[var(--blood-red)]" />
+                                                        <span className="text-sm font-bold text-gray-200 uppercase tracking-widest">{variationName}</span>
+                                                        <span className="text-xs text-gray-600 font-mono">({variationProducts.length} Items)</span>
                                                     </div>
-                                                </motion.div>
-                                            ))}
-                                        </motion.div>
-                                    </div>
-                                ));
+                                                    {isExpanded ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
+                                                </button>
+                                            )}
+
+                                            {/* Products Content */}
+                                            <AnimatePresence>
+                                                {isExpanded && (
+                                                    <motion.div
+                                                        initial={{ height: 0, opacity: 0 }}
+                                                        animate={{ height: 'auto', opacity: 1 }}
+                                                        exit={{ height: 0, opacity: 0 }}
+                                                        transition={{ duration: 0.2 }}
+                                                        className="overflow-hidden"
+                                                    >
+                                                        <div className={`${hasMultipleVariations ? 'p-4 pt-0 border-t border-gray-800/50' : ''}`}>
+                                                            {/* Sub-Group by Product Field (Diamonds, etc) */}
+                                                            {Object.entries(variationProducts.reduce((acc, product) => {
+                                                                const group = product.group || 'Top Up';
+                                                                if (!acc[group]) acc[group] = [];
+                                                                acc[group].push(product);
+                                                                return acc;
+                                                            }, {} as Record<string, Product[]>)).map(([groupName, groupProducts]) => (
+                                                                <div key={groupName} className="space-y-3 mt-4 first:mt-2">
+                                                                    <motion.div
+                                                                        variants={productGridVariants}
+                                                                        initial="hidden"
+                                                                        animate="show"
+                                                                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
+                                                                    >
+                                                                        {groupProducts.sort((a, b) => a.price_sell - b.price_sell).map(p => (
+                                                                            <motion.div
+                                                                                key={p.id}
+                                                                                variants={productItemVariants}
+                                                                                onClick={() => setSelectedProduct(p)}
+                                                                                className={`
+                                                                                    cursor-pointer relative px-3 py-3 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
+                                                                                    ${selectedProduct?.id === p.id
+                                                                                        ? 'bg-[#2a0a0a] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)] ring-opacity-50'
+                                                                                        : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
+                                                                                `}
+                                                                            >
+                                                                                {/* Subtle Glow Background for Selected */}
+                                                                                {selectedProduct?.id === p.id && (
+                                                                                    <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 blur-xl"></div>
+                                                                                )}
+
+                                                                                <div className="flex flex-col items-center z-10 text-center gap-1">
+                                                                                    <span className={`text-[10px] sm:text-xs font-bold leading-tight ${selectedProduct?.id === p.id ? 'text-gray-100' : 'text-gray-400 group-hover/item:text-gray-200'}`}>
+                                                                                        {p.name}
+                                                                                    </span>
+                                                                                    <span className={`text-xs sm:text-sm font-mono font-bold ${selectedProduct?.id === p.id ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
+                                                                                        {p.price_sell.toLocaleString()}
+                                                                                    </span>
+                                                                                </div>
+                                                                            </motion.div>
+                                                                        ))}
+                                                                    </motion.div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
+                                    );
+                                });
                             })()}
+
+                            {products.length === 0 && (
+                                <div className="text-center text-gray-500 py-8">No products available.</div>
+                            )}
                         </div>
                     )}
                 </motion.section>

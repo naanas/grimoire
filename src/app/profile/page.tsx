@@ -152,6 +152,15 @@ export default function ProfilePage() {
                                 </div>
                             </div>
                             <div className="flex gap-3">
+                                {user.role === 'ADMIN' && (
+                                    <Link
+                                        href="/admin"
+                                        className="px-6 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2"
+                                    >
+                                        <ShieldCheck size={14} />
+                                        Admin
+                                    </Link>
+                                )}
                                 <Link
                                     href="/topup"
                                     className="px-6 py-2 bg-red-700 hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest transition-all clip-path-button flex items-center gap-2"
@@ -287,9 +296,9 @@ export default function ProfilePage() {
                                             <td className="px-6 py-4 font-mono">Rp {trx.amount.toLocaleString()}</td>
                                             <td className="px-6 py-4">
                                                 <span className={`px-2 py-1 text-xs font-bold uppercase tracking-wider ${trx.status === 'SUCCESS' ? 'bg-green-900/30 text-green-400 border border-green-900/50' :
-                                                        trx.status === 'PENDING' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-900/50' :
-                                                            trx.status === 'PROCESSING' ? 'bg-blue-900/30 text-blue-400 border border-blue-900/50' :
-                                                                'bg-red-900/30 text-red-400 border border-red-900/50'
+                                                    trx.status === 'PENDING' ? 'bg-yellow-900/30 text-yellow-400 border border-yellow-900/50' :
+                                                        trx.status === 'PROCESSING' ? 'bg-blue-900/30 text-blue-400 border border-blue-900/50' :
+                                                            'bg-red-900/30 text-red-400 border border-red-900/50'
                                                     }`}>
                                                     {trx.status}
                                                 </span>

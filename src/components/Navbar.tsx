@@ -26,10 +26,6 @@ export default function Navbar() {
         { name: 'Leaderboard', href: '/leaderboard' },
     ];
 
-    if (user) {
-        navLinks.splice(1, 0, { name: 'History', href: '/history' });
-    }
-
     return (
         <>
             {/* --- DESKTOP NAVBAR --- */}

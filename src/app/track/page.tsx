@@ -51,14 +51,14 @@ export default function TrackOrderPage() {
     };
 
     return (
-        <div className="max-w-3xl mx-auto flex flex-col justify-center min-h-[60vh]">
+        <div className="max-w-3xl mx-auto flex flex-col justify-start min-h-[100dvh] px-4 pt-40 pb-24 md:pt-48">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
                 className="text-center mb-10"
             >
-                <h1 className="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
+                <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
                     Lacak <span className="text-[var(--blood-red)]">Pesanan</span>
                 </h1>
                 <p className="text-stone-400">Masukkan Nomor Invoice (GRM-XXXX) untuk mengecek status transaksi Anda.</p>
@@ -73,19 +73,21 @@ export default function TrackOrderPage() {
             >
                 <form onSubmit={handleSearch} className="relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-[var(--blood-red)] to-[var(--dark-blood)] rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                    <div className="relative flex items-center bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-3 md:p-4 shadow-2xl gap-4">
-                        <Search className="text-stone-500 w-6 h-6 ml-2" />
-                        <input
-                            type="text"
-                            value={invoiceId}
-                            onChange={(e) => setInvoiceId(e.target.value)}
-                            placeholder="Contoh: GRM-1740004829102"
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-stone-600 px-2 py-3 text-lg font-mono tracking-wide"
-                        />
+                    <div className="relative flex flex-col sm:flex-row items-center bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-3 md:p-4 shadow-2xl gap-3 sm:gap-4">
+                        <div className="flex items-center w-full sm:flex-1 gap-2">
+                            <Search className="text-stone-500 w-5 h-5 md:w-6 md:h-6 shrink-0 ml-1" />
+                            <input
+                                type="text"
+                                value={invoiceId}
+                                onChange={(e) => setInvoiceId(e.target.value)}
+                                placeholder="Contoh: GRM-1740004829102"
+                                className="flex-1 bg-transparent border-none focus:ring-0 text-white placeholder-stone-600 px-2 py-3 text-base md:text-lg font-mono tracking-wide w-full"
+                            />
+                        </div>
                         <button
                             type="submit"
                             disabled={loading || !invoiceId}
-                            className="bg-[var(--blood-red)] hover:bg-[var(--hell-fire)] disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-lg hover:shadow-[0_0_15px_rgba(187,10,30,0.5)]"
+                            className="w-full sm:w-auto bg-[var(--blood-red)] hover:bg-[var(--hell-fire)] disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-bold uppercase tracking-wider transition-all flex justify-center items-center gap-2 shadow-lg hover:shadow-[0_0_15px_rgba(187,10,30,0.5)]"
                         >
                             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Lacak'}
                         </button>
@@ -118,7 +120,8 @@ export default function TrackOrderPage() {
                             className="bg-[#0a0a0a] border border-white/5 rounded-2xl overflow-hidden shadow-2xl relative"
                         >
                             {/* Header Status */}
-                            <div className={`p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 ${getStatusParams(result.status).bg}`}>
+                            {/* Header Status */}
+                            <div className={`p-5 md:p-6 border-b border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 ${getStatusParams(result.status).bg}`}>
                                 <div className="flex items-center gap-4">
                                     <div className={`p-3 rounded-full bg-black/20 ${getStatusParams(result.status).color}`}>
                                         {(() => {
@@ -133,7 +136,7 @@ export default function TrackOrderPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="text-left md:text-right w-full md:w-auto pl-[3.5rem] md:pl-0">
                                     <div className="text-xs text-stone-500 font-mono">{new Date(result.updatedAt || result.createdAt).toLocaleString('id-ID')}</div>
                                     <div className="font-mono font-bold text-white text-lg tracking-wider">{result.invoice}</div>
                                 </div>

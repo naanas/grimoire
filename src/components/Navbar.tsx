@@ -89,9 +89,9 @@ export default function Navbar() {
                         <div className="hidden md:flex items-center">
                             {user ? (
                                 <div className="flex items-center gap-6">
-                                    <div className="flex flex-col items-end mr-2">
-                                        <span className="text-[10px] text-stone-500 uppercase tracking-widest leading-none mb-1">Soul Balance</span>
-                                        <span className="text-base font-black text-[var(--blood-red)] font-mono text-glow leading-none">
+                                    <div className="hidden lg:flex items-center gap-3 mr-2">
+                                        <span className="text-[10px] text-stone-500 uppercase tracking-wider">Soul Balance</span>
+                                        <span className="text-sm font-bold text-[var(--blood-red)] font-mono text-glow">
                                             Rp {user.balance?.toLocaleString() || 0}
                                         </span>
                                     </div>
@@ -99,24 +99,23 @@ export default function Navbar() {
                                     <div className="h-8 w-[1px] bg-white/10"></div>
 
                                     <div className="flex items-center gap-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[10px] text-stone-500 uppercase tracking-widest text-right">Welcome</span>
-                                            <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
+                                        <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
+
+                                        <div className="flex flex-col items-end gap-1">
+                                            <Link
+                                                href="/topup"
+                                                className="bg-white text-black hover:bg-[var(--blood-red)] hover:text-white px-4 py-1.5 font-black text-[10px] uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group shadow-[0_0_10px_rgba(255,255,255,0.2)] hover:shadow-[0_0_15px_rgba(187,10,30,0.6)]"
+                                            >
+                                                <span className="relative z-10">Topup</span>
+                                            </Link>
+
+                                            <button
+                                                onClick={handleLogout}
+                                                className="text-[9px] text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors hover:underline"
+                                            >
+                                                Exile (Logout)
+                                            </button>
                                         </div>
-
-                                        <button
-                                            onClick={handleLogout}
-                                            className="text-[10px] border border-red-900/30 text-red-500 hover:text-red-400 px-3 py-1 uppercase tracking-widest transition-all hover:bg-red-900/10 rounded-sm"
-                                        >
-                                            Exile
-                                        </button>
-
-                                        <Link
-                                            href="/topup"
-                                            className="bg-white text-black hover:bg-[var(--blood-red)] hover:text-white px-5 py-2 font-black text-xs uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group shadow-[0_0_10px_rgba(255,255,255,0.2)] hover:shadow-[0_0_15px_rgba(187,10,30,0.6)]"
-                                        >
-                                            <span className="relative z-10">Topup</span>
-                                        </Link>
                                     </div>
                                 </div>
                             ) : (

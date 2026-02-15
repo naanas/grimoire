@@ -1,209 +1,209 @@
 'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { Menu, X, Flame } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { Menu, X, ChevronDown, User, LogOut, PlusCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
     const { user, logout: handleLogout } = useAuth();
 
+    // Efek mengecil saat di-scroll
+    useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    const navLinks = [
+        { name: 'Home', href: '/' },
+        { name: 'Games', href: '/games' },
+        { name: 'Track', href: '/track' },
+        { name: 'Leaderboard', href: '/leaderboard' },
+    ];
+
+    if (user) {
+        navLinks.splice(1, 0, { name: 'History', href: '/history' });
+    }
+
     return (
-        <motion.nav
-            initial={{ y: -100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "circOut" }}
-            className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-2 px-4 pointer-events-none"
-        >
-            <div className="w-full max-w-7xl relative pointer-events-auto">
-                {/* 
-                  SATANIC SHAPE NAV 
-                  Using clip-path for "Demon Blade" aesthetic
-                */}
+        <>
+            <motion.nav
+                initial={{ y: -100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className={`fixed left-0 right-0 z-50 flex justify-center transition-all duration-300 ${scrolled ? 'top-2' : 'top-4 md:top-6'
+                    } px-4`}
+            >
                 <div
-                    className="w-full bg-[var(--void-black)]/80 backdrop-blur-lg border-b-2 border-[var(--glass-border)] relative shadow-[0_10px_40px_rgba(0,0,0,0.9)]"
-                    style={{
-                        clipPath: "polygon(2% 0, 98% 0, 100% 100%, 80% 100%, 75% 85%, 25% 85%, 20% 100%, 0 100%)",
-                        paddingBottom: "1.5rem" // Space for the cutouts
-                    }}
+                    className={`
+                        relative w-full max-w-6xl 
+                        backdrop-blur-xl bg-[#050505]/80 
+                        border border-white/10 
+                        shadow-[0_8px_32px_-10px_rgba(0,0,0,0.8)]
+                        flex items-center justify-between
+                        transition-all duration-300 ease-in-out
+                        ${scrolled ? 'py-3 px-5 rounded-2xl' : 'py-4 px-6 md:px-8 rounded-3xl'}
+                    `}
                 >
-                    {/* Top Glow Line */}
-                    <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--blood-red)] to-transparent opacity-60"></div>
+                    {/* --- Ambient Glow Effect (Red) --- */}
+                    <div className="absolute inset-x-0 -bottom-px h-[1px] bg-gradient-to-r from-transparent via-[var(--blood-red)]/50 to-transparent blur-sm"></div>
 
-                    <div className="px-8 py-3 flex items-center justify-between relative z-50">
-
-                        {/* LEFT WING: Logo */}
-                        <Link href="/" className="flex items-center group relative gap-3">
-                            <div className="absolute -inset-4 bg-[var(--blood-red)]/10 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                            <div className="relative w-12 h-12">
-                                <Image
-                                    src="/logo.png"
-                                    alt="Grimoire Logo"
-                                    fill
-                                    className="object-contain drop-shadow-[0_0_10px_rgba(187,10,30,0.6)]"
-                                    priority
-                                />
-                            </div>
-
-                            <span className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-black text-white tracking-[0.2em] group-hover:text-[var(--blood-red)] transition-colors uppercase">
-                                Grimoire
-                            </span>
-                        </Link>
-
-                        {/* CENTER EYE (Decorative) */}
-                        <div className="absolute left-1/2 -translate-x-1/2 top-0 md:top-2 w-32 h-10 flex justify-center pointer-events-none opacity-20 md:opacity-100">
-                            <div className="w-[1px] h-full bg-gradient-to-b from-[var(--blood-red)] to-transparent"></div>
+                    {/* 1. LOGO SECTION */}
+                    <Link href="/" className="flex items-center gap-3 group z-10" onClick={() => setIsOpen(false)}>
+                        <div className="relative w-9 h-9 md:w-10 md:h-10 transition-transform group-hover:scale-110 duration-300">
+                            <Image
+                                src="/logo.png"
+                                alt="Grimoire"
+                                fill
+                                className="object-contain drop-shadow-[0_0_15px_rgba(220,20,60,0.4)]"
+                            />
                         </div>
+                        <span className="font-[family-name:var(--font-cinzel)] font-bold text-lg md:text-xl tracking-widest text-white group-hover:text-red-500 transition-colors">
+                            GRIMOIRE
+                        </span>
+                    </Link>
 
-                        {/* DESKTOP MENU */}
-                        <div className="hidden md:flex items-center space-x-12">
-                            {(user
-                                ? ['Home', 'History', 'Games', 'Track', 'Leaderboard']
-                                : ['Home', 'Games', 'Track', 'Leaderboard']
-                            ).map((item) => (
-                                <Link
-                                    key={item}
-                                    href={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                                    className="relative text-xs font-bold uppercase tracking-widest text-stone-500 hover:text-white transition-all group"
-                                >
-                                    <span className="relative z-10">{item}</span>
-                                    <span className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-1 h-1 bg-[var(--blood-red)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
-                                    <span className="absolute -inset-2 bg-[var(--dark-blood)]/20 scale-0 group-hover:scale-100 transition-transform duration-300 -skew-x-12"></span>
-                                </Link>
-                            ))}
-                            {user?.role === 'ADMIN' && (
-                                <Link
-                                    href="/admin"
-                                    className="text-xs font-bold uppercase tracking-widest text-[var(--blood-red)] hover:text-red-400 transition-colors relative"
-                                >
-                                    Dashboard
-                                    <span className="absolute -top-1 -right-2 w-2 h-2 bg-[var(--blood-red)] rounded-full animate-ping"></span>
-                                </Link>
-                            )}
-                        </div>
-
-                        {/* RIGHT WING: Auth / Profile */}
-                        <div className="hidden md:flex items-center">
-                            {user ? (
-                                <div className="flex items-center gap-6">
-                                    <div className="hidden lg:flex items-center gap-3 mr-2">
-                                        <span className="text-[10px] text-stone-500 uppercase tracking-wider">Soul Balance</span>
-                                        <span className="text-sm font-bold text-[var(--blood-red)] font-mono text-glow">
-                                            Rp {user.balance?.toLocaleString() || 0}
-                                        </span>
-                                    </div>
-
-                                    <div className="h-8 w-[1px] bg-white/10"></div>
-
-                                    <div className="flex items-center gap-4">
-                                        <span className="text-sm font-bold text-white tracking-wide uppercase">{user.name}</span>
-
-                                        <div className="flex flex-col items-end gap-1">
-                                            <Link
-                                                href="/topup"
-                                                className="bg-white text-black hover:bg-[var(--blood-red)] hover:text-white px-4 py-1.5 font-black text-[10px] uppercase tracking-widest transition-all clip-path-slant relative overflow-hidden group shadow-[0_0_10px_rgba(255,255,255,0.2)] hover:shadow-[0_0_15px_rgba(187,10,30,0.6)]"
-                                            >
-                                                <span className="relative z-10">Topup</span>
-                                            </Link>
-
-                                            <button
-                                                onClick={handleLogout}
-                                                className="text-[9px] text-red-500 hover:text-red-400 uppercase tracking-widest transition-colors hover:underline"
-                                            >
-                                                Exile (Logout)
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="flex items-center gap-6">
-                                    <Link href="/login" className="text-stone-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors">
-                                        Login
-                                    </Link>
-                                    <Link href="/register" className="bg-[var(--blood-red)] hover:bg-[var(--hell-fire)] text-black px-6 py-2 rounded-none font-black text-xs tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(187,10,30,0.4)] clip-path-button">
-                                        Join Us
-                                    </Link>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Mobile Menu Button */}
-                        <button
-                            className="md:hidden text-white hover:text-[var(--blood-red)] transition-colors"
-                            onClick={() => setIsOpen(!isOpen)}
-                        >
-                            {isOpen ? <X size={24} /> : <Menu size={24} />}
-                        </button>
-                    </div>
-                </div>
-
-                {/* DECORATIVE BOTTOM PIECE (The downward sharp point) */}
-                <div className="absolute top-[calc(100%-1.6rem)] left-1/2 -translate-x-1/2 w-40 h-8 bg-[var(--void-black)]/95 border-b border-r border-l border-[var(--glass-border)] text-center flex items-center justify-center pointer-events-auto"
-                    style={{ clipPath: "polygon(0 0, 100% 0, 50% 100%)" }}>
-                    <div className="w-1.5 h-1.5 bg-[var(--blood-red)] rounded-full shadow-[0_0_10px_red]"></div>
-                </div>
-
-
-                {/* Mobile Dropdown */}
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, scaleY: 0 }}
-                        animate={{ opacity: 1, scaleY: 1 }}
-                        exit={{ opacity: 0, scaleY: 0 }}
-                        className="absolute top-full left-0 right-0 mt-4 bg-[var(--void-black)]/90 backdrop-blur-xl border border-[var(--dark-blood)] p-6 flex flex-col space-y-4 md:hidden z-40 origin-top shadow-2xl"
-                    >
-                        {/* Mobile Menu Items */}
-                        {(user ? ['Home', 'History', 'Games', 'Track', 'Leaderboard'] : ['Home', 'Games', 'Track', 'Leaderboard']).map((item) => (
-                            <Link key={item} href={item === 'Home' ? '/' : `/${item.toLowerCase()}`} className="text-stone-400 hover:text-white uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold" onClick={() => setIsOpen(false)}>{item}</Link>
-                        ))}
-
-                        {/* Admin Dashboard Mobile */}
-                        {user?.role === 'ADMIN' && (
+                    {/* 2. DESKTOP LINKS (Centered) */}
+                    <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+                        {navLinks.map((link) => (
                             <Link
-                                href="/admin"
-                                onClick={() => setIsOpen(false)}
-                                className="text-[var(--blood-red)] hover:text-red-400 uppercase tracking-widest text-sm py-2 border-b border-white/5 font-bold flex items-center justify-between"
+                                key={link.name}
+                                href={link.href}
+                                className="relative px-4 py-2 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-white transition-colors group"
                             >
-                                Dashboard
-                                <span className="w-2 h-2 bg-[var(--blood-red)] rounded-full animate-ping"></span>
+                                {link.name}
+                                {/* Hover Indicator */}
+                                <span className="absolute inset-x-0 bottom-0 h-0.5 bg-[var(--blood-red)] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center shadow-[0_0_10px_red]" />
                             </Link>
-                        )}
+                        ))}
+                    </div>
 
-                        {/* Auth actions for mobile */}
+                    {/* 3. RIGHT SECTION (Auth) */}
+                    <div className="hidden md:flex items-center gap-4 z-10">
                         {user ? (
-                            <div className="pt-4 border-t border-[var(--dark-blood)]/30 space-y-4">
-                                {/* Balance Info */}
-                                <div className="flex justify-between items-center text-sm">
-                                    <span className="text-stone-500 uppercase tracking-widest text-xs">Soul Balance</span>
-                                    <span className="text-[var(--blood-red)] font-black text-lg font-mono">Rp {user.balance?.toLocaleString() || 0}</span>
+                            <div className="flex items-center gap-4 bg-white/5 pr-2 pl-4 py-1.5 rounded-full border border-white/5 hover:border-white/20 transition-colors">
+                                {/* Balance */}
+                                <div className="flex flex-col items-end leading-none mr-2">
+                                    <span className="text-[9px] text-stone-500 uppercase font-bold tracking-wider">Soul</span>
+                                    <span className="text-sm font-mono text-[var(--blood-red)] font-bold">
+                                        {user.balance?.toLocaleString()}
+                                    </span>
                                 </div>
 
-                                <Link
-                                    href="/topup"
-                                    onClick={() => setIsOpen(false)}
-                                    className="block w-full text-center bg-white text-black font-black py-3 uppercase tracking-widest clip-path-slant"
-                                >
-                                    Topup
+                                <div className="w-[1px] h-6 bg-white/10"></div>
+
+                                {/* User Name */}
+                                <div className="text-xs font-bold text-white uppercase tracking-wide">
+                                    {user.name}
+                                </div>
+
+                                {/* Topup Button (Small Icon) */}
+                                <Link href="/topup" className="text-stone-400 hover:text-[var(--blood-red)] transition-colors" title="Top Up">
+                                    <PlusCircle size={18} />
                                 </Link>
 
-                                <button onClick={handleLogout} className="w-full text-left text-red-500 uppercase tracking-widest text-sm py-2 hover:text-red-400">
-                                    Exile (Logout)
+                                {/* Logout (Small Icon) */}
+                                <button onClick={handleLogout} className="text-stone-400 hover:text-red-500 transition-colors pl-1" title="Logout">
+                                    <LogOut size={16} />
                                 </button>
                             </div>
                         ) : (
-                            <div className="pt-4 border-t border-white/10 flex flex-col gap-3">
-                                <Link href="/login" onClick={() => setIsOpen(false)} className="text-white uppercase tracking-widest text-center text-sm py-2">Login</Link>
-                                <Link href="/register" onClick={() => setIsOpen(false)} className="bg-[var(--blood-red)] text-black font-bold uppercase tracking-widest text-center py-3 clip-path-slant">Join Us</Link>
+                            <div className="flex items-center gap-3">
+                                <Link href="/login" className="px-4 py-2 text-xs font-bold uppercase tracking-widest text-stone-400 hover:text-white transition-colors">
+                                    Login
+                                </Link>
+                                <Link href="/register" className="relative px-5 py-2 bg-[var(--blood-red)] text-black text-xs font-bold uppercase tracking-[0.15em] rounded-full overflow-hidden group hover:shadow-[0_0_20px_rgba(220,20,60,0.6)] transition-all">
+                                    <span className="relative z-10 group-hover:text-white transition-colors">Join</span>
+                                    <div className="absolute inset-0 bg-black scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 ease-out"></div>
+                                </Link>
                             </div>
                         )}
+                    </div>
+
+                    {/* MOBILE TOGGLE */}
+                    <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="md:hidden text-white p-2 hover:bg-white/10 rounded-full transition-colors z-50"
+                    >
+                        {isOpen ? <X size={24} /> : <Menu size={24} />}
+                    </button>
+                </div>
+            </motion.nav>
+
+            {/* --- MOBILE FULLSCREEN OVERLAY --- */}
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        animate={{ opacity: 1, backdropFilter: "blur(12px)" }}
+                        exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+                        className="fixed inset-0 z-40 bg-black/90 md:hidden flex flex-col pt-24 px-6"
+                    >
+                        <div className="flex flex-col space-y-6">
+                            {navLinks.map((link, i) => (
+                                <motion.div
+                                    key={link.name}
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.1 + (i * 0.05) }}
+                                >
+                                    <Link
+                                        href={link.href}
+                                        onClick={() => setIsOpen(false)}
+                                        className="text-2xl font-[family-name:var(--font-cinzel)] text-stone-400 hover:text-[var(--blood-red)] transition-colors block border-b border-white/10 pb-4"
+                                    >
+                                        {link.name}
+                                    </Link>
+                                </motion.div>
+                            ))}
+
+                            {user ? (
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="mt-8 space-y-4"
+                                >
+                                    <div className="bg-white/5 p-4 rounded-xl border border-white/10">
+                                        <div className="text-xs text-stone-500 uppercase tracking-widest mb-1">Balance</div>
+                                        <div className="text-3xl font-mono text-[var(--blood-red)]">
+                                            {user.balance?.toLocaleString()}
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Link href="/topup" onClick={() => setIsOpen(false)} className="bg-white text-black py-3 rounded-lg text-center font-bold uppercase tracking-widest text-sm">
+                                            Top Up
+                                        </Link>
+                                        <button onClick={handleLogout} className="border border-red-900/50 text-red-500 py-3 rounded-lg font-bold uppercase tracking-widest text-sm hover:bg-red-900/20">
+                                            Logout
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className="flex flex-col gap-4 mt-8"
+                                >
+                                    <Link href="/login" onClick={() => setIsOpen(false)} className="w-full text-center border border-white/20 text-white py-3 rounded-lg uppercase tracking-widest">
+                                        Login
+                                    </Link>
+                                    <Link href="/register" onClick={() => setIsOpen(false)} className="w-full text-center bg-[var(--blood-red)] text-white py-3 rounded-lg uppercase tracking-widest font-bold shadow-[0_0_20px_rgba(200,0,0,0.3)]">
+                                        Join Us
+                                    </Link>
+                                </motion.div>
+                            )}
+                        </div>
                     </motion.div>
                 )}
-            </div>
-
-
-        </motion.nav>
+            </AnimatePresence>
+        </>
     );
 }

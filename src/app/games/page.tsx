@@ -128,7 +128,7 @@ export default function GamesPage() {
                     layout
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.4 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                     className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
                 >
                     {filteredGames.length > 0 ? (
@@ -136,10 +136,11 @@ export default function GamesPage() {
                             <Link href={`/order/${game.slug}`} key={game.id} className="block group">
                                 <motion.div
                                     layout
-                                    initial={{ opacity: 0, y: 30 }}
+                                    initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: i * 0.05, duration: 0.5, ease: "easeOut" }}
-                                    whileHover={{ y: -5, scale: 1.01 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.4, ease: "easeOut", delay: i * 0.05 }}
+                                    whileHover={{ y: -5, transition: { duration: 0.2, ease: "easeOut" } }}
                                     className="relative h-[320px] md:h-[420px] rounded-lg obsidian-panel overflow-hidden transition-all duration-300 md:duration-500 hover:shadow-[0_0_20px_rgba(187,10,30,0.4)] hover:border-[var(--blood-red)/50]"
                                 >
                                     {/* Dark Vignette Overlay */}

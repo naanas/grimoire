@@ -254,10 +254,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             paymentNo: trx.paymentNo,
                             paymentName: trx.paymentChannel || trx.paymentMethod,
                             status: trx.status || 'PENDING',
+                            basePrice: trx.basePrice || trx.product?.price_sell || 0,
                             adminFee: trx.adminFee || 0,
                             discountAmount: trx.discountAmount || 0,
                             sn: trx.sn,
-                            expired: trx.expired
+                            expired: trx.expired || trx.expiredTime
                         });
                     }
                 })
@@ -349,9 +350,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             });
 
             if (res.data.success) {
-                // REMOVED AUTO REDIRECT for Embedded Experience
-                // The UI already handles showing PaymentNo / QR if checking result state.
-                setResult(res.data.data);
+                const trx = res.data.data;
+                // [SECURITY/UI] Persist TRX ID to URL so "Back" navigation restores state
+                router.replace(`?id=${trx.id}`, { scroll: false });
+                setResult(trx);
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Transaction Failed');
@@ -413,7 +415,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         </div>
                         <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
                             <span className="text-gray-500 text-xs uppercase tracking-widest">Item Price</span>
-                            <span className="text-white font-mono text-sm">Rp {(result.basePrice || (result.amount - (result.adminFee || 0) + (result.discountAmount || 0))).toLocaleString()}</span>
+                            <span className="text-white font-mono text-sm">
+                                Rp {(Number(result.basePrice) || (Number(result.amount || 0) - (Number(result.adminFee || 0)) + (Number(result.discountAmount || 0)))).toLocaleString('id-ID')}
+                            </span>
                         </div>
 
                         {result.discountAmount > 0 && (
@@ -475,7 +479,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                         <div className="flex justify-between items-center py-4 border-t border-gray-900 border-dashed">
                             <span className="text-gray-500 text-xs uppercase tracking-widest">Total Payable</span>
-                            <span className="text-[var(--blood-red)] font-black text-xl tracking-wide">Rp {Math.floor(result.amount).toLocaleString()}</span>
+                            <span className="text-[var(--blood-red)] font-black text-xl tracking-wide">
+                                Rp {(Number(result.amount) || 0).toLocaleString('id-ID')}
+                            </span>
                         </div>
                     </div>
 
@@ -489,7 +495,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                 try {
                                     const checkRes = await api.post(`/check-status/${urlTrxId || result.id}`);
                                     if (checkRes.data.success && checkRes.data.data.status) {
-                                        setResult((prev: any) => ({ ...prev, status: checkRes.data.data.status }));
+                                        const trx = checkRes.data.data;
+                                        setResult((prev: any) => ({
+                                            ...prev,
+                                            ...trx,
+                                            basePrice: trx.basePrice || trx.product?.price_sell || prev.basePrice
+                                        }));
                                     } else {
                                         alert('Status Unchanged');
                                     }

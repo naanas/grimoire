@@ -5,6 +5,7 @@ export interface User {
     role: string;
     balance: number;
     phoneNumber?: string;
+    hasPassword?: boolean;
     createdAt?: string;
     updatedAt?: string;
 }

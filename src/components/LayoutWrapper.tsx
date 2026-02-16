@@ -11,6 +11,7 @@ import IdleLogout from './IdleLogout';
 import { Toaster } from 'react-hot-toast';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import CompleteProfileModal from './CompleteProfileModal';
 
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -36,6 +37,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                     },
                 }}
             />
+            <CompleteProfileModal />
             <IdleLogout />
             {isAdmin ? (
                 children

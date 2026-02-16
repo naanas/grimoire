@@ -16,7 +16,6 @@ export default function IdleLogout() {
 
         if (user) {
             timeoutRef.current = setTimeout(() => {
-                console.log('User idle for 5 minutes, logging out...');
                 logout();
             }, IDLE_TIMEOUT);
         }

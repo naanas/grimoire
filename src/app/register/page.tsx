@@ -20,6 +20,8 @@ export default function RegisterPage() {
         confirmPassword: ''
     });
 
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
@@ -44,8 +46,7 @@ export default function RegisterPage() {
             });
 
             if (res.data.success) {
-                // Redirect to Login (or Home for now)
-                router.push('/login?registered=true');
+                setShowSuccessModal(true);
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration Failed');
@@ -58,6 +59,30 @@ export default function RegisterPage() {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
             {/* Background Ambience */}
             <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[var(--void)] to-transparent z-0 pointer-events-none"></div>
+
+            {/* Success Modal */}
+            {showSuccessModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[#0a0a0a] border border-gray-700 rounded-2xl p-8 max-w-md w-full text-center shadow-[0_0_50px_rgba(0,128,0,0.2)]"
+                    >
+                        <ShieldCheck className="text-green-500 mx-auto mb-4" size={64} />
+                        <h2 className="text-2xl font-bold text-white mb-2">Registration Successful!</h2>
+                        <p className="text-gray-400 mb-6">
+                            A verification email has been sent to <strong>{formData.email}</strong>.
+                            Please check your inbox and verify your account to continue.
+                        </p>
+                        <button
+                            onClick={() => router.push('/login')}
+                            className="bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300"
+                        >
+                            Back to Login
+                        </button>
+                    </motion.div>
+                </div>
+            )}
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}

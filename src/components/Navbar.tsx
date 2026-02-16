@@ -160,7 +160,7 @@ export default function Navbar() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setIsOpen(false)}
-                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 md:hidden"
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] md:hidden"
                         />
 
                         {/* Drawer */}
@@ -169,7 +169,7 @@ export default function Navbar() {
                             animate={{ x: 0 }}
                             exit={{ x: "100%" }}
                             transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                            className="fixed inset-y-0 right-0 w-[80%] max-w-sm bg-[#050505] border-l border-white/10 z-50 flex flex-col shadow-2xl md:hidden"
+                            className="fixed inset-y-0 right-0 w-[80%] max-w-sm bg-[#050505] border-l border-white/10 z-[60] flex flex-col shadow-2xl md:hidden"
                         >
                             {/* Drawer Header */}
                             <div className="p-6 border-b border-white/10 flex justify-between items-center bg-stone-950/50">

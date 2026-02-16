@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, Skull, Flame } from 'lucide-react';
 import api from '@/lib/api';
+import GoogleButton from '@/components/GoogleButton';
 
 // --- VISUAL EFFECTS COMPONENTS ---
 
@@ -139,6 +140,14 @@ function LoginContent() {
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(50,0,0,0.5),transparent)]"></div>
 
                     <div className="relative p-8 md:p-12 z-10 flex flex-col items-center">
+                        {isLoading && (
+                            <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl">
+                                <Loader2 className="animate-spin text-[var(--blood-red)] mb-4" size={48} />
+                                <span className="text-white font-[family-name:var(--font-cinzel)] tracking-widest animate-pulse">
+                                    AUTHENTICATING...
+                                </span>
+                            </div>
+                        )}
 
                         {/* Header */}
                         <div className="text-center mb-8 relative w-full">
@@ -234,10 +243,13 @@ function LoginContent() {
                         </form>
 
                         <div className="mt-8 text-center opacity-50 hover:opacity-100 transition-opacity">
-                            <Link href="/register" className="text-[9px] text-gray-500 font-bold tracking-[0.3em] uppercase hover:text-red-500">
+                            <Link href="/register" className="text-[9px] text-gray-500 font-bold tracking-[0.3em] uppercase hover:text-red-500" suppressHydrationWarning>
                                 Have no identity?
                             </Link>
                         </div>
+
+                        <div className="w-full border-t border-gray-800 my-6"></div>
+                        <GoogleButton text="Sign in with Google" onLoading={setIsLoading} />
                     </div>
                 </div>
             </div>

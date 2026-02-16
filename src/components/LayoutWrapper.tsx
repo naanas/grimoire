@@ -10,12 +10,15 @@ import NavigationLoader from './NavigationLoader';
 import IdleLogout from './IdleLogout';
 import { Toaster } from 'react-hot-toast';
 
+import { GoogleOAuthProvider } from '@react-oauth/google';
+
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAdmin = pathname?.startsWith('/admin');
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
     return (
-        <>
+        <GoogleOAuthProvider clientId={clientId}>
             <Toaster
                 position="top-right"
                 toastOptions={{
@@ -50,6 +53,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                     <ChatWidget />
                 </>
             )}
-        </>
+        </GoogleOAuthProvider>
     );
 }

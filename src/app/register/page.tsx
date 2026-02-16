@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Loader2, User, Mail, Lock, ShieldCheck } from 'lucide-react';
 import api from '@/lib/api';
+import GoogleButton from '@/components/GoogleButton';
 
 export default function RegisterPage() {
     const router = useRouter();
@@ -63,6 +64,14 @@ export default function RegisterPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-md bg-[#0a0a0a] border border-gray-800 rounded-2xl p-8 relative z-10 shadow-[0_0_50px_rgba(0,0,0,0.8)]"
             >
+                {isLoading && (
+                    <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl">
+                        <Loader2 className="animate-spin text-[var(--blood-red)] mb-4" size={48} />
+                        <span className="text-white font-[family-name:var(--font-cinzel)] tracking-widest animate-pulse">
+                            AUTHENTICATING...
+                        </span>
+                    </div>
+                )}
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-[family-name:var(--font-cinzel)] font-bold text-white mb-2">Join the Coven</h1>
                     <p className="text-gray-400 text-sm">Create your Grimoire ID to track transactions.</p>
@@ -151,10 +160,13 @@ export default function RegisterPage() {
 
                 <div className="mt-6 text-center text-sm text-gray-500">
                     Already have an account?{' '}
-                    <Link href="/login" className="text-[var(--blood-red)] hover:underline">
+                    <Link href="/login" className="text-[var(--blood-red)] hover:underline" suppressHydrationWarning>
                         Sign In
                     </Link>
                 </div>
+
+                <div className="w-full border-t border-gray-800 my-6"></div>
+                <GoogleButton text="Sign up with Google" onLoading={setIsLoading} />
             </motion.div>
         </div>
     );

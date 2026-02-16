@@ -24,7 +24,10 @@ export default function GoogleButton({ text = "Continue with Google", onLoading 
                 return;
             }
 
-            const res = await api.post('/auth/google', { token: credential });
+            const isLogin = text.toLowerCase().includes('in');
+            const mode = isLogin ? 'login' : 'register';
+
+            const res = await api.post('/auth/google', { token: credential, mode });
 
             if (res.data.success) {
                 // Save Token
@@ -43,7 +46,17 @@ export default function GoogleButton({ text = "Continue with Google", onLoading 
             }
         } catch (error: any) {
             console.error('Google Login Error:', error);
-            toast.error(error.response?.data?.message || 'Google Login Failed');
+            const msg = error.response?.data?.message || 'Google Login Failed';
+
+            if (msg.includes('not registered') || msg.includes('sign up')) {
+                toast.error(msg);
+                setTimeout(() => {
+                    router.push('/register');
+                }, 1500);
+            } else {
+                toast.error(msg);
+            }
+
             setIsLoading(false);
             if (onLoading) onLoading(false);
         }

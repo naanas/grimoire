@@ -45,6 +45,11 @@ export default function CompleteProfileModal() {
             return;
         }
 
+        if (!formData.phoneNumber.startsWith('08') && !formData.phoneNumber.startsWith('62')) {
+            toast.error("Invalid Phone Number! Must start with '08' or '62'.");
+            return;
+        }
+
         setIsLoading(true);
 
         try {

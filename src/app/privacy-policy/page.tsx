@@ -1,3 +1,10 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Kebijakan Privasi',
+    description: 'Kebijakan privasi Grimoire Coins menjelaskan bagaimana kami mengumpulkan, menggunakan, dan melindungi data pribadi Anda.',
+};
+
 export default function PrivacyPolicy() {
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-gray-300 py-20 px-4 md:px-8 font-sans">

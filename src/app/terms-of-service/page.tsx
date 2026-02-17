@@ -1,3 +1,10 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Ketentuan Layanan',
+    description: 'Syarat dan ketentuan penggunaan platform Grimoire Coins untuk layanan top-up game online.',
+};
+
 export default function TermsOfService() {
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-gray-300 py-20 px-4 md:px-8 font-sans">

@@ -1,3 +1,10 @@
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: 'Kebijakan Pengembalian Dana',
+    description: 'Kebijakan refund dan pengembalian dana untuk transaksi di Grimoire Coins. Pelajari syarat dan ketentuan pengembalian dana kami.',
+};
+
 export default function RefundPolicy() {
     return (
         <div className="min-h-screen bg-[#0a0a0a] text-gray-300 py-20 px-4 md:px-8 font-sans">

@@ -46,6 +46,9 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  // SEO optimizations
+  compress: true,
+  poweredByHeader: false,
 };
 
 export default nextConfig;

@@ -462,15 +462,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                                         {(result.paymentName?.toLowerCase().includes('qris') || (result.paymentNo && result.paymentNo.length > 50)) ? (
                                             <div className="flex justify-center my-4 flex-col items-center">
-                                                {result.paymentNo.startsWith('http') ? (
-                                                    <img src={result.paymentNo} className="w-48 h-48 bg-white p-2 rounded" alt="QRIS" />
-                                                ) : (
-                                                    <img
-                                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(result.paymentNo)}`}
-                                                        className="w-48 h-48 bg-white p-2 rounded"
-                                                        alt="QRIS Code"
-                                                    />
-                                                )}
+                                                {/* Always use the QR code URL from payment gateway */}
+                                                <img
+                                                    src={result.paymentNo}
+                                                    className="w-48 h-48 bg-white p-2 rounded"
+                                                    alt="QRIS Code"
+                                                />
                                                 <p className="text-[10px] text-gray-500 mt-2">Scan QRIS above to pay</p>
                                             </div>
                                         ) : (

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
-import { PAYMENT_CHANNELS, PaymentChannel } from '@/lib/PaymentChannels';
+import { PaymentChannel } from '@/lib/PaymentChannels';
 import { io } from 'socket.io-client';
 
 const containerVariants: Variants = {
@@ -68,6 +68,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
     const [products, setProducts] = useState<Product[]>([]);
     const [categoryConfig, setCategoryConfig] = useState<any>(null);
+    const [channels, setChannels] = useState<PaymentChannel[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Form Inputs
@@ -239,9 +240,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             // Update: Fetch products with variations included
             api.get(`/products?category=${gameSlug}&includeVariations=true`),
             api.get(`/categories/${gameSlug}`),
-            api.get('/config') // Fetch Payment Gateway Config
+            api.get('/config'), // Fetch Payment Gateway Config
+            api.get('/payment/methods') // Fetch Active Payment Methods
         ])
-            .then(([resProducts, resCat, resConfig]) => {
+            .then(([resProducts, resCat, resConfig, resMethods]) => {
                 if (resProducts.data.success) {
                     setProducts(resProducts.data.data);
                 }
@@ -252,6 +254,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     console.log("💳 Payment Gateway:", resConfig.data.data.PAYMENT_GATEWAY);
                     // We can store this in a state if needed for UI adjustments
                     // setGateway(resConfig.data.data.PAYMENT_GATEWAY);
+                }
+                if (resMethods.data.success) {
+                    setChannels(resMethods.data.data);
+                    console.log("💰 Active Payment Methods:", resMethods.data.data.length);
                 }
             })
             .catch(err => console.error(err))
@@ -847,7 +853,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     {/* Direct Payment Channels */}
                     <div className="space-y-6">
                         {/* Group by Channel Group (QRIS, VA, Retail) */}
-                        {Object.entries(PAYMENT_CHANNELS.reduce((acc, ch) => {
+                        {Object.entries(channels.reduce((acc, ch) => {
                             if (!acc[ch.group]) acc[ch.group] = [];
                             acc[ch.group].push(ch);
                             return acc;

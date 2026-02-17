@@ -1,6 +1,7 @@
 import { Settings as SettingsIcon } from 'lucide-react';
 import TripaySettings from '@/components/admin/TripaySettings';
 import PaymentGatewaySwitch from '@/components/admin/PaymentGatewaySwitch';
+import PaymentMethodSettings from '@/components/admin/PaymentMethodSettings';
 
 export default function SettingsPage() {
     return (
@@ -33,8 +34,18 @@ export default function SettingsPage() {
                     <TripaySettings />
                 </section>
 
+                {/* Payment Method Toggle Section */}
+                <section>
+                    <div className="mb-6 border-b border-neutral-800 pb-2">
+                        <h2 className="text-xl font-bold text-white">Payment Method Management</h2>
+                        <p className="text-sm text-neutral-500">Enable or disable individual payment methods.</p>
+                    </div>
+                    <PaymentMethodSettings />
+                </section>
+
                 {/* Future Sections (e.g., General, Email, etc.) */}
             </div>
         </div>
     );
 }
+

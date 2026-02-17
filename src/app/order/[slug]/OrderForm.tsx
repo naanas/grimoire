@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
-import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { PAYMENT_CHANNELS, PaymentChannel } from '@/lib/PaymentChannels';
 import { io } from 'socket.io-client';
@@ -96,6 +96,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     // Dynamic Fee Sync
     const [dynamicFee, setDynamicFee] = useState<number | null>(null);
     const [loadingFee, setLoadingFee] = useState(false);
+
+    // VA Number Visibility Toggle
+    const [showPaymentNo, setShowPaymentNo] = useState(false);
 
     useEffect(() => {
         const fetchFee = async () => {
@@ -460,25 +463,66 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                     <div className="bg-gray-900/50 p-4 border border-gray-800 rounded text-center">
                                         <p className="text-gray-400 text-xs uppercase tracking-widest mb-2">{result.paymentName || 'Payment Code'}</p>
 
-                                        {(result.paymentName?.toLowerCase().includes('qris') || (result.paymentNo && result.paymentNo.length > 50)) ? (
+                                        {(result.paymentName?.toLowerCase().includes('qris') || result.paymentName?.toLowerCase().includes('shopeepay') || (result.paymentNo && result.paymentNo.length > 50)) ? (
                                             <div className="flex justify-center my-4 flex-col items-center">
-                                                {/* Always use the QR code URL from payment gateway */}
-                                                <img
-                                                    src={result.paymentNo}
-                                                    className="w-48 h-48 bg-white p-2 rounded"
-                                                    alt="QRIS Code"
-                                                />
+                                                {/* Check if paymentNo is a URL (image) or QRIS string */}
+                                                {result.paymentNo?.startsWith('http') ? (
+                                                    // Payment gateway provided QR image URL (rare)
+                                                    <img
+                                                        src={result.paymentNo}
+                                                        className="w-48 h-48 bg-white p-2 rounded"
+                                                        alt="QRIS Code"
+                                                    />
+                                                ) : (
+                                                    // Payment gateway provided QRIS string - generate QR code
+                                                    <img
+                                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(result.paymentNo)}`}
+                                                        className="w-48 h-48 bg-white p-2 rounded"
+                                                        alt="QRIS Code"
+                                                        onError={(e) => {
+                                                            // Fallback if QR generation fails
+                                                            console.error('QR Code generation failed');
+                                                            e.currentTarget.style.display = 'none';
+                                                        }}
+                                                    />
+                                                )}
                                                 <p className="text-[10px] text-gray-500 mt-2">Scan QRIS above to pay</p>
                                             </div>
                                         ) : (
-                                            <div className="relative group cursor-pointer" onClick={() => {
-                                                navigator.clipboard.writeText(result.paymentNo);
-                                                alert('Copied!');
-                                            }}>
-                                                <p className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest break-all">{result.paymentNo}</p>
-                                                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-[var(--blood-red)] opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    CLICK TO COPY
-                                                </span>
+                                            <div className="relative">
+                                                {/* Show/Hide Toggle Button */}
+                                                <button
+                                                    onClick={() => setShowPaymentNo(!showPaymentNo)}
+                                                    className="absolute -top-8 right-0 flex items-center gap-1 text-xs text-gray-400 hover:text-[var(--blood-red)] transition-colors"
+                                                >
+                                                    {showPaymentNo ? (
+                                                        <>
+                                                            <EyeOff className="w-3 h-3" />
+                                                            <span>Hide</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Eye className="w-3 h-3" />
+                                                            <span>Show</span>
+                                                        </>
+                                                    )}
+                                                </button>
+
+                                                {/* VA Number Display with Copy */}
+                                                <div className="group cursor-pointer" onClick={() => {
+                                                    // Always copy the real number, not masked
+                                                    navigator.clipboard.writeText(result.paymentNo);
+                                                    alert('VA Number Copied!');
+                                                }}>
+                                                    <p className="text-xl md:text-2xl font-mono font-bold text-white tracking-widest break-all">
+                                                        {showPaymentNo
+                                                            ? result.paymentNo
+                                                            : result.paymentNo.replace(/./g, '•')}
+                                                    </p>
+                                                    <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-[var(--blood-red)] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        CLICK TO COPY
+                                                    </span>
+                                                </div>
                                             </div>
                                         )}
                                     </div>

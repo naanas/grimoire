@@ -347,9 +347,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             setError("Please fill in Game ID and select a product!");
             return;
         }
-        if (!user && (!guestContact || guestContact.length < 9)) {
-            setError("Please provide a valid WhatsApp number!");
-            return;
+        // Require phone for guest OR logged-in user without phone (except BALANCE payment)
+        if (paymentMethod !== 'BALANCE' && (!user || !user.phoneNumber)) {
+            if (!guestContact || guestContact.length < 9) {
+                setError("Please provide a valid WhatsApp number!");
+                return;
+            }
         }
         if (!paymentMethod && !selectedChannel) {
             setError("Please select a payment method!");
@@ -369,7 +372,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 paymentMethod: paymentMethod === 'BALANCE' ? 'BALANCE' : currentChannel?.method,
                 paymentChannel: paymentMethod === 'BALANCE' ? undefined : currentChannel?.code,
                 authUserId: user?.id,
-                guestContact: user ? undefined : guestContact,
+                guestContact: guestContact || user?.phoneNumber || undefined,
                 voucherCode: voucherStats.isValid ? voucherCode : undefined
             });
 
@@ -903,10 +906,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                 {/* 4. Voucher & Contact */}
                 <motion.section variants={sectionVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Guest Contact */}
-                    {!user && (
-                        <div className="space-y-4">
-                            <h3 className="text-sm font-[family-name:var(--font-cinzel)] font-bold text-gray-400">CONTACT INFO</h3>
+                    {/* Guest Contact - Show for guest OR logged-in user without phone */}
+                    {(!user || !user.phoneNumber) && (
+                        <div>
+                            <h4 className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-3 pl-1 border-l-2 border-[var(--blood-red)]">
+                                WhatsApp Contact {user && <span className="text-yellow-500 text-[10px]">(Required for Payment)</span>}
+                            </h4>
                             <div className="relative group">
                                 <input
                                     type="text"
@@ -916,7 +921,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                     onChange={(e) => setGuestContact(e.target.value.replace(/\D/g, ''))}
                                 />
                                 <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
-                                    WhatsApp Number
+                                    WhatsApp Number (08xxx)
                                 </label>
                             </div>
                         </div>

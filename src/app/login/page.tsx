@@ -3,6 +3,7 @@
 import { useState, Suspense, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, Skull, Flame } from 'lucide-react';
 import api from '@/lib/api';
@@ -159,8 +160,15 @@ function LoginContent() {
                                 transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                                 className="inline-block mb-4 relative"
                             >
-                                <div className="w-20 h-20 bg-black rounded-full flex items-center justify-center border-2 border-red-900 shadow-2xl relative z-10">
-                                    <Skull className="text-gray-200 w-10 h-10" strokeWidth={1.5} />
+                                <div className="w-24 h-24 bg-black rounded-full flex items-center justify-center border-2 border-red-900 shadow-2xl relative z-10 overflow-hidden p-2">
+                                    <Image
+                                        src="/logo.png"
+                                        alt="Grimoire Coins Logo"
+                                        width={80}
+                                        height={80}
+                                        className="object-contain"
+                                        priority
+                                    />
                                 </div>
                             </motion.div>
 

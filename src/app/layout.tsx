@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import BackgroundEffects from '@/components/BackgroundEffects';
 import ChatWidget from '@/components/ChatWidget';
 import LayoutWrapper from '@/components/LayoutWrapper';
+import StructuredData from '@/components/StructuredData';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel' });
@@ -98,6 +99,7 @@ export default function RootLayout({
   return (
     <html lang="id" className="dark" suppressHydrationWarning>
       <body className={`${inter.variable} ${cinzel.variable} bg-[var(--background)] text-white min-h-screen selection:bg-[var(--blood-red)] selection:text-white antialiased`} suppressHydrationWarning>
+        <StructuredData />
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>

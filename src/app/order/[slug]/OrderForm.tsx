@@ -5,8 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store, Eye, EyeOff } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { QRCodeSVG } from 'qrcode.react';
 import { PaymentChannel } from '@/lib/PaymentChannels';
 import { io } from 'socket.io-client';
+import OrderSummary, { MobileSummaryBar } from '@/components/OrderSummary';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -108,6 +110,13 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 return;
             }
 
+            // [FIX] Abort fee calc if < 10k and not QRIS (wait for reset effect)
+            const currentPrice = voucherStats.isValid ? voucherStats.finalPrice : selectedProduct.price_sell;
+            if (currentPrice < 10000 && selectedChannel.group !== 'QRIS') {
+                setDynamicFee(null);
+                return;
+            }
+
             // Only sync for TRX/Tripay channels (or implement general if needed)
             // For now, let's hit our proxy whenever a channel is selected
             setLoadingFee(true);
@@ -135,6 +144,16 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
         fetchFee();
     }, [selectedProduct, selectedChannel, voucherStats.isValid, voucherStats.finalPrice]);
+
+    // Enforce < 10k Rule: Reset payment if product changes to < 10k and method is not QRIS
+    useEffect(() => {
+        const currentPrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
+        if (currentPrice > 0 && currentPrice < 10000 && selectedChannel && selectedChannel.group !== 'QRIS') {
+            setPaymentMethod('');
+            setSelectedChannel(null);
+        }
+    }, [selectedProduct, voucherStats, selectedChannel]);
+
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Initialize expanded sections when products change
@@ -185,6 +204,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [nickCheckLoading, setNickCheckLoading] = useState(false);
     const [nickResult, setNickResult] = useState<string | null>(null);
     const [nickError, setNickError] = useState<string | null>(null);
+    const [summaryExpanded, setSummaryExpanded] = useState(false);
+    const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
     // ID Checking Logic
     useEffect(() => {
@@ -474,26 +495,24 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                                         {(result.paymentName?.toLowerCase().includes('qris') || result.paymentName?.toLowerCase().includes('shopeepay') || (result.paymentNo && result.paymentNo.length > 50)) ? (
                                             <div className="flex justify-center my-4 flex-col items-center">
-                                                {/* Check if paymentNo is a URL (image) or QRIS string */}
+                                                {/* Render QRIS QR Code using Tripay's QR string */}
                                                 {result.paymentNo?.startsWith('http') ? (
-                                                    // Payment gateway provided QR image URL (rare)
+                                                    // If it's an image URL (rare case)
                                                     <img
                                                         src={result.paymentNo}
                                                         className="w-48 h-48 bg-white p-2 rounded"
                                                         alt="QRIS Code"
                                                     />
                                                 ) : (
-                                                    // Payment gateway provided QRIS string - generate QR code
-                                                    <img
-                                                        src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(result.paymentNo)}`}
-                                                        className="w-48 h-48 bg-white p-2 rounded"
-                                                        alt="QRIS Code"
-                                                        onError={(e) => {
-                                                            // Fallback if QR generation fails
-                                                            console.error('QR Code generation failed');
-                                                            e.currentTarget.style.display = 'none';
-                                                        }}
-                                                    />
+                                                    // Use QRCodeSVG to render Tripay's QRIS string directly
+                                                    <div className="bg-white p-4 rounded">
+                                                        <QRCodeSVG
+                                                            value={result.paymentNo}
+                                                            size={200}
+                                                            level="M"
+                                                            includeMargin={false}
+                                                        />
+                                                    </div>
                                                 )}
                                                 <p className="text-[10px] text-gray-500 mt-2">Scan QRIS above to pay</p>
                                             </div>
@@ -597,153 +616,294 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     }
 
     // --- ORDER FORM UI ---
+    const basePrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
+    const totalPrice = basePrice + (dynamicFee || 0);
+
     return (
-        <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="show"
-            className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full max-w-5xl mx-auto"
-            style={{ clipPath: "polygon(0 0, 100% 0, 100% 98%, 98% 100%, 2% 100%, 0 98%)" }}>
+        <>
+            {/* Desktop: Two Column Layout */}
+            <div className="grid lg:grid-cols-[1fr_400px] gap-6 max-w-[1400px] mx-auto pb-32 lg:pb-0">
+                {/* LEFT: Main Order Form */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="show"
+                    className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full"
+                    style={{ clipPath: "polygon(0 0, 100% 0, 100% 98%, 98% 100%, 2% 100%, 0 98%)" }}>
 
-            {/* Top Red Line */}
-            <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--blood-red)] to-transparent opacity-70"></div>
+                    {/* Top Red Line */}
+                    <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--blood-red)] to-transparent opacity-70"></div>
 
-            <div className="p-4 md:p-8 space-y-8 relative z-10">
+                    <div className="p-4 md:p-8 space-y-8 relative z-10">
 
-                {/* 1. Account Data */}
-                <motion.section variants={sectionVariants}>
-                    <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
-                        <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">01</span>
-                        ACCOUNT DATA
-                    </h3>
+                        {/* 1. Account Data */}
+                        <motion.section variants={sectionVariants}>
+                            <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
+                                <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">01</span>
+                                ACCOUNT DATA
+                            </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="relative group">
-                            <input
-                                type="text"
-                                placeholder=" "
-                                className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
-                                value={targetId}
-                                onChange={(e) => setTargetId(e.target.value)}
-                            />
-                            <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
-                                User ID
-                            </label>
-                        </div>
-
-                        {activeConfig?.requiresZoneId && (
-                            <div className="relative group">
-                                <input
-                                    type="text"
-                                    placeholder=" "
-                                    className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
-                                    value={zoneId}
-                                    onChange={(e) => setZoneId(e.target.value)}
-                                />
-                                <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
-                                    Zone ID
-                                </label>
-                            </div>
-                        )}
-
-                        {activeConfig?.requiresServerId && (
-                            <div className="relative group">
-                                <input
-                                    type="text"
-                                    placeholder=" "
-                                    className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
-                                    value={serverId}
-                                    onChange={(e) => setServerId(e.target.value)}
-                                />
-                                <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
-                                    Server ID
-                                </label>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Nickname Check Result / Error Display */}
-                    <div className="mt-4 min-h-[40px]">
-                        {nickCheckLoading && (
-                            <div className="flex items-center gap-3 text-gray-400 animate-pulse">
-                                <Loader2 className="animate-spin text-[var(--blood-red)]" size={18} />
-                                <span className="text-xs uppercase tracking-widest font-bold">Summoning Identity...</span>
-                            </div>
-                        )}
-
-                        {!nickCheckLoading && nickResult && (
-                            <div className="flex items-center gap-3 bg-green-950/20 border border-green-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
-                                style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
-                                <div className="bg-green-900/40 p-1 rounded-sm">
-                                    <CheckCircle size={16} className="text-green-500" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="relative group">
+                                    <input
+                                        type="text"
+                                        placeholder=" "
+                                        className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                        value={targetId}
+                                        onChange={(e) => setTargetId(e.target.value)}
+                                    />
+                                    <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
+                                        User ID
+                                    </label>
                                 </div>
-                                <div>
-                                    <p className="text-[10px] text-green-700 uppercase tracking-widest font-bold leading-none mb-1">Target Acquired</p>
-                                    <p className="text-green-400 font-bold text-sm tracking-wide font-mono">{nickResult}</p>
+
+                                {activeConfig?.requiresZoneId && (
+                                    <div className="relative group">
+                                        <input
+                                            type="text"
+                                            placeholder=" "
+                                            className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                            value={zoneId}
+                                            onChange={(e) => setZoneId(e.target.value)}
+                                        />
+                                        <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
+                                            Zone ID
+                                        </label>
+                                    </div>
+                                )}
+
+                                {activeConfig?.requiresServerId && (
+                                    <div className="relative group">
+                                        <input
+                                            type="text"
+                                            placeholder=" "
+                                            className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                            value={serverId}
+                                            onChange={(e) => setServerId(e.target.value)}
+                                        />
+                                        <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
+                                            Server ID
+                                        </label>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Nickname Check Result / Error Display */}
+                            <div className="mt-4 min-h-[40px]">
+                                {nickCheckLoading && (
+                                    <div className="flex items-center gap-3 text-gray-400 animate-pulse">
+                                        <Loader2 className="animate-spin text-[var(--blood-red)]" size={18} />
+                                        <span className="text-xs uppercase tracking-widest font-bold">Summoning Identity...</span>
+                                    </div>
+                                )}
+
+                                {!nickCheckLoading && nickResult && (
+                                    <div className="flex items-center gap-3 bg-green-950/20 border border-green-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
+                                        style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
+                                        <div className="bg-green-900/40 p-1 rounded-sm">
+                                            <CheckCircle size={16} className="text-green-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-green-700 uppercase tracking-widest font-bold leading-none mb-1">Target Acquired</p>
+                                            <p className="text-green-400 font-bold text-sm tracking-wide font-mono">{nickResult}</p>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {!nickCheckLoading && nickError && (
+                                    <div className="flex items-center gap-3 bg-red-950/20 border border-red-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
+                                        style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
+                                        <div className="bg-red-900/40 p-1 rounded-sm">
+                                            <XCircle size={16} className="text-red-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] text-red-700 uppercase tracking-widest font-bold leading-none mb-1">Target Unknown</p>
+                                            <p className="text-red-400 font-bold text-sm tracking-wide font-mono">{nickError}</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </motion.section>
+
+                        {/* 2. Select Nominal (Grouped by Variation) */}
+                        <motion.section variants={sectionVariants}>
+                            <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
+                                <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">02</span>
+                                SELECT ITEM
+                            </h3>
+
+                            {loading ? (
+                                <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[var(--blood-red)]" size={32} /></div>
+                            ) : (
+                                <div className="space-y-6">
+                                    {/* Grouping Logic: Variation -> Product Group */}
+                                    {(() => {
+                                        const grouped = products.reduce((acc, product) => {
+                                            const variationName = product.category?.name || 'Standard';
+                                            if (!acc[variationName]) acc[variationName] = [];
+                                            acc[variationName].push(product);
+                                            return acc;
+                                        }, {} as Record<string, Product[]>);
+
+                                        const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]));
+                                        const hasMultipleVariations = sortedEntries.length > 1;
+
+                                        return sortedEntries.map(([variationName, variationProducts]) => {
+                                            const isExpanded = !hasMultipleVariations || expandedSections.includes(variationName);
+
+                                            return (
+                                                <div key={variationName} className={`rounded-xl border ${hasMultipleVariations ? 'border-gray-800' : 'border-transparent'}`}>
+
+                                                    {/* Variation Header (Clickable if multiple) */}
+                                                    {hasMultipleVariations && (
+                                                        <button
+                                                            onClick={() => toggleSection(variationName)}
+                                                            className="w-full flex items-center justify-between p-4 bg-gray-900/20 hover:bg-gray-900/30 transition-colors rounded-t-xl"
+                                                        >
+                                                            <div className="flex items-center gap-3">
+                                                                <Globe size={16} className="text-[var(--blood-red)]" />
+                                                                <span className="text-sm font-bold text-gray-200 uppercase tracking-widest">{variationName}</span>
+                                                                <span className="text-xs text-gray-600 font-mono">({variationProducts.length} Items)</span>
+                                                            </div>
+                                                            {isExpanded ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
+                                                        </button>
+                                                    )}
+
+                                                    {/* Products Content */}
+                                                    <AnimatePresence>
+                                                        {isExpanded && (
+                                                            <motion.div
+                                                                initial={{ height: 0, opacity: 0 }}
+                                                                animate={{ height: 'auto', opacity: 1 }}
+                                                                exit={{ height: 0, opacity: 0 }}
+                                                                transition={{ duration: 0.2 }}
+                                                                className="overflow-hidden"
+                                                            >
+                                                                <div className={`${hasMultipleVariations ? 'p-4 pt-0 border-t border-gray-800/50' : ''}`}>
+                                                                    {/* Sub-Group by Product Field (Diamonds, etc) */}
+                                                                    {Object.entries(variationProducts.reduce((acc, product) => {
+                                                                        const group = product.group || 'Top Up';
+                                                                        if (!acc[group]) acc[group] = [];
+                                                                        acc[group].push(product);
+                                                                        return acc;
+                                                                    }, {} as Record<string, Product[]>)).map(([groupName, groupProducts]) => (
+                                                                        <div key={groupName} className="space-y-3 mt-4 first:mt-2">
+                                                                            <motion.div
+                                                                                variants={productGridVariants}
+                                                                                initial="hidden"
+                                                                                animate="show"
+                                                                                className="grid grid-cols-2 lg:grid-cols-3 gap-3"
+                                                                            >
+                                                                                {groupProducts.sort((a, b) => a.price_sell - b.price_sell).map(p => (
+                                                                                    <motion.div
+                                                                                        key={p.id}
+                                                                                        variants={productItemVariants}
+                                                                                        onClick={() => setSelectedProduct(p)}
+                                                                                        className={`
+                                                                                    cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
+                                                                                    ${selectedProduct?.id === p.id
+                                                                                                ? 'bg-[#2a0a0a] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)] ring-opacity-50'
+                                                                                                : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
+                                                                                `}
+                                                                                    >
+                                                                                        {/* Subtle Glow Background for Selected */}
+                                                                                        {selectedProduct?.id === p.id && (
+                                                                                            <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 blur-xl"></div>
+                                                                                        )}
+
+                                                                                        <div className="flex flex-col items-center z-10 text-center gap-1">
+                                                                                            <span className={`text-xs sm:text-sm font-bold leading-tight ${selectedProduct?.id === p.id ? 'text-gray-100' : 'text-gray-400 group-hover/item:text-gray-200'}`}>
+                                                                                                {p.name}
+                                                                                            </span>
+                                                                                            <span className={`text-sm sm:text-base font-mono font-bold ${selectedProduct?.id === p.id ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
+                                                                                                {p.price_sell.toLocaleString()}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    </motion.div>
+                                                                                ))}
+                                                                            </motion.div>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </motion.div>
+                                                        )}
+                                                    </AnimatePresence>
+                                                </div>
+                                            );
+                                        });
+                                    })()}
+
+                                    {products.length === 0 && (
+                                        <div className="text-center text-gray-500 py-8">No products available.</div>
+                                    )}
+                                </div>
+                            )}
+                        </motion.section>
+
+
+                        {/* 3. MOBILE ONLY: Contact & Promo (MOVED TO STICKY SUMMARY) */}
+
+                        {/* 3. Select Payment (UPDATED for Direct Payment) */}
+                        <motion.section variants={sectionVariants}>
+                            <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
+                                <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">03</span>
+                                PAYMENT
+                            </h3>
+
+                            {/* Balance First */}
+                            <div className="mb-6">
+                                <div
+                                    onClick={() => {
+                                        if (user && user.balance >= (selectedProduct?.price_sell || 0)) {
+                                            setPaymentMethod('BALANCE');
+                                            setSelectedChannel(null);
+                                        }
+                                    }}
+                                    className={`
+                                cursor-pointer border p-4 flex items-center gap-4 transition-all relative rounded-lg
+                                ${paymentMethod === 'BALANCE' ? 'bg-white text-black border-white' : 'bg-black border-gray-800 hover:border-gray-600'}
+                                ${(!user || (selectedProduct && user.balance < selectedProduct?.price_sell)) ? 'opacity-50 grayscale cursor-not-allowed' : ''}
+                            `}
+                                >
+                                    <Wallet size={24} className={paymentMethod === 'BALANCE' ? 'text-black' : 'text-gray-500'} />
+                                    <div className="flex-1">
+                                        <p className="text-sm font-bold uppercase tracking-wider">My Balance</p>
+                                        {user ? (
+                                            <p className="text-xs font-mono">Rp {user.balance.toLocaleString()}</p>
+                                        ) : (
+                                            <p className="text-[10px] text-gray-500">Login to use balance</p>
+                                        )}
+                                    </div>
+                                    {paymentMethod === 'BALANCE' && <CheckCircle className="text-green-500" size={20} />}
                                 </div>
                             </div>
-                        )}
 
-                        {!nickCheckLoading && nickError && (
-                            <div className="flex items-center gap-3 bg-red-950/20 border border-red-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
-                                style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
-                                <div className="bg-red-900/40 p-1 rounded-sm">
-                                    <XCircle size={16} className="text-red-500" />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-red-700 uppercase tracking-widest font-bold leading-none mb-1">Target Unknown</p>
-                                    <p className="text-red-400 font-bold text-sm tracking-wide font-mono">{nickError}</p>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </motion.section>
-
-                {/* 2. Select Nominal (Grouped by Variation) */}
-                <motion.section variants={sectionVariants}>
-                    <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
-                        <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">02</span>
-                        SELECT ITEM
-                    </h3>
-
-                    {loading ? (
-                        <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[var(--blood-red)]" size={32} /></div>
-                    ) : (
-                        <div className="space-y-6">
-                            {/* Grouping Logic: Variation -> Product Group */}
-                            {(() => {
-                                const grouped = products.reduce((acc, product) => {
-                                    const variationName = product.category?.name || 'Standard';
-                                    if (!acc[variationName]) acc[variationName] = [];
-                                    acc[variationName].push(product);
+                            {/* Direct Payment Channels */}
+                            <div className="space-y-6">
+                                {/* Group by Channel Group (QRIS, VA, Retail) */}
+                                {Object.entries(channels.reduce((acc, ch) => {
+                                    if (!acc[ch.group]) acc[ch.group] = [];
+                                    acc[ch.group].push(ch);
                                     return acc;
-                                }, {} as Record<string, Product[]>);
-
-                                const sortedEntries = Object.entries(grouped).sort((a, b) => a[0].localeCompare(b[0]));
-                                const hasMultipleVariations = sortedEntries.length > 1;
-
-                                return sortedEntries.map(([variationName, variationProducts]) => {
-                                    const isExpanded = !hasMultipleVariations || expandedSections.includes(variationName);
-
+                                }, {} as Record<string, PaymentChannel[]>)).map(([group, channels]) => {
+                                    const isExpanded = expandedGroups[group] ?? true; // Default: expanded
                                     return (
-                                        <div key={variationName} className={`rounded-xl border ${hasMultipleVariations ? 'border-gray-800' : 'border-transparent'}`}>
+                                        <div key={group} className="space-y-3">
+                                            {/* Category Header with Toggle */}
+                                            <button
+                                                onClick={() => setExpandedGroups(prev => ({ ...prev, [group]: !isExpanded }))}
+                                                className="w-full flex items-center justify-between group hover:opacity-80 transition-opacity"
+                                            >
+                                                <h4 className="text-gray-500 text-xs font-bold uppercase tracking-widest pl-1 border-l-2 border-[var(--blood-red)]">
+                                                    {group}
+                                                </h4>
+                                                <div className="flex items-center gap-2 text-gray-600">
+                                                    <span className="text-[10px]">{isExpanded ? 'Hide' : 'Show'}</span>
+                                                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                                                </div>
+                                            </button>
 
-                                            {/* Variation Header (Clickable if multiple) */}
-                                            {hasMultipleVariations && (
-                                                <button
-                                                    onClick={() => toggleSection(variationName)}
-                                                    className="w-full flex items-center justify-between p-4 bg-gray-900/20 hover:bg-gray-900/30 transition-colors rounded-t-xl"
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <Globe size={16} className="text-[var(--blood-red)]" />
-                                                        <span className="text-sm font-bold text-gray-200 uppercase tracking-widest">{variationName}</span>
-                                                        <span className="text-xs text-gray-600 font-mono">({variationProducts.length} Items)</span>
-                                                    </div>
-                                                    {isExpanded ? <ChevronUp size={16} className="text-gray-500" /> : <ChevronDown size={16} className="text-gray-500" />}
-                                                </button>
-                                            )}
-
-                                            {/* Products Content */}
+                                            {/* Payment Channel Grid with Animation */}
                                             <AnimatePresence>
                                                 {isExpanded && (
                                                     <motion.div
@@ -753,258 +913,115 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                         transition={{ duration: 0.2 }}
                                                         className="overflow-hidden"
                                                     >
-                                                        <div className={`${hasMultipleVariations ? 'p-4 pt-0 border-t border-gray-800/50' : ''}`}>
-                                                            {/* Sub-Group by Product Field (Diamonds, etc) */}
-                                                            {Object.entries(variationProducts.reduce((acc, product) => {
-                                                                const group = product.group || 'Top Up';
-                                                                if (!acc[group]) acc[group] = [];
-                                                                acc[group].push(product);
-                                                                return acc;
-                                                            }, {} as Record<string, Product[]>)).map(([groupName, groupProducts]) => (
-                                                                <div key={groupName} className="space-y-3 mt-4 first:mt-2">
-                                                                    <motion.div
-                                                                        variants={productGridVariants}
-                                                                        initial="hidden"
-                                                                        animate="show"
-                                                                        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
-                                                                    >
-                                                                        {groupProducts.sort((a, b) => a.price_sell - b.price_sell).map(p => (
-                                                                            <motion.div
-                                                                                key={p.id}
-                                                                                variants={productItemVariants}
-                                                                                onClick={() => setSelectedProduct(p)}
-                                                                                className={`
-                                                                                    cursor-pointer relative px-3 py-3 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
-                                                                                    ${selectedProduct?.id === p.id
-                                                                                        ? 'bg-[#2a0a0a] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)] ring-opacity-50'
-                                                                                        : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
-                                                                                `}
-                                                                            >
-                                                                                {/* Subtle Glow Background for Selected */}
-                                                                                {selectedProduct?.id === p.id && (
-                                                                                    <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 blur-xl"></div>
-                                                                                )}
+                                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                                                            {channels.map((channel) => {
+                                                                const currentPrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
+                                                                const isGlobalRestricted = currentPrice < 10000 && channel.group !== 'QRIS';
+                                                                const isBelowMin = (channel.minAmount && currentPrice < channel.minAmount) || isGlobalRestricted;
 
-                                                                                <div className="flex flex-col items-center z-10 text-center gap-1">
-                                                                                    <span className={`text-[10px] sm:text-xs font-bold leading-tight ${selectedProduct?.id === p.id ? 'text-gray-100' : 'text-gray-400 group-hover/item:text-gray-200'}`}>
-                                                                                        {p.name}
-                                                                                    </span>
-                                                                                    <span className={`text-xs sm:text-sm font-mono font-bold ${selectedProduct?.id === p.id ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
-                                                                                        {p.price_sell.toLocaleString()}
-                                                                                    </span>
-                                                                                </div>
-                                                                            </motion.div>
-                                                                        ))}
-                                                                    </motion.div>
-                                                                </div>
-                                                            ))}
+                                                                return (
+                                                                    <div
+                                                                        key={channel.code}
+                                                                        onClick={() => {
+                                                                            if (!isBelowMin) {
+                                                                                setPaymentMethod(channel.method); // 'va', 'qris', etc
+                                                                                setSelectedChannel(channel);
+                                                                            }
+                                                                        }}
+                                                                        className={`
+                                        cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all rounded text-center min-h-[110px] relative
+                                        ${selectedChannel?.code === channel.code ? 'bg-[#1a0505] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)]' : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
+                                        ${isBelowMin ? 'opacity-40 grayscale cursor-not-allowed' : ''}
+                                    `}
+                                                                    >
+                                                                        {/* Logo Placeholder or Text */}
+                                                                        <div className="flex-1 flex items-center justify-center">
+                                                                            {channel.group === 'QRIS' ? <Zap size={24} className="text-white" /> :
+                                                                                channel.group === 'Retail' ? <Store size={24} className="text-blue-400" /> :
+                                                                                    <CreditCard size={24} className="text-gray-400" />}
+                                                                        </div>
+
+                                                                        <span className={`text-xs font-bold uppercase tracking-wider ${selectedChannel?.code === channel.code ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
+                                                                            {channel.name}
+                                                                        </span>
+
+                                                                        {/* Minimum Amount Warning - More Prominent */}
+                                                                        {isBelowMin && (
+                                                                            <div className="absolute inset-0 bg-black/90 flex items-center justify-center rounded">
+                                                                                <span suppressHydrationWarning className="text-[10px] text-red-500 font-bold text-center px-1 leading-tight">
+                                                                                    {isGlobalRestricted ? 'Min: Rp 10.000' : `Min: Rp ${channel.minAmount?.toLocaleString('id-ID')}`}
+                                                                                </span>
+                                                                            </div>
+                                                                        )}
+
+                                                                        {selectedChannel?.code === channel.code && (
+                                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-[var(--blood-red)] rounded-full animate-pulse"></div>
+                                                                        )}
+                                                                    </div>
+                                                                );
+                                                            })}
                                                         </div>
                                                     </motion.div>
                                                 )}
                                             </AnimatePresence>
                                         </div>
                                     );
-                                });
-                            })()}
-
-                            {products.length === 0 && (
-                                <div className="text-center text-gray-500 py-8">No products available.</div>
-                            )}
-                        </div>
-                    )}
-                </motion.section>
-
-
-                {/* 3. Select Payment (UPDATED for Direct Payment) */}
-                <motion.section variants={sectionVariants}>
-                    <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
-                        <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">03</span>
-                        PAYMENT
-                    </h3>
-
-                    {/* Balance First */}
-                    <div className="mb-6">
-                        <div
-                            onClick={() => {
-                                if (user && user.balance >= (selectedProduct?.price_sell || 0)) {
-                                    setPaymentMethod('BALANCE');
-                                    setSelectedChannel(null);
-                                }
-                            }}
-                            className={`
-                                cursor-pointer border p-4 flex items-center gap-4 transition-all relative rounded-lg
-                                ${paymentMethod === 'BALANCE' ? 'bg-white text-black border-white' : 'bg-black border-gray-800 hover:border-gray-600'}
-                                ${(!user || (selectedProduct && user.balance < selectedProduct?.price_sell)) ? 'opacity-50 grayscale cursor-not-allowed' : ''}
-                            `}
-                        >
-                            <Wallet size={24} className={paymentMethod === 'BALANCE' ? 'text-black' : 'text-gray-500'} />
-                            <div className="flex-1">
-                                <p className="text-sm font-bold uppercase tracking-wider">My Balance</p>
-                                {user ? (
-                                    <p className="text-xs font-mono">Rp {user.balance.toLocaleString()}</p>
-                                ) : (
-                                    <p className="text-[10px] text-gray-500">Login to use balance</p>
-                                )}
+                                })}
                             </div>
-                            {paymentMethod === 'BALANCE' && <CheckCircle className="text-green-500" size={20} />}
-                        </div>
+                        </motion.section>
+
                     </div>
 
-                    {/* Direct Payment Channels */}
-                    <div className="space-y-6">
-                        {/* Group by Channel Group (QRIS, VA, Retail) */}
-                        {Object.entries(channels.reduce((acc, ch) => {
-                            if (!acc[ch.group]) acc[ch.group] = [];
-                            acc[ch.group].push(ch);
-                            return acc;
-                        }, {} as Record<string, PaymentChannel[]>)).map(([group, channels]) => (
-                            <div key={group}>
-                                <h4 className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-3 pl-1 border-l-2 border-[var(--blood-red)]">{group}</h4>
-                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                                    {channels.map((channel) => {
-                                        const currentPrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
-                                        const isBelowMin = channel.minAmount && currentPrice < channel.minAmount;
 
-                                        return (
-                                            <div
-                                                key={channel.code}
-                                                onClick={() => {
-                                                    if (!isBelowMin) {
-                                                        setPaymentMethod(channel.method); // 'va', 'qris', etc
-                                                        setSelectedChannel(channel);
-                                                    }
-                                                }}
-                                                className={`
-                                                    cursor-pointer border p-3 flex flex-col items-center justify-center gap-2 transition-all rounded text-center h-[100px] relative
-                                                    ${selectedChannel?.code === channel.code ? 'bg-[#1a0505] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)]' : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
-                                                    ${isBelowMin ? 'opacity-40 grayscale cursor-not-allowed' : ''}
-                                                `}
-                                            >
-                                                {/* Logo Placeholder or Text */}
-                                                {/* Since we don't have actual images yet, use text or icon fallback */}
-                                                <div className="flex-1 flex items-center justify-center">
-                                                    {channel.group === 'QRIS' ? <Zap size={24} className="text-white" /> :
-                                                        channel.group === 'Retail' ? <Store size={24} className="text-blue-400" /> :
-                                                            <CreditCard size={24} className="text-gray-400" />}
-                                                </div>
-
-                                                <span className={`text-[10px] font-bold uppercase tracking-wider ${selectedChannel?.code === channel.code ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
-                                                    {channel.name}
-                                                </span>
-
-                                                {isBelowMin && (
-                                                    <span suppressHydrationWarning className="text-[8px] text-red-500 font-mono absolute bottom-1">
-                                                        Min {channel.minAmount?.toLocaleString('id-ID')}
-                                                    </span>
-                                                )}
-
-                                                {selectedChannel?.code === channel.code && (
-                                                    <div className="absolute top-2 right-2 w-2 h-2 bg-[var(--blood-red)] rounded-full animate-pulse"></div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </motion.section>
-
-                {/* 4. Voucher & Contact */}
-                <motion.section variants={sectionVariants} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Guest Contact - Show for guest OR logged-in user without phone */}
-                    {(!user || !user.phoneNumber) && (
-                        <div>
-                            <h4 className="text-gray-500 text-xs font-bold uppercase tracking-widest mb-3 pl-1 border-l-2 border-[var(--blood-red)]">
-                                WhatsApp Contact {user && <span className="text-yellow-500 text-[10px]">(Required for Payment)</span>}
-                            </h4>
-                            <div className="relative group">
-                                <input
-                                    type="text"
-                                    placeholder=" "
-                                    className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
-                                    value={guestContact}
-                                    onChange={(e) => setGuestContact(e.target.value.replace(/\D/g, ''))}
-                                />
-                                <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
-                                    WhatsApp Number (08xxx)
-                                </label>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Voucher */}
-                    <div className="space-y-4">
-                        <h3 className="text-sm font-[family-name:var(--font-cinzel)] font-bold text-gray-400">VOUCHER CODE</h3>
-                        <div className="flex gap-2">
-                            <input
-                                type="text"
-                                placeholder="ENTER CODE"
-                                className="flex-1 bg-black border border-gray-800 px-4 py-3 text-white focus:border-[var(--blood-red)] outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-800"
-                                value={voucherCode}
-                                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                            />
-                            <button
-                                onClick={handleApplyVoucher}
-                                disabled={checkingVoucher || !selectedProduct}
-                                className="bg-gray-900 border border-gray-800 hover:bg-gray-800 text-white px-6 font-bold disabled:opacity-50 transition-colors"
-                            >
-                                {checkingVoucher ? '...' : <Ticket size={18} />}
-                            </button>
-                        </div>
-                        {voucherStats.isValid && (
-                            <div suppressHydrationWarning className="text-xs text-green-500 font-mono flex items-center gap-2">
-                                <CheckCircle size={12} /> Discount Applied: -Rp {voucherStats.discount.toLocaleString('id-ID')}
-                            </div>
-                        )}
-                        {voucherStats.message && !voucherStats.isValid && (
-                            <div className="text-xs text-red-500 font-mono flex items-center gap-2">
-                                <XCircle size={12} /> {voucherStats.message}
-                            </div>
-                        )}
-                    </div>
-                </motion.section>
-
-                {/* Footer / Submit */}
-                <div className="border-t border-dashed border-gray-800 pt-6 mt-8">
-                    <div className="flex flex-col md:flex-row justify-between items-end md:items-center gap-4 mb-6">
-                        <div className="text-right w-full md:w-auto md:text-left">
-                            <p className="text-gray-500 text-[10px] uppercase tracking-widest mb-1">Total Payment</p>
-                            <div className="flex flex-col items-end md:items-start">
-                                {selectedChannel && (dynamicFee !== null || loadingFee) && (
-                                    <span suppressHydrationWarning className="text-xs text-red-400 font-mono mb-1">
-                                        {loadingFee ? '+ Calculating Fee...' : `+ Fee Rp ${dynamicFee?.toLocaleString('id-ID')}`}
-                                    </span>
-                                )}
-                                <p suppressHydrationWarning className="text-4xl font-black text-[var(--blood-red)] font-[family-name:var(--font-cinzel)]">
-                                    Rp {((voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0)) + (dynamicFee || 0)).toLocaleString('id-ID')}
-                                </p>
-                            </div>
-                        </div>
-
-                        <button
-                            onClick={handleOrder}
-                            disabled={isProcessing}
-                            className="w-full md:w-auto flex-1 bg-[var(--blood-red)] hover:bg-red-700 text-black font-black py-5 px-8 text-sm uppercase tracking-[0.2em] transition-all clip-path-button shadow-[0_0_25px_rgba(187,10,30,0.4)] disabled:opacity-50 disabled:grayscale"
-                        >
-                            {isProcessing ? 'SUMMONING...' : 'INITIATE ORDER'}
-                        </button>
-                    </div>
-
-                    {error && (
-                        <div className="bg-red-950/20 border border-red-900/50 p-4 text-center text-red-500 text-xs font-bold tracking-wide uppercase animate-pulse">
-                            ⚠️ {error}
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            {/* Styles for Clip Path if not in global */}
-            <style jsx>{`
+                    {/* Styles for Clip Path if not in global */}
+                    <style jsx>{`
                 .clip-path-button {
                     clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
                 }
             `}</style>
-        </motion.div>
+                </motion.div>
+
+                {/* RIGHT: Sticky Order Summary (Desktop Only) */}
+                <div className="hidden lg:block">
+                    <div className="sticky top-6">
+                        <OrderSummary
+                            selectedProduct={selectedProduct}
+                            voucherStats={voucherStats}
+                            dynamicFee={dynamicFee}
+                            loadingFee={loadingFee}
+                            isProcessing={isProcessing}
+                            onCheckout={handleOrder}
+                            user={user}
+                            guestContact={guestContact}
+                            onGuestContactChange={setGuestContact}
+                            voucherCode={voucherCode}
+                            onVoucherCodeChange={setVoucherCode}
+                            checkingVoucher={checkingVoucher}
+                            onApplyVoucher={handleApplyVoucher}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Mobile: Sticky Bottom Bar */}
+            <MobileSummaryBar
+                selectedProduct={selectedProduct}
+                totalPrice={totalPrice}
+                isExpanded={summaryExpanded}
+                onToggle={() => setSummaryExpanded(!summaryExpanded)}
+                onCheckout={handleOrder}
+                isProcessing={isProcessing}
+                voucherStats={voucherStats}
+                dynamicFee={dynamicFee}
+                loadingFee={loadingFee}
+                guestContact={guestContact}
+                onGuestContactChange={setGuestContact}
+                voucherCode={voucherCode}
+                onVoucherCodeChange={setVoucherCode}
+                onApplyVoucher={handleApplyVoucher}
+                checkingVoucher={checkingVoucher}
+                user={user}
+            />
+        </>
     );
 }

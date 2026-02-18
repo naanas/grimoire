@@ -53,6 +53,7 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         {children}
                     </main>
                     <Footer />
+                    <PromoPopup />
                     <ChatWidget />
                 </>
             )}

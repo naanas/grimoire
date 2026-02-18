@@ -2,7 +2,7 @@
 
 import { ShoppingCart, ChevronUp, ChevronDown, Ticket, CheckCircle, XCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 type OrderSummaryProps = {
     selectedProduct: any;
@@ -20,6 +20,7 @@ type OrderSummaryProps = {
     onVoucherCodeChange: (value: string) => void;
     checkingVoucher: boolean;
     onApplyVoucher: () => void;
+    shouldHighlightInput?: boolean;
 };
 
 export default function OrderSummary({
@@ -35,7 +36,8 @@ export default function OrderSummary({
     voucherCode,
     onVoucherCodeChange,
     checkingVoucher,
-    onApplyVoucher
+    onApplyVoucher,
+    shouldHighlightInput = false
 }: OrderSummaryProps) {
     const basePrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
     const totalFee = dynamicFee || 0;
@@ -189,7 +191,8 @@ export function MobileSummaryBar({
     onVoucherCodeChange,
     onApplyVoucher,
     checkingVoucher,
-    user
+    user,
+    shouldHighlightInput
 }: {
     selectedProduct: any;
     totalPrice: number;
@@ -207,7 +210,20 @@ export function MobileSummaryBar({
     onApplyVoucher: () => void;
     checkingVoucher: boolean;
     user: any;
+    shouldHighlightInput?: boolean;
 }) {
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (shouldHighlightInput && isExpanded) {
+            inputRef.current?.focus();
+            inputRef.current?.classList.add('ring-4', 'ring-yellow-500', 'animate-pulse');
+            setTimeout(() => {
+                inputRef.current?.classList.remove('ring-4', 'ring-yellow-500', 'animate-pulse');
+            }, 2000);
+        }
+    }, [shouldHighlightInput, isExpanded]);
+
     return (
         <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-t border-gray-800 shadow-2xl">
             {/* Expanded View */}
@@ -229,8 +245,9 @@ export function MobileSummaryBar({
                                 <input
                                     type="text"
                                     placeholder="08XXXXXXXXXX"
-                                    className="w-full bg-[#111] border border-gray-700 p-3 rounded focus:border-red-600 outline-none text-white text-sm font-mono"
+                                    className="w-full bg-[#111] border border-gray-700 p-3 rounded focus:border-red-600 outline-none text-white text-sm font-mono transition-all duration-300"
                                     value={guestContact}
+                                    ref={inputRef}
                                     onChange={(e) => onGuestContactChange(e.target.value.replace(/\D/g, ''))}
                                 />
                             </div>

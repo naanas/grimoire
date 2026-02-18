@@ -7,11 +7,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { ChatMessage, ChatSession } from '@/types/chat';
+import { useUIStore } from '@/lib/uiStore';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
 
 export default function ChatWidget() {
     const { user } = useAuth();
+    const { isMobileSummaryExpanded } = useUIStore();
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputMessage, setInputMessage] = useState('');
@@ -191,7 +193,7 @@ export default function ChatWidget() {
     };
 
     return (
-        <div className="fixed bottom-24 md:bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className={`fixed right-6 z-50 flex flex-col items-end transition-all duration-300 ${isMobileSummaryExpanded ? 'bottom-[65vh]' : 'bottom-24 md:bottom-6'}`}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

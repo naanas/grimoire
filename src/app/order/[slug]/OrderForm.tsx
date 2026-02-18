@@ -10,6 +10,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { PaymentChannel } from '@/lib/PaymentChannels';
 import { io } from 'socket.io-client';
 import OrderSummary, { MobileSummaryBar } from '@/components/OrderSummary';
+import { useUIStore } from '@/lib/uiStore';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -212,7 +213,14 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [nickResult, setNickResult] = useState<string | null>(null);
     const [nickError, setNickError] = useState<string | null>(null);
     const [summaryExpanded, setSummaryExpanded] = useState(false);
+    const { setMobileSummaryExpanded } = useUIStore();
+    const [highlightGuestInput, setHighlightGuestInput] = useState(false); // For blinking effect
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+    // Sync local summary state with global store
+    useEffect(() => {
+        setMobileSummaryExpanded(summaryExpanded);
+    }, [summaryExpanded, setMobileSummaryExpanded]);
 
     // Popup Validation State
     const [showValidationModal, setShowValidationModal] = useState(false);
@@ -396,6 +404,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         // Require phone for guest OR logged-in user without phone (except BALANCE payment)
         if (paymentMethod !== 'BALANCE' && (!user || !user.phoneNumber)) {
             if (!guestContact || guestContact.length < 9) {
+                // Auto-expand mobile summary and highlight input
+                setSummaryExpanded(true);
+                setHighlightGuestInput(true);
+                setTimeout(() => setHighlightGuestInput(false), 2000); // Reset after animation
+
                 setError("Please provide a valid WhatsApp number!");
                 return;
             }
@@ -1030,6 +1043,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             onVoucherCodeChange={setVoucherCode}
                             checkingVoucher={checkingVoucher}
                             onApplyVoucher={handleApplyVoucher}
+                            shouldHighlightInput={highlightGuestInput}
                         />
                     </div>
                 </div>
@@ -1053,6 +1067,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 onApplyVoucher={handleApplyVoucher}
                 checkingVoucher={checkingVoucher}
                 user={user}
+                shouldHighlightInput={highlightGuestInput}
             />
 
             {/* Validation Modal Popup */}

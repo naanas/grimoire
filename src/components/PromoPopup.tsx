@@ -13,21 +13,26 @@ export default function PromoPopup() {
     useEffect(() => {
         const checkPromo = async () => {
             try {
+                console.log("[PromoPopup] Checking...");
                 // 1. Check LocalStorage (Frequency Cap)
                 const lastShown = localStorage.getItem('promoPopupShown');
                 if (lastShown) {
                     const lastShownDate = new Date(parseInt(lastShown));
                     const today = new Date();
+                    console.log("[PromoPopup] Last shown:", lastShownDate.toDateString(), "Today:", today.toDateString());
                     // Show only once per day
                     if (lastShownDate.toDateString() === today.toDateString()) {
+                        console.log("[PromoPopup] Already shown today.");
                         return;
                     }
                 }
 
                 // 2. Fetch Config
                 const res = await api.get('/config');
+                console.log("[PromoPopup] Config Res:", res.data);
                 if (res.data.success) {
                     const cfg = res.data.data;
+                    console.log("[PromoPopup] Active Status:", cfg.PROMO_POPUP_ACTIVE);
                     if (cfg.PROMO_POPUP_ACTIVE === 'true') {
                         setConfig(cfg);
                         // Delay slightly for better UX

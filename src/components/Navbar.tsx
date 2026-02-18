@@ -62,7 +62,7 @@ export default function Navbar() {
                                 GRIMOIRE
                             </span>
                             <span className="text-[9px] text-stone-500 uppercase tracking-[0.3em] font-mono leading-none mt-1">
-                                System Online
+                                Coins
                             </span>
                         </div>
                     </Link>

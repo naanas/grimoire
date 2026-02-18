@@ -16,6 +16,7 @@ function StatusContent() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        window.scrollTo(0, 0);
         if (!id) return;
 
         // Poll status every 5 seconds or just fetch once
@@ -51,7 +52,7 @@ function StatusContent() {
                 {trx.status === 'PENDING' && <Clock className="mx-auto text-yellow-500 mb-2 w-16 h-16 animate-pulse" />}
 
                 <h1 className={`text-2xl font-bold ${trx.status === 'SUCCESS' ? 'text-green-500' :
-                        trx.status === 'FAILED' ? 'text-red-500' : 'text-yellow-500'
+                    trx.status === 'FAILED' ? 'text-red-500' : 'text-yellow-500'
                     }`}>
                     Payment {trx.status}
                 </h1>

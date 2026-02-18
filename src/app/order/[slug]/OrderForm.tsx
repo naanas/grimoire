@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
-import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store, Eye, EyeOff } from 'lucide-react';
+import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { toast } from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { PaymentChannel } from '@/lib/PaymentChannels';
 import { io } from 'socket.io-client';
@@ -96,6 +97,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         setVoucherCode('');
     }, [selectedProduct]);
 
+    // Scroll to top on mount
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     // Dynamic Fee Sync
     const [dynamicFee, setDynamicFee] = useState<number | null>(null);
     const [loadingFee, setLoadingFee] = useState(false);
@@ -157,13 +163,14 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
 
     // Initialize expanded sections when products change
-    useEffect(() => {
-        if (products.length > 0) {
-            const currentVarProducts = products.find(p => p.category.slug === gameSlug);
-            const currentVarName = currentVarProducts?.category?.name || 'Standard';
-            setExpandedSections(prev => prev.length === 0 ? [currentVarName] : prev);
-        }
-    }, [products, gameSlug]);
+    // Initialize expanded sections when products change
+    // useEffect(() => {
+    //     if (products.length > 0) {
+    //         const currentVarProducts = products.find(p => p.category.slug === gameSlug);
+    //         const currentVarName = currentVarProducts?.category?.name || 'Standard';
+    //         setExpandedSections(prev => prev.length === 0 ? [currentVarName] : prev);
+    //     }
+    // }, [products, gameSlug]);
 
     const toggleSection = (name: string) => {
         setExpandedSections(prev =>
@@ -206,6 +213,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [nickError, setNickError] = useState<string | null>(null);
     const [summaryExpanded, setSummaryExpanded] = useState(false);
     const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
+
+    // Popup Validation State
+    const [showValidationModal, setShowValidationModal] = useState(false);
+    const [missingFields, setMissingFields] = useState<string[]>([]);
 
     // ID Checking Logic
     useEffect(() => {
@@ -370,10 +381,18 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     }, [result?.id]);
 
     const handleOrder = async () => {
-        if (!targetId || !selectedProduct) {
-            setError("Please fill in Game ID and select a product!");
+        const missing = [];
+        if (!targetId) missing.push("User ID");
+        if (!selectedProduct) missing.push("Product Item");
+        if (!paymentMethod && !selectedChannel) missing.push("Payment Method");
+
+        if (missing.length > 0) {
+            setMissingFields(missing);
+            setShowValidationModal(true);
             return;
         }
+
+        // Require phone for guest OR logged-in user without phone (except BALANCE payment)
         // Require phone for guest OR logged-in user without phone (except BALANCE payment)
         if (paymentMethod !== 'BALANCE' && (!user || !user.phoneNumber)) {
             if (!guestContact || guestContact.length < 9) {
@@ -393,7 +412,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
         try {
             const res = await api.post('/create', {
-                productId: selectedProduct.id,
+                productId: selectedProduct!.id,
                 userId: targetId,
                 zoneId: zoneId || serverId,
                 paymentMethod: paymentMethod === 'BALANCE' ? 'BALANCE' : currentChannel?.method,
@@ -622,7 +641,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     return (
         <>
             {/* Desktop: Two Column Layout */}
-            <div className="grid lg:grid-cols-[1fr_400px] gap-6 max-w-[1400px] mx-auto pb-32 lg:pb-0">
+            <div className="grid lg:grid-cols-[1fr_320px] gap-6 max-w-[1400px] mx-auto pb-32 lg:pb-0">
                 {/* LEFT: Main Order Form */}
                 <motion.div
                     variants={containerVariants}
@@ -646,6 +665,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="relative group">
                                     <input
+                                        id="target-id-input"
                                         type="text"
                                         placeholder=" "
                                         className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
@@ -798,7 +818,14 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                                     <motion.div
                                                                                         key={p.id}
                                                                                         variants={productItemVariants}
-                                                                                        onClick={() => setSelectedProduct(p)}
+                                                                                        onClick={() => {
+                                                                                            if (!targetId) {
+                                                                                                toast.error("Mohon isi User ID terlebih dahulu sebelum memilih produk!");
+                                                                                                document.getElementById('target-id-input')?.focus();
+                                                                                                return;
+                                                                                            }
+                                                                                            setSelectedProduct(p);
+                                                                                        }}
                                                                                         className={`
                                                                                     cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
                                                                                     ${selectedProduct?.id === p.id
@@ -923,6 +950,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                     <div
                                                                         key={channel.code}
                                                                         onClick={() => {
+                                                                            if (!targetId) {
+                                                                                toast.error("Mohon isi User ID terlebih dahulu sebelum memilih pembayaran!");
+                                                                                document.getElementById('target-id-input')?.focus();
+                                                                                return;
+                                                                            }
                                                                             if (!isBelowMin) {
                                                                                 setPaymentMethod(channel.method); // 'va', 'qris', etc
                                                                                 setSelectedChannel(channel);
@@ -1022,6 +1054,56 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                 checkingVoucher={checkingVoucher}
                 user={user}
             />
+
+            {/* Validation Modal Popup */}
+            <AnimatePresence>
+                {showValidationModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        onClick={() => setShowValidationModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-[#1a0505] border border-red-900 rounded-2xl p-8 max-w-sm w-full shadow-[0_0_50px_rgba(255,0,0,0.2)] text-center relative overflow-hidden"
+                        >
+                            <div className="absolute top-0 left-0 w-full h-1 bg-[var(--blood-red)]"></div>
+
+                            <div className="w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-1 ring-red-500/50">
+                                <AlertTriangle size={32} className="text-red-500" />
+                            </div>
+
+                            <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-cinzel)] uppercase">
+                                Data Belum Lengkap
+                            </h3>
+                            <p className="text-gray-400 text-sm mb-6">
+                                Mohon lengkapi data berikut untuk melanjutkan pesanan Anda:
+                            </p>
+
+                            <div className="space-y-2 mb-8 text-left bg-black/40 p-4 rounded border border-white/5">
+                                {missingFields.map((field, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 text-red-400 text-sm font-bold">
+                                        <XCircle size={14} />
+                                        <span>{field}</span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={() => setShowValidationModal(false)}
+                                className="w-full bg-[var(--blood-red)] hover:bg-red-700 text-white font-bold py-3 px-6 rounded transition-all uppercase tracking-widest text-sm shadow-[0_0_15px_rgba(220,38,38,0.4)]"
+                            >
+                                Lengkapi Data
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </>
     );
 }

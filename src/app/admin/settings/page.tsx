@@ -23,7 +23,7 @@ export default function SettingsPage() {
                 <div>
                     <h1 className="text-3xl font-bold text-white flex items-center gap-3">
                         <SettingsIcon className="text-red-600" size={32} />
-                        System Settings
+                        System Settings <span className="text-xs bg-red-500 px-2 py-1 rounded text-white ml-2">V2-FIXED</span>
                     </h1>
                     <p className="text-neutral-400 mt-2">Configure payment gateways, system preferences, and integrations.</p>
                 </div>

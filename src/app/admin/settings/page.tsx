@@ -57,52 +57,24 @@ export default function SettingsPage() {
 
                 {activeSection === 'general' && (
                     <section>
-                        <div className="mb-6 pb-2 border-b border-gray-800">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Globe className="text-blue-500" size={24} />
-                                General Payment Settings
-                            </h2>
-                            <p className="text-sm text-neutral-500">Choose the active payment processor for the website.</p>
-                        </div>
                         <PaymentGatewaySwitch />
                     </section>
                 )}
 
                 {activeSection === 'tripay' && (
                     <section>
-                        <div className="mb-6 pb-2 border-b border-gray-800">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Shield className="text-orange-500" size={24} />
-                                Payment Gateway (Tripay)
-                            </h2>
-                            <p className="text-sm text-neutral-500">Configure Tripay connection for automated payments.</p>
-                        </div>
                         <TripaySettings />
                     </section>
                 )}
 
                 {activeSection === 'methods' && (
                     <section>
-                        <div className="mb-6 pb-2 border-b border-gray-800">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <LayoutGrid className="text-purple-500" size={24} />
-                                Payment Method Management
-                            </h2>
-                            <p className="text-sm text-neutral-500">Enable or disable individual payment methods.</p>
-                        </div>
                         <PaymentMethodSettings />
                     </section>
                 )}
 
                 {activeSection === 'promo' && (
                     <section>
-                        <div className="mb-6 pb-2 border-b border-gray-800">
-                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                                <Ticket className="text-green-500" size={24} />
-                                Promo Popup Configuration
-                            </h2>
-                            <p className="text-sm text-neutral-500">Manage the promotional popup shown to users.</p>
-                        </div>
                         <PromoPopupSettings />
                     </section>
                 )}

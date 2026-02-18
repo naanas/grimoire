@@ -77,6 +77,10 @@ export default function PaymentMethodSettings() {
 
     return (
         <div className="space-y-6">
+            <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6 mb-6">
+                <h3 className="text-lg font-semibold text-white mb-1">Payment Methods</h3>
+                <p className="text-sm text-neutral-500">Enable or disable specific payment channels manually.</p>
+            </div>
             {Object.entries(grouped).map(([group, groupMethods]) => (
                 <div key={group} className="bg-neutral-900 rounded-lg p-6 border border-neutral-800">
                     <h3 className="text-lg font-bold text-white mb-4 border-b border-neutral-800 pb-2">

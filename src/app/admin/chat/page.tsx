@@ -195,7 +195,6 @@ export default function AdminChatPage() {
     };
 
     return (
-    return (
         <div className="flex flex-col md:flex-row h-[calc(100vh-140px)] md:h-[calc(100vh-120px)] bg-neutral-900 rounded-xl overflow-hidden border border-neutral-800">
             {/* Sidebar List - Hidden on mobile if chat is open */}
             <div className={`w-full md:w-1/3 border-b md:border-b-0 md:border-r border-neutral-800 flex flex-col ${selectedSessionId ? 'hidden md:flex' : 'flex'}`}>

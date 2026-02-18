@@ -138,7 +138,7 @@ export default function OrderSummary({
                     <input
                         type="text"
                         placeholder="ENTER CODE"
-                        className="flex-1 bg-black border border-gray-800 px-3 py-3 text-white focus:border-red-600 outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-700"
+                        className="flex-1 min-w-0 bg-black border border-gray-800 px-3 py-3 text-white focus:border-red-600 outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-700"
                         value={voucherCode}
                         onChange={(e) => onVoucherCodeChange(e.target.value.toUpperCase())}
                     />

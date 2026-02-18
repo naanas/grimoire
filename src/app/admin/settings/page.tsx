@@ -2,6 +2,7 @@ import { Settings as SettingsIcon } from 'lucide-react';
 import TripaySettings from '@/components/admin/TripaySettings';
 import PaymentGatewaySwitch from '@/components/admin/PaymentGatewaySwitch';
 import PaymentMethodSettings from '@/components/admin/PaymentMethodSettings';
+import PromoPopupSettings from '@/components/admin/PromoPopupSettings';
 
 export default function SettingsPage() {
     return (
@@ -41,6 +42,11 @@ export default function SettingsPage() {
                         <p className="text-sm text-neutral-500">Enable or disable individual payment methods.</p>
                     </div>
                     <PaymentMethodSettings />
+                </section>
+
+                {/* Promo Popup Section */}
+                <section>
+                    <PromoPopupSettings />
                 </section>
 
                 {/* Future Sections (e.g., General, Email, etc.) */}

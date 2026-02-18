@@ -8,6 +8,7 @@ import BackgroundEffects from './BackgroundEffects';
 import ChatWidget from './ChatWidget';
 import NavigationLoader from './NavigationLoader';
 import IdleLogout from './IdleLogout';
+import PromoPopup from '@/components/PromoPopup'; // Added import for PromoPopup
 import { Toaster } from 'react-hot-toast';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';

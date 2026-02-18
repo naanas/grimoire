@@ -193,7 +193,7 @@ export default function ChatWidget() {
     };
 
     return (
-        <div className={`fixed right-6 z-50 flex flex-col items-end transition-all duration-300 ${isMobileSummaryExpanded ? 'bottom-[65vh]' : 'bottom-24 md:bottom-6'}`}>
+        <div className={`fixed right-6 z-50 flex flex-col items-end transition-all duration-300 ${isMobileSummaryExpanded ? 'bottom-[45vh]' : 'bottom-24 md:bottom-6'}`}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

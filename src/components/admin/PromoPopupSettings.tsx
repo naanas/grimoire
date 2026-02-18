@@ -62,7 +62,7 @@ export default function PromoPopupSettings() {
 
     return (
         <div className="bg-black/40 border border-gray-800 rounded-xl overflow-hidden">
-            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <Ticket className="text-[var(--blood-red)]" size={20} />
@@ -72,8 +72,8 @@ export default function PromoPopupSettings() {
                 </div>
 
                 {/* Active Toggle */}
-                <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end bg-neutral-900/50 p-2 md:p-0 rounded-lg md:bg-transparent">
-                    <span className={`text-sm font-medium md:font-normal ${isActive ? 'text-green-500' : 'text-gray-500'}`}>
+                <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end bg-neutral-900/50 p-2 lg:p-0 rounded-lg lg:bg-transparent">
+                    <span className={`text-sm font-medium lg:font-normal ${isActive ? 'text-green-500' : 'text-gray-500'}`}>
                         {isActive ? 'Active' : 'Inactive'}
                     </span>
                     <button

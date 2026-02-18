@@ -86,7 +86,7 @@ export default function PaymentMethodSettings() {
                         {groupMethods.map((method) => (
                             <div
                                 key={method.code}
-                                className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-neutral-800 rounded-lg hover:bg-neutral-750 transition-colors gap-4"
+                                className="flex flex-col lg:flex-row lg:items-center justify-between p-4 bg-neutral-800 rounded-lg hover:bg-neutral-750 transition-colors gap-4"
                             >
                                 <div className="flex items-center gap-3">
                                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${method.active ? 'bg-green-500/20' : 'bg-red-500/20'
@@ -103,7 +103,7 @@ export default function PaymentMethodSettings() {
                                     </div>
                                 </div>
 
-                                <div className="flex justify-end md:block">
+                                <div className="flex justify-end lg:block">
                                     <button
                                         onClick={() => toggleMethod(method.code, method.active)}
                                         disabled={toggling === method.code}

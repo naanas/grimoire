@@ -61,7 +61,7 @@ export default function PromoPopupSettings() {
     if (loading) return <div className="p-8 text-center text-gray-400">Loading settings...</div>;
 
     return (
-        <div className="bg-black/40 border border-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-black/40 border-4 border-red-500 rounded-xl overflow-hidden">
             <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
                 <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">

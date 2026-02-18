@@ -30,7 +30,7 @@ export default function SettingsPage() {
 
                 {/* Tab Navigation */}
                 <div className="bg-[#0a0a0a] border-b border-gray-800">
-                    <div className="flex overflow-x-auto gap-6 no-scrollbar">
+                    <div className="flex items-center gap-6 border-b border-gray-800 mb-8 overflow-x-auto pb-1 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide">
                         {SECTIONS.map((section) => {
                             const Icon = section.icon;
                             const isActive = activeSection === section.id;
@@ -39,8 +39,8 @@ export default function SettingsPage() {
                                     key={section.id}
                                     onClick={() => setActiveSection(section.id)}
                                     className={`flex items-center gap-2 py-4 text-sm font-medium transition-all whitespace-nowrap border-b-2 ${isActive
-                                            ? 'border-red-600 text-red-500'
-                                            : 'border-transparent text-gray-400 hover:text-white hover:border-gray-700'
+                                        ? 'border-red-600 text-red-500'
+                                        : 'border-transparent text-gray-400 hover:text-white hover:border-gray-700'
                                         }`}
                                 >
                                     <Icon size={18} />

@@ -106,8 +106,8 @@ export default function ReviewsPage() {
                     <button
                         onClick={() => setFilter('pending')}
                         className={`px-6 py-2 rounded-lg font-semibold transition-colors ${filter === 'pending'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-neutral-800 text-neutral-400 hover:text-white'
                             }`}
                     >
                         Pending ({pendingCount})
@@ -115,8 +115,8 @@ export default function ReviewsPage() {
                     <button
                         onClick={() => setFilter('all')}
                         className={`px-6 py-2 rounded-lg font-semibold transition-colors ${filter === 'all'
-                                ? 'bg-red-600 text-white'
-                                : 'bg-neutral-800 text-neutral-400 hover:text-white'
+                            ? 'bg-red-600 text-white'
+                            : 'bg-neutral-800 text-neutral-400 hover:text-white'
                             }`}
                     >
                         All Reviews
@@ -140,19 +140,19 @@ export default function ReviewsPage() {
                     {reviews.map((review) => (
                         <div
                             key={review.id}
-                            className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 hover:border-neutral-700 transition-colors"
+                            className="bg-neutral-900 border border-neutral-800 rounded-lg p-5 md:p-6 hover:border-neutral-700 transition-colors"
                         >
-                            <div className="flex items-start justify-between gap-4">
+                            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
                                 {/* Review Content */}
                                 <div className="flex-1">
                                     {/* Header */}
-                                    <div className="flex items-start justify-between mb-3">
+                                    <div className="flex flex-col md:flex-row md:items-start justify-between mb-3 gap-2">
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
                                                 <h3 className="font-semibold text-white">
                                                     {review.user.name || review.user.email.split('@')[0]}
                                                 </h3>
-                                                <span className="text-xs text-neutral-500">
+                                                <span className="text-xs text-neutral-500 hidden md:inline">
                                                     {review.user.email}
                                                 </span>
                                                 {review.isApproved && (
@@ -168,8 +168,8 @@ export default function ReviewsPage() {
                                                             key={star}
                                                             size={16}
                                                             className={`${star <= review.rating
-                                                                    ? 'fill-yellow-500 text-yellow-500'
-                                                                    : 'text-neutral-700'
+                                                                ? 'fill-yellow-500 text-yellow-500'
+                                                                : 'text-neutral-700'
                                                                 }`}
                                                         />
                                                     ))}
@@ -195,12 +195,12 @@ export default function ReviewsPage() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex flex-col gap-2">
+                                <div className="flex flex-row md:flex-col gap-2 mt-4 md:mt-0 justify-end">
                                     {!review.isApproved && (
                                         <button
                                             onClick={() => handleApprove(review.id)}
                                             disabled={processing === review.id}
-                                            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-neutral-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+                                            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-neutral-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed text-sm font-medium"
                                         >
                                             {processing === review.id ? (
                                                 <Loader2 className="animate-spin" size={16} />
@@ -213,7 +213,7 @@ export default function ReviewsPage() {
                                     <button
                                         onClick={() => handleDelete(review.id)}
                                         disabled={processing === review.id}
-                                        className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-neutral-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed"
+                                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 disabled:bg-neutral-700 text-white rounded-lg transition-colors disabled:cursor-not-allowed text-sm font-medium"
                                     >
                                         {processing === review.id ? (
                                             <Loader2 className="animate-spin" size={16} />

@@ -117,7 +117,7 @@ export default function CategoriesPage() {
                         <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-red-600" size={32} /></div>
                     ) : (
                         <>
-                            <table className="w-full text-left text-sm text-neutral-400">
+                            <table className="w-full text-left text-sm text-neutral-400 hidden md:table">
                                 <thead className="bg-neutral-950 text-neutral-500 text-xs uppercase">
                                     <tr>
                                         <th className="px-6 py-4">Name</th>
@@ -212,6 +212,90 @@ export default function CategoriesPage() {
                                     ))}
                                 </tbody>
                             </table>
+
+                            {/* Mobile Card View */}
+                            <div className="md:hidden space-y-4 p-4">
+                                {categories.length === 0 && <div className="text-center text-neutral-500 py-8">No categories found.</div>}
+                                {categories.map((c) => (
+                                    <div key={c.id} className="bg-neutral-800/30 p-4 rounded-lg border border-neutral-800 space-y-3">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex-1">
+                                                {editingId === c.id ? (
+                                                    <input
+                                                        value={editForm.name}
+                                                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                                        className="bg-neutral-950 border border-neutral-700 rounded px-2 py-1 text-white w-full text-sm mb-1"
+                                                    />
+                                                ) : (
+                                                    <div className="font-medium text-white">{c.name}</div>
+                                                )}
+                                                <div className="text-xs font-mono text-neutral-500">{c.slug}</div>
+                                            </div>
+                                            {editingId === c.id ? (
+                                                <select
+                                                    value={editForm.isActive ? 'true' : 'false'}
+                                                    onChange={(e) => setEditForm({ ...editForm, isActive: e.target.value === 'true' })}
+                                                    className="bg-neutral-950 border border-neutral-700 rounded px-2 py-1 text-xs"
+                                                >
+                                                    <option value="true">Active</option>
+                                                    <option value="false">Inactive</option>
+                                                </select>
+                                            ) : (
+                                                <span className={`px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider border ${c.isActive ? 'bg-emerald-900/20 text-emerald-500 border-emerald-900/50' : 'bg-red-900/20 text-red-500 border-red-900/50'}`}>
+                                                    {c.isActive ? 'ACT' : 'INA'}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 text-sm mt-2 pt-2 border-t border-neutral-800">
+                                            <div>
+                                                <span className="text-xs text-neutral-500 block">Products</span>
+                                                <div className="flex items-center gap-1 text-neutral-300">
+                                                    <Tag size={12} />
+                                                    {c._count?.products || 0}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <span className="text-xs text-neutral-500 block">Profit Margin</span>
+                                                {editingId === c.id ? (
+                                                    <div className="flex items-center gap-1">
+                                                        <input
+                                                            type="number"
+                                                            value={editForm.profitMargin}
+                                                            onChange={(e) => setEditForm({ ...editForm, profitMargin: Number(e.target.value) })}
+                                                            className="w-16 bg-neutral-950 border border-red-900 text-white px-2 py-1 rounded text-xs focus:outline-none"
+                                                        />
+                                                        <span className="text-neutral-500">%</span>
+                                                    </div>
+                                                ) : (
+                                                    <span className="text-emerald-400 font-bold">{c.profitMargin}%</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="pt-2 flex justify-end">
+                                            {editingId === c.id ? (
+                                                <div className="flex gap-2">
+                                                    <button onClick={() => handleSave(c.id)} className="flex items-center gap-1 px-3 py-1.5 bg-emerald-900/30 text-emerald-500 rounded text-xs font-bold hover:bg-emerald-900/50 border border-emerald-900/50">
+                                                        <Check size={14} /> Save
+                                                    </button>
+                                                    <button onClick={() => setEditingId(null)} className="flex items-center gap-1 px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded text-xs hover:bg-neutral-700">
+                                                        <X size={14} /> Cancel
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <button
+                                                    onClick={() => handleEdit(c)}
+                                                    className="flex items-center gap-1 px-3 py-1.5 bg-neutral-800 text-neutral-400 rounded text-xs hover:text-white hover:bg-neutral-700 border border-neutral-700"
+                                                >
+                                                    <Edit2 size={14} /> Edit Category
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
 
                             {/* Simple Pagination */}
                             <div className="p-4 border-t border-neutral-800 flex items-center justify-between">

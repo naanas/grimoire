@@ -86,10 +86,10 @@ export default function PaymentMethodSettings() {
                         {groupMethods.map((method) => (
                             <div
                                 key={method.code}
-                                className="flex items-center justify-between p-4 bg-neutral-800 rounded-lg hover:bg-neutral-750 transition-colors"
+                                className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-neutral-800 rounded-lg hover:bg-neutral-750 transition-colors gap-4"
                             >
                                 <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${method.active ? 'bg-green-500/20' : 'bg-red-500/20'
+                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${method.active ? 'bg-green-500/20' : 'bg-red-500/20'
                                         }`}>
                                         {method.active ? (
                                             <Power className="text-green-500" size={20} />
@@ -103,25 +103,27 @@ export default function PaymentMethodSettings() {
                                     </div>
                                 </div>
 
-                                <button
-                                    onClick={() => toggleMethod(method.code, method.active)}
-                                    disabled={toggling === method.code}
-                                    className={`
-                                        relative inline-flex h-8 w-16 items-center rounded-full transition-colors
-                                        ${method.active ? 'bg-green-600' : 'bg-neutral-700'}
-                                        ${toggling === method.code ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                                    `}
-                                >
-                                    <span
+                                <div className="flex justify-end md:block">
+                                    <button
+                                        onClick={() => toggleMethod(method.code, method.active)}
+                                        disabled={toggling === method.code}
                                         className={`
-                                            inline-block h-6 w-6 transform rounded-full bg-white transition-transform
-                                            ${method.active ? 'translate-x-9' : 'translate-x-1'}
+                                            relative inline-flex h-8 w-16 items-center rounded-full transition-colors
+                                            ${method.active ? 'bg-green-600' : 'bg-neutral-700'}
+                                            ${toggling === method.code ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                                         `}
-                                    />
-                                    {toggling === method.code && (
-                                        <Loader2 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white" size={14} />
-                                    )}
-                                </button>
+                                    >
+                                        <span
+                                            className={`
+                                                inline-block h-6 w-6 transform rounded-full bg-white transition-transform
+                                                ${method.active ? 'translate-x-9' : 'translate-x-1'}
+                                            `}
+                                        />
+                                        {toggling === method.code && (
+                                            <Loader2 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white" size={14} />
+                                        )}
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

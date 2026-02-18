@@ -48,7 +48,7 @@ export default function PaymentGatewaySwitch() {
     if (isLoading) return <div className="animate-pulse bg-neutral-900 h-24 rounded-xl"></div>;
 
     return (
-        <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6">
+        <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                     <DollarSign size={20} className="text-emerald-500" />

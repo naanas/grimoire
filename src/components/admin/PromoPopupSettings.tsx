@@ -62,7 +62,7 @@ export default function PromoPopupSettings() {
 
     return (
         <div className="bg-black/40 border border-gray-800 rounded-xl overflow-hidden">
-            <div className="p-6 border-b border-gray-800 flex justify-between items-center">
+            <div className="p-4 md:p-6 border-b border-gray-800 flex justify-between items-center">
                 <div>
                     <h3 className="text-lg font-bold text-white flex items-center gap-2">
                         <Ticket className="text-[var(--blood-red)]" size={20} />
@@ -85,7 +85,7 @@ export default function PromoPopupSettings() {
                 </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 md:p-6 space-y-6">
                 {/* Preview Hint */}
                 <div className="bg-blue-900/20 border border-blue-900/50 rounded-lg p-4 flex gap-3 text-sm text-blue-300">
                     <Eye size={18} className="shrink-0 mt-0.5" />

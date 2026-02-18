@@ -118,7 +118,7 @@ export default function TripaySettings() {
             </div>
 
             {/* Environment Mode */}
-            <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-6">
+            <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6 space-y-6">
                 <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Environment</h3>
 
                 <div className="grid md:grid-cols-2 gap-4">
@@ -157,7 +157,7 @@ export default function TripaySettings() {
 
             <div className="grid gap-8 md:grid-cols-2">
                 {/* Sandbox Credentials */}
-                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-4">
+                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6 space-y-4">
                     <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider border-b border-neutral-800 pb-2">
                         Sandbox Credentials
                     </h3>

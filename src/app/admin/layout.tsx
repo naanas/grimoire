@@ -158,7 +158,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <span className="ml-4 font-bold text-lg">Admin Panel</span>
                 </header>
 
-                <div className="flex-1 p-6 overflow-auto">
+                <div className="flex-1 p-4 md:p-6 overflow-auto">
                     {children}
                 </div>
             </main>

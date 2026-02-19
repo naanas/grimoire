@@ -48,43 +48,55 @@ export default function PaymentGatewaySwitch() {
     if (isLoading) return <div className="animate-pulse bg-neutral-900 h-24 rounded-xl"></div>;
 
     return (
-        <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6">
-            <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <DollarSign size={20} className="text-emerald-500" />
-                    Active Payment Gateway
-                </h3>
-            </div>
+        <div className="relative group overflow-hidden rounded-2xl border border-neutral-800 bg-neutral-950/50 p-6 transition-all hover:border-[var(--blood-red)/50]">
+            <div className="absolute inset-0 bg-gradient-to-r from-[var(--blood-red)/10] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
-            <div className="flex flex-col md:flex-row md:items-center gap-6">
-                <div className="flex gap-4">
+            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div>
+                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                        <DollarSign className="text-[var(--blood-red)]" size={24} />
+                        Active Payment Gateway
+                    </h3>
+                    <p className="text-sm text-neutral-400 mt-1">
+                        Select which provider handles all customer transactions.
+                    </p>
+                </div>
+
+                <div className="flex bg-black/50 p-1.5 rounded-xl border border-neutral-800">
                     <button
                         onClick={() => handleSaveConfig('IPAYMU')}
                         disabled={isSaving}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${gateway === 'IPAYMU'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:bg-neutral-800'
+                        className={`relative px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${gateway === 'IPAYMU'
+                            ? 'bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.3)] border border-blue-500/50'
+                            : 'text-neutral-500 hover:text-white hover:bg-neutral-800'
                             }`}
                     >
-                        IPAYMU (Legacy)
+                        {gateway === 'IPAYMU' && <span className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full animate-ping" />}
+                        IPAYMU
                     </button>
 
                     <button
                         onClick={() => handleSaveConfig('TRIPAY')}
                         disabled={isSaving}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${gateway === 'TRIPAY'
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-neutral-900 border border-neutral-800 text-neutral-400 hover:bg-neutral-800'
+                        className={`relative px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${gateway === 'TRIPAY'
+                            ? 'bg-emerald-600/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-emerald-500/50'
+                            : 'text-neutral-500 hover:text-white hover:bg-neutral-800'
                             }`}
                     >
-                        TRIPAY (Recommended)
+                        {gateway === 'TRIPAY' && <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping" />}
+                        TRIPAY
                     </button>
                 </div>
-                {isSaving && <span className="text-xs text-neutral-500 animate-pulse">Switching...</span>}
             </div>
-            <p className="text-xs text-neutral-500 mt-4">
-                Switching this will immediately affect the checkout page for all users.
-            </p>
+
+            {isSaving && (
+                <div className="absolute inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-20">
+                    <div className="bg-neutral-900 border border-neutral-800 px-6 py-3 rounded-full flex items-center gap-3 text-white text-sm">
+                        <div className="w-2 h-2 bg-[var(--blood-red)] rounded-full animate-ping" />
+                        Switching Gateway...
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

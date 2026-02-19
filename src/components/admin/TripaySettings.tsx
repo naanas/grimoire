@@ -101,83 +101,60 @@ export default function TripaySettings() {
     );
 
     return (
-        <div className="space-y-8">
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                <div>
-                    <h2 className="text-xl font-bold text-white">Tripay Connection</h2>
-                    <p className="text-neutral-400 mt-1 text-sm">Manage Sandbox and Production credentials.</p>
-                </div>
+        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 h-full flex flex-col">
+            <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                    <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse my-auto" />
+                    Tripay Configuration
+                </h2>
                 <button
                     onClick={handleSave}
                     disabled={saving}
-                    className="w-full lg:w-auto flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                    className="flex items-center gap-2 bg-neutral-800 hover:bg-[var(--blood-red)] text-white px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all"
                 >
-                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                    Simpan
+                    {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                    Save Changes
                 </button>
             </div>
 
-            {/* Environment Mode */}
-            <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6 space-y-6">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Environment</h3>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                    <button
-                        onClick={() => handleChange('TRIPAY_MODE', 'SANDBOX')}
-                        className={`p-4 rounded-xl border-2 transition-all text-left space-y-2 ${config['TRIPAY_MODE'] === 'SANDBOX'
-                            ? 'border-yellow-500 bg-yellow-500/10'
-                            : 'border-neutral-800 hover:border-neutral-700'}`}
-                    >
-                        <div className="flex items-center justify-between">
-                            <span className={`font-bold ${config['TRIPAY_MODE'] === 'SANDBOX' ? 'text-yellow-500' : 'text-white'}`}>SANDBOX</span>
-                            {config['TRIPAY_MODE'] === 'SANDBOX' && <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>}
-                        </div>
-                        <p className="text-xs text-neutral-400">Environment for testing. Uses Sandbox credentials. No real money deducted.</p>
-                    </button>
-
-                    <button
-                        onClick={() => handleChange('TRIPAY_MODE', 'PRODUCTION')}
-                        className={`p-4 rounded-xl border-2 transition-all text-left space-y-2 ${config['TRIPAY_MODE'] === 'PRODUCTION'
-                            ? 'border-green-500 bg-green-500/10'
-                            : 'border-neutral-800 hover:border-neutral-700'}`}
-                    >
-                        <div className="flex items-center justify-between">
-                            <span className={`font-bold ${config['TRIPAY_MODE'] === 'PRODUCTION' ? 'text-green-500' : 'text-white'}`}>PRODUCTION</span>
-                            {config['TRIPAY_MODE'] === 'PRODUCTION' && <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>}
-                        </div>
-                        <p className="text-xs text-neutral-400">Live environment. Valid transactions. Real money involved.</p>
-                    </button>
+            <div className="space-y-6 flex-1 overflow-y-auto pr-2 custom-scrollbar">
+                {/* Mode Selector */}
+                <div className="grid grid-cols-2 gap-3 bg-black/50 p-1.5 rounded-xl border border-neutral-800">
+                    {['SANDBOX', 'PRODUCTION'].map((mode) => (
+                        <button
+                            key={mode}
+                            onClick={() => handleChange('TRIPAY_MODE', mode)}
+                            className={`py-2 px-4 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${config['TRIPAY_MODE'] === mode
+                                ? mode === 'PRODUCTION' ? 'bg-green-600/20 text-green-400 border border-green-500/50' : 'bg-yellow-600/20 text-yellow-400 border border-yellow-500/50'
+                                : 'text-neutral-500 hover:text-white'
+                                }`}
+                        >
+                            {config['TRIPAY_MODE'] === mode && <span className={`w-1.5 h-1.5 rounded-full ${mode === 'PRODUCTION' ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />}
+                            {mode}
+                        </button>
+                    ))}
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-blue-900/10 border border-blue-900/30 rounded-lg text-blue-400 text-xs">
-                    <AlertCircle size={16} className="shrink-0" />
-                    <p>Current Active Mode: <b className="text-white">{config['TRIPAY_MODE'] || 'NOT SET (System Default)'}</b></p>
-                </div>
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-2">
-                {/* Sandbox Credentials */}
-                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6 space-y-4">
-                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider border-b border-neutral-800 pb-2">
-                        Sandbox Credentials
-                    </h3>
-                    <div className="space-y-4 pt-2">
-                        <InputField label="API Key" confKey="TRIPAY_SB_API_KEY" type="password" />
-                        <InputField label="Private Key" confKey="TRIPAY_SB_PRIVATE_KEY" type="password" />
-                        <InputField label="Merchant Code" confKey="TRIPAY_SB_MERCHANT_CODE" />
+                {/* Credentials based on Mode */}
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-xs text-neutral-500 uppercase tracking-widest font-bold">
+                        <AlertCircle size={12} />
+                        {config['TRIPAY_MODE']} Credentials
                     </div>
-                </div>
 
-                {/* Production Credentials */}
-                <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-6 space-y-4">
-                    <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider border-b border-neutral-800 pb-2">
-                        Production Credentials
-                    </h3>
-                    <div className="space-y-4 pt-2">
-                        <InputField label="API Key" confKey="TRIPAY_PROD_API_KEY" type="password" />
-                        <InputField label="Private Key" confKey="TRIPAY_PROD_PRIVATE_KEY" type="password" />
-                        <InputField label="Merchant Code" confKey="TRIPAY_PROD_MERCHANT_CODE" />
-                    </div>
+                    {config['TRIPAY_MODE'] === 'SANDBOX' ? (
+                        <>
+                            <InputField label="Sandbox API Key" confKey="TRIPAY_SB_API_KEY" type="password" />
+                            <InputField label="Sandbox Private Key" confKey="TRIPAY_SB_PRIVATE_KEY" type="password" />
+                            <InputField label="Sandbox Merchant Code" confKey="TRIPAY_SB_MERCHANT_CODE" />
+                        </>
+                    ) : (
+                        <>
+                            <InputField label="Production API Key" confKey="TRIPAY_PROD_API_KEY" type="password" />
+                            <InputField label="Production Private Key" confKey="TRIPAY_PROD_PRIVATE_KEY" type="password" />
+                            <InputField label="Production Merchant Code" confKey="TRIPAY_PROD_MERCHANT_CODE" />
+                        </>
+                    )}
                 </div>
             </div>
         </div>

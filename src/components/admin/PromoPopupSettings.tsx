@@ -61,114 +61,86 @@ export default function PromoPopupSettings() {
     if (loading) return <div className="p-8 text-center text-gray-400">Loading settings...</div>;
 
     return (
-        <div className="bg-black/40 border-4 border-red-500 rounded-xl overflow-hidden">
-            <div className="p-4 md:p-6 border-b border-gray-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div>
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        <Ticket className="text-[var(--blood-red)]" size={20} />
-                        Promo Popup Configuration
-                    </h3>
-                    <p className="text-sm text-gray-400">Manage the promotional popup shown to users.</p>
-                </div>
+        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 h-full flex flex-col relative overflow-hidden">
+            {/* Background Decoration */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--blood-red)]/10 rounded-full blur-3xl pointer-events-none" />
 
-                {/* Active Toggle */}
-                <div className="flex items-center gap-3 w-full lg:w-auto justify-between lg:justify-end bg-neutral-900/50 p-2 lg:p-0 rounded-lg lg:bg-transparent">
-                    <span className={`text-sm font-medium lg:font-normal ${isActive ? 'text-green-500' : 'text-gray-500'}`}>
-                        {isActive ? 'Active' : 'Inactive'}
+            <div className="flex items-center justify-between mb-6 z-10">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <Ticket className="text-[var(--blood-red)]" size={20} />
+                    Promo Popup
+                </h3>
+                <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold uppercase ${isActive ? 'text-green-500' : 'text-neutral-500'}`}>
+                        {isActive ? 'ON' : 'OFF'}
                     </span>
                     <button
                         onClick={() => setIsActive(!isActive)}
-                        className={`relative w-12 h-6 rounded-full transition-colors ${isActive ? 'bg-green-600' : 'bg-gray-700'}`}
+                        className={`w-10 h-5 rounded-full transition-colors relative ${isActive ? 'bg-green-600' : 'bg-neutral-700'}`}
                     >
-                        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${isActive ? 'translate-x-6' : 'translate-x-0'}`} />
+                        <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${isActive ? 'translate-x-5' : 'translate-x-0'}`} />
                     </button>
                 </div>
             </div>
 
-            <div className="p-4 md:p-6 space-y-6">
-                {/* Preview Hint */}
-                <div className="bg-blue-900/20 border border-blue-900/50 rounded-lg p-4 flex gap-3 text-sm text-blue-300">
-                    <Eye size={18} className="shrink-0 mt-0.5" />
-                    <p>The popup will appear once per day for each user when they visit the site.</p>
+            <div className="space-y-4 flex-1 z-10">
+                <div className="space-y-1">
+                    <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Title</label>
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={e => setTitle(e.target.value)}
+                        className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:border-[var(--blood-red)] outline-none"
+                    />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Left Col */}
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-gray-400 text-xs uppercase tracking-widest mb-2">Title</label>
-                            <div className="relative">
-                                <Type className="absolute left-3 top-3 text-gray-500" size={16} />
-                                <input
-                                    type="text"
-                                    value={title}
-                                    onChange={e => setTitle(e.target.value)}
-                                    placeholder="e.g. Special Offer!"
-                                    className="w-full bg-black/50 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white text-sm focus:border-[var(--blood-red)] outline-none"
-                                />
+                <div className="space-y-1">
+                    <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Image URL</label>
+                    <div className="flex gap-2">
+                        <input
+                            type="text"
+                            value={image}
+                            onChange={e => setImage(e.target.value)}
+                            className="flex-1 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:border-[var(--blood-red)] outline-none truncate"
+                        />
+                        {image && (
+                            <div className="w-10 h-9 rounded bg-neutral-800 border border-neutral-700 overflow-hidden shrink-0">
+                                <img src={image} alt="" className="w-full h-full object-cover" />
                             </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-gray-400 text-xs uppercase tracking-widest mb-2">Description</label>
-                            <textarea
-                                value={desc}
-                                onChange={e => setDesc(e.target.value)}
-                                placeholder="Enter description..."
-                                rows={3}
-                                className="w-full bg-black/50 border border-gray-700 rounded-lg p-4 text-white text-sm focus:border-[var(--blood-red)] outline-none resize-none"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Right Col */}
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-gray-400 text-xs uppercase tracking-widest mb-2">Image URL</label>
-                            <div className="relative">
-                                <ImageIcon className="absolute left-3 top-3 text-gray-500" size={16} />
-                                <input
-                                    type="text"
-                                    value={image}
-                                    onChange={e => setImage(e.target.value)}
-                                    placeholder="https://..."
-                                    className="w-full bg-black/50 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white text-sm focus:border-[var(--blood-red)] outline-none"
-                                />
-                            </div>
-                            {image && (
-                                <div className="mt-2 h-32 w-full rounded-lg overflow-hidden border border-gray-800 bg-black">
-                                    <img src={image} alt="Preview" className="w-full h-full object-cover opacity-50" />
-                                </div>
-                            )}
-                        </div>
-
-                        <div>
-                            <label className="block text-gray-400 text-xs uppercase tracking-widest mb-2">Voucher Code</label>
-                            <div className="relative">
-                                <Ticket className="absolute left-3 top-3 text-gray-500" size={16} />
-                                <input
-                                    type="text"
-                                    value={voucher}
-                                    onChange={e => setVoucher(e.target.value)}
-                                    placeholder="e.g. DISCOUNT50"
-                                    className="w-full bg-black/50 border border-gray-700 rounded-lg py-2.5 pl-10 pr-4 text-white font-mono font-bold text-sm focus:border-[var(--blood-red)] outline-none"
-                                />
-                            </div>
-                        </div>
+                        )}
                     </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-800 flex justify-end">
-                    <button
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="flex items-center gap-2 bg-[var(--blood-red)] hover:bg-red-700 text-white px-6 py-2.5 rounded-lg font-bold transition-all disabled:opacity-50"
-                    >
-                        {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
-                        Save Configuration
-                    </button>
+                <div className="space-y-1">
+                    <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Voucher</label>
+                    <input
+                        type="text"
+                        value={voucher}
+                        onChange={e => setVoucher(e.target.value)}
+                        placeholder="OPTIONAL"
+                        className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm font-mono text-white focus:border-[var(--blood-red)] outline-none"
+                    />
+                </div>
+
+                <div className="space-y-1">
+                    <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold">Description</label>
+                    <textarea
+                        value={desc}
+                        onChange={e => setDesc(e.target.value)}
+                        rows={2}
+                        className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:border-[var(--blood-red)] outline-none resize-none"
+                    />
                 </div>
             </div>
+
+            <button
+                onClick={handleSave}
+                disabled={saving}
+                className="mt-6 w-full flex items-center justify-center gap-2 bg-[var(--blood-red)] hover:bg-red-700 text-white py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg shadow-red-900/20"
+            >
+                {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                Save Popup
+            </button>
         </div>
     );
 }

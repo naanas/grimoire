@@ -1,83 +1,54 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, CreditCard, Globe, Shield, Ticket, LayoutGrid } from 'lucide-react';
+import { Settings as SettingsIcon } from 'lucide-react';
 import TripaySettings from '@/components/admin/TripaySettings';
 import PaymentGatewaySwitch from '@/components/admin/PaymentGatewaySwitch';
 import PaymentMethodSettings from '@/components/admin/PaymentMethodSettings';
 import PromoPopupSettings from '@/components/admin/PromoPopupSettings';
 
-const SECTIONS = [
-    { id: 'general', label: 'General', icon: Globe },
-    { id: 'tripay', label: 'Tripay', icon: Shield },
-    { id: 'methods', label: 'Payment Methods', icon: LayoutGrid },
-    { id: 'promo', label: 'Promo Popup', icon: Ticket },
-];
-
 export default function SettingsPage() {
-    const [activeSection, setActiveSection] = useState('general');
-
     return (
-        <div className="max-w-5xl mx-auto space-y-8 pb-20 relative">
-            <div className="space-y-4">
-                <div>
-                    <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-                        <SettingsIcon className="text-red-600" size={32} />
-                        System Settings <span className="text-xs bg-red-500 px-2 py-1 rounded text-white ml-2">V2-FIXED</span>
-                    </h1>
-                    <p className="text-neutral-400 mt-2">Configure payment gateways, system preferences, and integrations.</p>
-                </div>
-
-                {/* Tab Navigation */}
-                <div className="bg-[#0a0a0a] border-b border-gray-800">
-                    <div className="flex items-center gap-6 border-b border-gray-800 mb-8 overflow-x-auto pb-1 -mx-6 px-6 md:mx-0 md:px-0 scrollbar-hide">
-                        {SECTIONS.map((section) => {
-                            const Icon = section.icon;
-                            const isActive = activeSection === section.id;
-                            return (
-                                <button
-                                    key={section.id}
-                                    onClick={() => setActiveSection(section.id)}
-                                    className={`flex items-center gap-2 py-4 text-sm font-medium transition-all whitespace-nowrap border-b-2 ${isActive
-                                        ? 'border-red-600 text-red-500'
-                                        : 'border-transparent text-gray-400 hover:text-white hover:border-gray-700'
-                                        }`}
-                                >
-                                    <Icon size={18} />
-                                    {section.label}
-                                </button>
-                            );
-                        })}
+        <div className="pb-20 relative">
+            {/* Header */}
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                    <div className="p-2 bg-[var(--blood-red)]/10 rounded-lg border border-[var(--blood-red)]/30">
+                        <SettingsIcon className="text-[var(--blood-red)]" size={32} />
                     </div>
-                </div>
+                    System Command Center
+                    <span className="text-[10px] bg-neutral-900 border border-neutral-800 px-2 py-0.5 rounded text-neutral-400 font-mono">V3.0-CYBER</span>
+                </h1>
+                <p className="text-neutral-400 mt-2 ml-1">
+                    Control all payment gateways, system integrations, and promotional modules from a single dashboard.
+                </p>
             </div>
 
-            {/* Content Area */}
-            <div className="min-h-[400px] animate-in fade-in slide-in-from-bottom-4 duration-300">
+            {/* Dashboard Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                {activeSection === 'general' && (
-                    <section>
-                        <PaymentGatewaySwitch />
-                    </section>
-                )}
+                {/* Row 1: Active Gateway (Full Width) */}
+                <div className="md:col-span-3">
+                    <PaymentGatewaySwitch />
+                </div>
 
-                {activeSection === 'tripay' && (
-                    <section>
-                        <TripaySettings />
-                    </section>
-                )}
+                {/* Row 2: Tripay Settings (2 Columns) & Payment Methods (1 Column) */}
+                <div className="md:col-span-2 h-full">
+                    <TripaySettings />
+                </div>
 
-                {activeSection === 'methods' && (
-                    <section>
-                        <PaymentMethodSettings />
-                    </section>
-                )}
+                <div className="md:col-span-1 h-full">
+                    <PaymentMethodSettings />
+                </div>
 
-                {activeSection === 'promo' && (
-                    <section>
-                        <PromoPopupSettings />
-                    </section>
-                )}
+                {/* Row 3: Promo Popup (1 Column - can fit elsewhere if needed) & More Settings (Placeholder) */}
+                <div className="md:col-span-1 h-full">
+                    <PromoPopupSettings />
+                </div>
+
+                {/* Future: Add more cards here or expand Tripay/Methods to take more space */}
+                <div className="md:col-span-2 bg-neutral-950/30 border border-neutral-900 rounded-2xl flex items-center justify-center p-8 border-dashed">
+                    <p className="text-neutral-600 text-sm">More system settings coming soon...</p>
+                </div>
             </div>
         </div>
     );

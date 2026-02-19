@@ -76,69 +76,48 @@ export default function PaymentMethodSettings() {
     }, {} as Record<string, PaymentMethod[]>);
 
     return (
-        <div className="space-y-6">
-            <div className="bg-neutral-950 border border-neutral-800 rounded-xl p-4 md:p-6 mb-6">
-                <h3 className="text-lg font-semibold text-white mb-1">Payment Methods</h3>
-                <p className="text-sm text-neutral-500">Enable or disable specific payment channels manually.</p>
+        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 h-full flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-white">Payment Methods</h3>
+                <span className="text-xs text-neutral-500 bg-neutral-900 px-2 py-1 rounded border border-neutral-800">
+                    {methods.length} Available
+                </span>
             </div>
-            {Object.entries(grouped).map(([group, groupMethods]) => (
-                <div key={group} className="bg-neutral-900 rounded-lg p-6 border border-neutral-800">
-                    <h3 className="text-lg font-bold text-white mb-4 border-b border-neutral-800 pb-2">
-                        {group}
-                    </h3>
-                    <div className="space-y-3">
-                        {groupMethods.map((method) => (
-                            <div
-                                key={method.code}
-                                className="flex flex-col lg:flex-row lg:items-center justify-between p-4 bg-neutral-800 rounded-lg hover:bg-neutral-750 transition-colors gap-4"
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${method.active ? 'bg-green-500/20' : 'bg-red-500/20'
-                                        }`}>
-                                        {method.active ? (
-                                            <Power className="text-green-500" size={20} />
-                                        ) : (
-                                            <PowerOff className="text-red-500" size={20} />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <p className="text-white font-medium">{method.name}</p>
-                                        <p className="text-xs text-neutral-500 uppercase">{method.code}</p>
-                                    </div>
-                                </div>
 
-                                <div className="flex justify-end lg:block">
+            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 max-h-[500px]">
+                {Object.entries(grouped).map(([group, groupMethods]) => (
+                    <div key={group}>
+                        <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3 sticky top-0 bg-neutral-950/95 backdrop-blur py-2 z-10">
+                            {group}
+                        </h4>
+                        <div className="grid grid-cols-1 gap-2">
+                            {groupMethods.map((method) => (
+                                <div
+                                    key={method.code}
+                                    className="flex items-center justify-between p-3 bg-neutral-900/50 border border-neutral-800 rounded-lg hover:border-neutral-700 transition-all group"
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 transition-colors ${method.active ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
+                                            {method.active ? <Power size={14} /> : <PowerOff size={14} />}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-medium text-white group-hover:text-[var(--blood-red)] transition-colors">{method.name}</p>
+                                            <p className="text-[10px] text-neutral-500 font-mono uppercase">{method.code}</p>
+                                        </div>
+                                    </div>
+
                                     <button
                                         onClick={() => toggleMethod(method.code, method.active)}
                                         disabled={toggling === method.code}
-                                        className={`
-                                            relative inline-flex h-8 w-16 items-center rounded-full transition-colors
-                                            ${method.active ? 'bg-green-600' : 'bg-neutral-700'}
-                                            ${toggling === method.code ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-                                        `}
+                                        className={`relative w-9 h-5 rounded-full transition-colors flex items-center flex-shrink-0 ${method.active ? 'bg-green-600' : 'bg-neutral-700'}`}
                                     >
-                                        <span
-                                            className={`
-                                                inline-block h-6 w-6 transform rounded-full bg-white transition-transform
-                                                ${method.active ? 'translate-x-9' : 'translate-x-1'}
-                                            `}
-                                        />
-                                        {toggling === method.code && (
-                                            <Loader2 className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 animate-spin text-white" size={14} />
-                                        )}
+                                        <span className={`block w-3 h-3 bg-white rounded-full shadow transition-transform ${method.active ? 'translate-x-[18px]' : 'translate-x-1'}`} />
                                     </button>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            ))}
-
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-                <p className="text-sm text-yellow-200">
-                    <strong>Note:</strong> Disabled payment methods will not appear on customer order pages.
-                    Changes take effect immediately.
-                </p>
+                ))}
             </div>
         </div>
     );

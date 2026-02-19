@@ -1,6 +1,56 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import api from '@/lib/api';
+
 export default function BackgroundEffects() {
+    const [config, setConfig] = useState({ type: 'CSS', url: '' });
+
+    useEffect(() => {
+        // Fetch background config on mount
+        api.get('/config').then(res => {
+            if (res.data.success) {
+                setConfig({
+                    type: res.data.data.BACKGROUND_TYPE || 'CSS',
+                    url: res.data.data.BACKGROUND_URL || ''
+                });
+            }
+        }).catch(err => console.error("Failed to load bg config", err));
+    }, []);
+
+    // 1. Video Background
+    if (config.type === 'VIDEO' && config.url) {
+        return (
+            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-black">
+                <video
+                    src={config.url}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover opacity-60"
+                />
+                <div className="absolute inset-0 bg-black/40" /> {/* Overlay for text readability */}
+                <div className="fixed inset-0 z-50 vignette"></div>
+            </div>
+        );
+    }
+
+    // 2. Image Background
+    if (config.type === 'IMAGE' && config.url) {
+        return (
+            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-black">
+                <div
+                    className="absolute inset-0 bg-cover bg-center opacity-60"
+                    style={{ backgroundImage: `url(${config.url})` }}
+                />
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="fixed inset-0 z-50 vignette"></div>
+            </div>
+        );
+    }
+
+    // 3. Default CSS Background (Original)
     return (
         <div className="fixed inset-0 z-[-1] bg-[var(--background)] overflow-hidden pointer-events-none">
             {/* Grid Pattern */}

@@ -13,6 +13,7 @@ import {
     Tag,
     Globe,
     Settings as SettingsIcon,
+    Palette,
     Star
 } from 'lucide-react';
 
@@ -54,6 +55,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { icon: Tag, label: 'Categories', href: '/admin/categories' },
         { icon: MessageCircle, label: 'Support Chat', href: '/admin/chat' },
         { icon: Star, label: 'Reviews', href: '/admin/reviews' },
+        { icon: Palette, label: 'Appearance', href: '/admin/appearance' },
         { icon: SettingsIcon, label: 'Settings', href: '/admin/settings' },
     ];
 

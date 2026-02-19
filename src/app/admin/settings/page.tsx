@@ -4,7 +4,6 @@ import { Settings as SettingsIcon } from 'lucide-react';
 import TripaySettings from '@/components/admin/TripaySettings';
 import PaymentGatewaySwitch from '@/components/admin/PaymentGatewaySwitch';
 import PaymentMethodSettings from '@/components/admin/PaymentMethodSettings';
-import PromoPopupSettings from '@/components/admin/PromoPopupSettings';
 
 export default function SettingsPage() {
     return (
@@ -40,9 +39,11 @@ export default function SettingsPage() {
                     <PaymentMethodSettings />
                 </div>
 
-                {/* Row 3: Promo Popup (1 Column - can fit elsewhere if needed) & More Settings (Placeholder) */}
+                {/* Row 3: More Settings (Placeholder) */}
                 <div className="md:col-span-1 h-full">
-                    <PromoPopupSettings />
+                    <div className="bg-neutral-950/30 border border-neutral-900 rounded-2xl flex items-center justify-center p-8 border-dashed h-full">
+                        <p className="text-neutral-600 text-sm">More system settings...</p>
+                    </div>
                 </div>
 
                 {/* Future: Add more cards here or expand Tripay/Methods to take more space */}

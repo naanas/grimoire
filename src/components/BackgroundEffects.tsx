@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import api from '@/lib/api';
+import { getGoogleDriveDirectLink } from '@/lib/driveHelper';
 
 export default function BackgroundEffects() {
     const [config, setConfig] = useState({ type: 'CSS', url: '' });
@@ -20,10 +21,11 @@ export default function BackgroundEffects() {
 
     // 1. Video Background
     if (config.type === 'VIDEO' && config.url) {
+        const videoUrl = getGoogleDriveDirectLink(config.url);
         return (
             <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-black">
                 <video
-                    src={config.url}
+                    src={videoUrl}
                     autoPlay
                     loop
                     muted

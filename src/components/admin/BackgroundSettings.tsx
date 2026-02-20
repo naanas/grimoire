@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Upload, Type, Image as ImageIcon, Film } from 'lucide-react';
 import api from '@/lib/api';
+import { getGoogleDriveDirectLink } from '@/lib/driveHelper';
 
 export default function BackgroundSettings() {
     const [bgType, setBgType] = useState('CSS'); // CSS, IMAGE, VIDEO
@@ -82,8 +83,8 @@ export default function BackgroundSettings() {
                             key={type}
                             onClick={() => setBgType(type)}
                             className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${bgType === type
-                                    ? 'bg-red-900/20 border-red-500 text-red-500'
-                                    : 'bg-neutral-950 border-neutral-800 text-neutral-400 hover:border-neutral-700'
+                                ? 'bg-red-900/20 border-red-500 text-red-500'
+                                : 'bg-neutral-950 border-neutral-800 text-neutral-400 hover:border-neutral-700'
                                 }`}
                         >
                             {type === 'CSS' && <Type size={20} className="mb-1" />}
@@ -127,7 +128,7 @@ export default function BackgroundSettings() {
                         {bgUrl && (
                             <div className="mt-4 rounded-lg overflow-hidden border border-neutral-800 aspect-video bg-black relative">
                                 {bgType === 'VIDEO' ? (
-                                    <video src={bgUrl} className="w-full h-full object-cover" autoPlay loop muted />
+                                    <video src={getGoogleDriveDirectLink(bgUrl)} className="w-full h-full object-cover" autoPlay loop muted />
                                 ) : (
                                     <img src={bgUrl} alt="Preview" className="w-full h-full object-cover" />
                                 )}

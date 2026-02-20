@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, Mail, Lock, Skull, Flame } from 'lucide-react';
 import api from '@/lib/api';
 import GoogleButton from '@/components/GoogleButton';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 // --- VISUAL EFFECTS COMPONENTS ---
 
@@ -76,6 +77,7 @@ function LoginContent() {
         email: '',
         password: ''
     });
+    const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
     const registered = searchParams.get('registered');
 
@@ -83,15 +85,26 @@ function LoginContent() {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const handleCaptchaChange = (token: string | null) => {
+        setRecaptchaToken(token);
+    };
+
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+
+        if (!recaptchaToken) {
+            setError('Please verify that you are not a robot.');
+            return;
+        }
+
         setIsLoading(true);
 
         try {
             const res = await api.post('/auth/login', {
                 email: formData.email,
-                password: formData.password
+                password: formData.password,
+                recaptchaToken: recaptchaToken
             });
 
             if (res.data.success) {
@@ -238,9 +251,17 @@ function LoginContent() {
                                 </label>
                             </div>
 
+                            <div className="flex justify-center my-4">
+                                <ReCAPTCHA
+                                    sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
+                                    onChange={handleCaptchaChange}
+                                    theme="dark"
+                                />
+                            </div>
+
                             <button
                                 type="submit"
-                                disabled={isLoading}
+                                disabled={isLoading || !recaptchaToken}
                                 className="w-full mt-6 bg-red-900/20 hover:bg-red-900/40 border border-red-900 text-red-100 font-bold py-4 text-xs tracking-[0.3em] uppercase transition-all hover:shadow-[0_0_20px_rgba(187,10,30,0.2)] disabled:opacity-50 disabled:cursor-not-allowed group"
                                 style={{ clipPath: "polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0% 50%)" }}
                             >

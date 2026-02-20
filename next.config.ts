@@ -20,6 +20,10 @@ const nextConfig: NextConfig = {
         source: '/api/callback/tripay',
         destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/callback/tripay`,
       },
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/:path*`,
+      },
     ];
   },
   async headers() {

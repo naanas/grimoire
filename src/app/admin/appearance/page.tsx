@@ -22,12 +22,14 @@ export default function AppearancePage() {
             </div>
 
             {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 {/* Column 1: Background & Popup */}
-                <div className="flex flex-col space-y-6 self-start">
-                    <BackgroundSettings />
-                    <PromoPopupSettings />
+                <div>
+                    <div className="space-y-6">
+                        <BackgroundSettings />
+                        <PromoPopupSettings />
+                    </div>
                 </div>
 
                 {/* Column 2: Banner Manager */}

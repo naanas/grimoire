@@ -101,7 +101,7 @@ export default function TripaySettings() {
     );
 
     return (
-        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 h-full flex flex-col">
+        <div className="bg-neutral-950/40 border border-neutral-800/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
             <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
                     <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse my-auto" />

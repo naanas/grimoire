@@ -76,7 +76,7 @@ export default function PaymentMethodSettings() {
     }, {} as Record<string, PaymentMethod[]>);
 
     return (
-        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 h-full flex flex-col">
+        <div className="bg-neutral-950/40 border border-neutral-800/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-bold text-white">Payment Methods</h3>
                 <span className="text-xs text-neutral-500 bg-neutral-900 px-2 py-1 rounded border border-neutral-800">
@@ -84,13 +84,13 @@ export default function PaymentMethodSettings() {
                 </span>
             </div>
 
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6 max-h-[500px]">
+            <div className="space-y-6">
                 {Object.entries(grouped).map(([group, groupMethods]) => (
                     <div key={group}>
                         <h4 className="text-xs font-bold text-neutral-500 uppercase tracking-widest mb-3 sticky top-0 bg-neutral-950/95 backdrop-blur py-2 z-10">
                             {group}
                         </h4>
-                        <div className="grid grid-cols-1 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                             {groupMethods.map((method) => (
                                 <div
                                     key={method.code}

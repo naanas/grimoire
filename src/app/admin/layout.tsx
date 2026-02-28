@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import BackgroundEffects from '@/components/BackgroundEffects';
 import {
     LayoutDashboard,
     ShoppingCart,
@@ -66,7 +67,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     ];
 
     return (
-        <div className="min-h-screen bg-neutral-900 text-white flex">
+        <div className="min-h-screen bg-neutral-900/80 text-white flex relative">
+            {/* Dynamic background from admin config */}
+            <BackgroundEffects />
             {/* Sidebar */}
             <aside
                 className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-neutral-950 border-r border-neutral-800 transition-transform duration-300 ease-in-out flex flex-col ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'

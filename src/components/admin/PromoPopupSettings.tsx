@@ -61,7 +61,7 @@ export default function PromoPopupSettings() {
     if (loading) return <div className="p-8 text-center text-gray-400">Loading settings...</div>;
 
     return (
-        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 relative">
+        <div className="bg-neutral-950/50 border border-neutral-800 rounded-2xl p-6 relative h-fit">
             {/* Background Decoration */}
             <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--blood-red)]/10 rounded-full blur-3xl pointer-events-none" />
 

@@ -131,16 +131,16 @@ export default function PromoPopupSettings() {
                         className="w-full bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-2 text-sm text-white focus:border-[var(--blood-red)] outline-none resize-none"
                     />
                 </div>
-            </div>
 
-            <button
-                onClick={handleSave}
-                disabled={saving}
-                className="mt-6 w-full flex items-center justify-center gap-2 bg-[var(--blood-red)] hover:bg-red-700 text-white py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg shadow-red-900/20"
-            >
-                {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                Save Popup
-            </button>
+                <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="w-full flex items-center justify-center gap-2 bg-[var(--blood-red)] hover:bg-red-700 text-white py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg shadow-red-900/20"
+                >
+                    {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                    Save Popup
+                </button>
+            </div>
         </div>
     );
 }

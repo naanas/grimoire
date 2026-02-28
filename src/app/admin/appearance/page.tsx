@@ -25,7 +25,7 @@ export default function AppearancePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 {/* Column 1: Background & Popup */}
-                <div className="space-y-6">
+                <div className="flex flex-col space-y-6 self-start">
                     <BackgroundSettings />
                     <PromoPopupSettings />
                 </div>

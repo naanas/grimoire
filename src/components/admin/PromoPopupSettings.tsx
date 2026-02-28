@@ -135,11 +135,7 @@ export default function PromoPopupSettings() {
                 <button
                     onClick={handleSave}
                     disabled={saving}
-<<<<<<<<< Temporary merge branch 1
-                    className="mt-6 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-900/20 relative z-20"
-=========
-                    className="w-full flex items-center justify-center gap-2 bg-[var(--blood-red)] hover:bg-red-700 text-white py-2.5 rounded-lg font-bold text-sm transition-all shadow-lg shadow-red-900/20"
->>>>>>>>> Temporary merge branch 2
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-900/20 relative z-20"
                 >
                     {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                     Save Popup

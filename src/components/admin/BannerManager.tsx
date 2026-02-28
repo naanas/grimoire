@@ -102,7 +102,7 @@ export default function BannerManager() {
     };
 
     return (
-        <div className="bg-neutral-950/40 border border-neutral-800/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col h-full min-h-[500px]">
+        <div className="bg-neutral-950/40 border border-neutral-800/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col">
             {/* Subtle glow effect */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-[80px] -z-10 pointer-events-none" />
 
@@ -127,7 +127,7 @@ export default function BannerManager() {
                     <p>Loading banners...</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
                     {banners.length === 0 && (
                         <div className="col-span-full flex flex-col items-center justify-center py-20 text-neutral-500 bg-neutral-900/30 rounded-xl border border-neutral-800/50 border-dashed">
                             <ImageIcon size={48} className="mb-4 text-neutral-600" />

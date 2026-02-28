@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Eye, EyeOff, X, Upload } from 'lucide-react';
+import { Plus, Trash2, Eye, EyeOff, X, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import api from '@/lib/api';
 
@@ -102,50 +102,64 @@ export default function BannerManager() {
     };
 
     return (
-        <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6 h-full flex flex-col">
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-bold text-white">Banner Manager</h2>
+        <div className="bg-neutral-950/40 border border-neutral-800/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden flex flex-col h-full min-h-[500px]">
+            {/* Subtle glow effect */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-[80px] -z-10 pointer-events-none" />
+
+            <div className="flex justify-between items-center mb-6 relative z-10">
+                <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                    <div className="p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <ImageIcon size={20} className="text-red-500" />
+                    </div>
+                    Banner Manager
+                </h2>
                 <button
                     onClick={() => setShowAddModal(true)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all shadow-lg shadow-red-900/20 hover:-translate-y-0.5"
                 >
-                    <Plus size={16} /> Add Banner
+                    <Plus size={16} /> <span className="hidden sm:inline">Add Banner</span>
                 </button>
             </div>
 
             {loading ? (
-                <div className="text-center py-10 text-neutral-500">Loading banners...</div>
+                <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 space-y-4">
+                    <div className="w-8 h-8 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+                    <p>Loading banners...</p>
+                </div>
             ) : (
-                <div className="space-y-4 overflow-y-auto max-h-[600px] pr-2 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 pb-4">
                     {banners.length === 0 && (
-                        <p className="text-center text-neutral-500 py-10">No banners found.</p>
+                        <div className="col-span-full flex flex-col items-center justify-center py-20 text-neutral-500 bg-neutral-900/30 rounded-xl border border-neutral-800/50 border-dashed">
+                            <ImageIcon size={48} className="mb-4 text-neutral-600" />
+                            <p className="font-medium text-neutral-400">No banners found</p>
+                            <p className="text-xs text-neutral-600 mt-1">Click "Add Banner" to create one.</p>
+                        </div>
                     )}
                     {banners.map((banner) => (
-                        <div key={banner.id} className="bg-neutral-950 border border-neutral-800 rounded-lg p-3 group hover:border-neutral-700 transition-colors">
-                            <div className="relative w-full h-32 rounded-md overflow-hidden mb-3 bg-neutral-900">
-                                <Image
+                        <div key={banner.id} className="bg-neutral-900/50 border border-neutral-800/50 rounded-xl p-3 flex flex-col gap-3 group hover:border-neutral-700 hover:bg-neutral-800/50 transition-all shadow-sm">
+                            <div className="relative w-full aspect-[21/9] rounded-lg overflow-hidden bg-black/50 border border-neutral-800/50">
+                                <img
                                     src={banner.imageUrl}
                                     alt={banner.title || 'Banner'}
-                                    fill
-                                    className="object-cover"
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 />
                                 {!banner.isActive && (
                                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-                                        <span className="text-white text-xs font-bold uppercase border border-white/50 px-2 py-1 rounded">Hidden</span>
+                                        <span className="text-white text-xs font-bold uppercase tracking-widest bg-black/80 border border-white/20 px-3 py-1.5 rounded-lg">Hidden</span>
                                     </div>
                                 )}
                             </div>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <h3 className="text-white font-medium text-sm truncate max-w-[150px]">{banner.title || 'Untitled'}</h3>
-                                    <p className="text-neutral-500 text-xs truncate max-w-[150px]">{banner.linkUrl || 'No link'}</p>
+                            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3">
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-white font-medium text-sm truncate" title={banner.title || 'Untitled'}>{banner.title || 'Untitled'}</h3>
+                                    <p className="text-neutral-500 text-xs truncate" title={banner.linkUrl || 'No link'}>{banner.linkUrl || 'No link'}</p>
                                 </div>
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 self-start xl:self-auto shrink-0">
                                     <button
                                         onClick={() => handleToggle(banner.id)}
-                                        className={`p-2 rounded-md transition-colors ${banner.isActive
-                                                ? 'bg-green-900/20 text-green-500 hover:bg-green-900/40'
-                                                : 'bg-neutral-800 text-neutral-400 hover:bg-neutral-700'
+                                        className={`p-2 rounded-lg transition-colors border ${banner.isActive
+                                            ? 'bg-green-500/10 border-green-500/20 text-green-500 hover:bg-green-500/20'
+                                            : 'bg-neutral-800 border-neutral-700 text-neutral-400 hover:bg-neutral-700'
                                             }`}
                                         title={banner.isActive ? "Hide Banner" : "Show Banner"}
                                     >
@@ -153,7 +167,7 @@ export default function BannerManager() {
                                     </button>
                                     <button
                                         onClick={() => handleDelete(banner.id)}
-                                        className="p-2 rounded-md bg-red-900/20 text-red-500 hover:bg-red-900/40 transition-colors"
+                                        className="p-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 hover:bg-red-500/20 transition-colors"
                                         title="Delete Banner"
                                     >
                                         <Trash2 size={16} />
@@ -167,28 +181,33 @@ export default function BannerManager() {
 
             {/* Add Banner Modal */}
             {showAddModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-                    <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6 w-full max-w-md animate-in fade-in zoom-in-95 duration-200">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setShowAddModal(false)} />
+                    <div className="relative bg-[#1a1a1a] border border-neutral-800 rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-red-500/10 rounded-full blur-[60px] -z-10 pointer-events-none" />
+
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-xl font-bold text-white">Add New Banner</h3>
-                            <button onClick={() => setShowAddModal(false)} className="text-neutral-400 hover:text-white">
+                            <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                                <Plus className="text-red-500" size={20} /> Add Banner
+                            </h3>
+                            <button onClick={() => setShowAddModal(false)} className="p-2 text-neutral-400 hover:bg-neutral-800 hover:text-white rounded-full transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleCreate} className="space-y-4">
-                            <div>
-                                <label className="block text-sm text-neutral-400 mb-1">Banner Image URL</label>
+                        <form onSubmit={handleCreate} className="space-y-5">
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold ml-1">Banner Image URL</label>
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
                                         value={newImageUrl}
                                         onChange={(e) => setNewImageUrl(e.target.value)}
                                         placeholder="https://..."
-                                        className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500"
+                                        className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all placeholder:text-neutral-600"
                                         required
                                     />
-                                    <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-3 py-2 rounded-lg flex items-center justify-center transition-colors">
+                                    <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2.5 rounded-xl flex items-center justify-center transition-colors shadow-inner">
                                         <Upload size={18} />
                                         <input
                                             type="file"
@@ -199,37 +218,37 @@ export default function BannerManager() {
                                         />
                                     </label>
                                 </div>
-                                {uploading && <p className="text-xs text-yellow-500 mt-1">Uploading...</p>}
+                                {uploading && <p className="text-xs text-yellow-500 mt-1 ml-1 flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" /> Uploading...</p>}
                             </div>
 
-                            <div>
-                                <label className="block text-sm text-neutral-400 mb-1">Title (Optional)</label>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold ml-1">Title (Optional)</label>
                                 <input
                                     type="text"
                                     value={newTitle}
                                     onChange={(e) => setNewTitle(e.target.value)}
                                     placeholder="e.g. Special Event"
-                                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500"
+                                    className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all placeholder:text-neutral-600"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm text-neutral-400 mb-1">Link URL (Optional)</label>
+                            <div className="space-y-1.5">
+                                <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold ml-1">Link URL (Optional)</label>
                                 <input
                                     type="text"
                                     value={newLinkUrl}
                                     onChange={(e) => setNewLinkUrl(e.target.value)}
                                     placeholder="https://..."
-                                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500"
+                                    className="w-full bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all placeholder:text-neutral-600"
                                 />
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={creating || !newImageUrl}
-                                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl mt-6 flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
                             >
-                                {creating ? 'Creating...' : 'Create Banner'}
+                                {creating ? <Loader2 size={18} className="animate-spin" /> : 'Create Banner'}
                             </button>
                         </form>
                     </div>

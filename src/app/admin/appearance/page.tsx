@@ -21,19 +21,17 @@ export default function AppearancePage() {
                 </p>
             </div>
 
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Dashboard Layout */}
+            <div className="flex flex-col lg:flex-row gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                {/* Column 1: Background & Popup */}
-                <div>
-                    <div className="space-y-6">
-                        <BackgroundSettings />
-                        <PromoPopupSettings />
-                    </div>
+                {/* Column 1: Background & Popup (1/3 width on desktop) */}
+                <div className="w-full lg:w-1/3 flex flex-col gap-8 flex-shrink-0">
+                    <BackgroundSettings />
+                    <PromoPopupSettings />
                 </div>
 
-                {/* Column 2: Banner Manager */}
-                <div className="h-full">
+                {/* Column 2: Banner Manager (2/3 width on desktop) */}
+                <div className="w-full lg:w-2/3 flex-grow h-fit">
                     <BannerManager />
                 </div>
             </div>

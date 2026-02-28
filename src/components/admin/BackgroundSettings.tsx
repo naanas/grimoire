@@ -69,37 +69,42 @@ export default function BackgroundSettings() {
     };
 
     return (
-        <div className="bg-neutral-900/50 border border-neutral-800 rounded-xl p-6">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <Film size={24} className="text-red-500" />
-                Background Settings
+        <div className="bg-neutral-950/40 border border-neutral-800/50 rounded-2xl p-6 backdrop-blur-xl shadow-2xl relative overflow-hidden group hover:border-neutral-700/50 transition-colors">
+            {/* Subtle glow effect */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-[80px] -z-10 pointer-events-none group-hover:bg-red-500/10 transition-colors duration-700" />
+
+            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+                <div className="p-2 bg-red-500/10 border border-red-500/20 rounded-lg">
+                    <Film size={20} className="text-red-500" />
+                </div>
+                Background
             </h2>
 
-            <div className="space-y-6">
+            <div className="space-y-6 relative z-10">
                 {/* Type Selection */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="bg-neutral-900/50 p-1.5 rounded-xl border border-neutral-800/50 flex">
                     {['CSS', 'IMAGE', 'VIDEO'].map((type) => (
                         <button
                             key={type}
                             onClick={() => setBgType(type)}
-                            className={`flex flex-col items-center justify-center p-3 rounded-lg border transition-all ${bgType === type
-                                ? 'bg-red-900/20 border-red-500 text-red-500'
-                                : 'bg-neutral-950 border-neutral-800 text-neutral-400 hover:border-neutral-700'
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 ${bgType === type
+                                ? 'bg-neutral-800 text-white shadow-md'
+                                : 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50'
                                 }`}
                         >
-                            {type === 'CSS' && <Type size={20} className="mb-1" />}
-                            {type === 'IMAGE' && <ImageIcon size={20} className="mb-1" />}
-                            {type === 'VIDEO' && <Film size={20} className="mb-1" />}
-                            <span className="text-xs font-medium">{type}</span>
+                            {type === 'CSS' && <Type size={16} />}
+                            {type === 'IMAGE' && <ImageIcon size={16} />}
+                            {type === 'VIDEO' && <Film size={16} />}
+                            {type}
                         </button>
                     ))}
                 </div>
 
                 {/* URL Input / Upload */}
                 {bgType !== 'CSS' && (
-                    <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
-                        <div>
-                            <label className="block text-sm text-neutral-400 mb-1">
+                    <div className="space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                        <div className="space-y-1.5">
+                            <label className="text-[10px] text-neutral-500 uppercase tracking-wider font-bold ml-1">
                                 Media URL (Upload or Enter Direct Link)
                             </label>
                             <div className="flex gap-2">
@@ -108,10 +113,10 @@ export default function BackgroundSettings() {
                                     value={bgUrl}
                                     onChange={(e) => setBgUrl(e.target.value)}
                                     placeholder="https://..."
-                                    className="flex-1 bg-neutral-950 border border-neutral-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-red-500"
+                                    className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500 transition-all placeholder:text-neutral-600"
                                 />
-                                <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2 rounded-lg flex items-center justify-center transition-colors">
-                                    <Upload size={18} />
+                                <label className="cursor-pointer bg-neutral-800 hover:bg-neutral-700 text-white px-4 py-2.5 rounded-xl flex items-center justify-center transition-colors group">
+                                    <Upload size={18} className="group-hover:-translate-y-0.5 transition-transform" />
                                     <input
                                         type="file"
                                         className="hidden"
@@ -121,20 +126,18 @@ export default function BackgroundSettings() {
                                     />
                                 </label>
                             </div>
-                            {uploading && <p className="text-xs text-yellow-500 mt-1">Uploading...</p>}
+                            {uploading && <p className="text-xs text-yellow-500 mt-1 ml-1 flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" /> Uploading...</p>}
                         </div>
 
                         {/* Preview */}
                         {bgUrl && (
-                            <div className="mt-4 rounded-lg overflow-hidden border border-neutral-800 aspect-video bg-black relative">
+                            <div className="mt-4 rounded-xl overflow-hidden border border-neutral-800 aspect-video bg-black/50 relative group shadow-inner">
                                 {bgType === 'VIDEO' ? (
-                                    <video src={getGoogleDriveDirectLink(bgUrl)} className="w-full h-full object-cover" autoPlay loop muted />
+                                    <video src={getGoogleDriveDirectLink(bgUrl)} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" autoPlay loop muted />
                                 ) : (
-                                    <img src={bgUrl} alt="Preview" className="w-full h-full object-cover" />
+                                    <img src={bgUrl} alt="Preview" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                 )}
-                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center pointer-events-none">
-                                    <span className="text-white text-xs font-mono uppercase bg-black/80 px-2 py-1 rounded">Preview</span>
-                                </div>
+                                <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-[10px] text-white/70 font-mono uppercase border border-white/10 opacity-0 group-hover:opacity-100 transition-opacity">Preview</div>
                             </div>
                         )}
                     </div>
@@ -143,14 +146,14 @@ export default function BackgroundSettings() {
                 <button
                     onClick={handleSave}
                     disabled={loading}
-                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5"
                 >
                     {loading ? (
                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
                         <>
                             <Save size={18} />
-                            Save Changes
+                            Save Settings
                         </>
                     )}
                 </button>

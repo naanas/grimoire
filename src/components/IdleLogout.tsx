@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
-const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 export default function IdleLogout() {
     const { user, logout } = useAuth();

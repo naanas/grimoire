@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -35,8 +36,16 @@ api.interceptors.response.use(
     error => {
         console.error('❌ [API] Error:', error.response?.status, error.message);
         if (error.response?.status === 401 && typeof window !== 'undefined') {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            if (!localStorage.getItem('is_logging_out')) {
+                localStorage.setItem('is_logging_out', 'true');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                toast.error('Sesi Anda telah berakhir. Silakan login kembali.');
+                setTimeout(() => {
+                    localStorage.removeItem('is_logging_out');
+                    window.location.href = '/login';
+                }, 2000);
+            }
         }
         return Promise.reject(error);
     }

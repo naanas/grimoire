@@ -24,29 +24,21 @@ api.interceptors.request.use(request => {
 });
 
 // Response Interceptor
+let isHandling401 = false; // module-level flag, resets on page reload — no stuck risk
 api.interceptors.response.use(
     response => {
         return response;
     },
-    error => {
-        if (error.response?.status === 401 && typeof window !== 'undefined') {
-            if (!localStorage.getItem('is_logging_out')) {
-                localStorage.setItem('is_logging_out', 'true');
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                
-                // Notify hooks to update state immediately
-                window.dispatchEvent(new Event('auth-change'));
-                
-                import('react-hot-toast').then((toast) => {
-                    toast.default.error('Sesi Anda telah berakhir. Silakan login kembali.');
-                });
-                
-                setTimeout(() => {
-                    localStorage.removeItem('is_logging_out');
-                    window.location.href = '/login';
-                }, 2000);
-            }
+    async error => {
+        // Skip 401 handling for the /auth/me endpoint itself (authStore handles it directly)
+        const isAuthMeRequest = error.config?.url?.includes('/auth/me');
+
+        if (error.response?.status === 401 && typeof window !== 'undefined' && !isHandling401 && !isAuthMeRequest) {
+            isHandling401 = true;
+
+            // Use authStore logout for consistent handling (shows toast + clears store)
+            const { useAuthStore } = await import('./authStore');
+            useAuthStore.getState().logout('Sesi Anda telah berakhir. Silakan login kembali.');
         }
         return Promise.reject(error);
     }

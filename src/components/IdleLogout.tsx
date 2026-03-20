@@ -16,7 +16,7 @@ export default function IdleLogout() {
 
         if (user) {
             timeoutRef.current = setTimeout(() => {
-                logout();
+                logout('Anda telah tidak aktif selama 5 menit. Silakan login kembali.');
             }, IDLE_TIMEOUT);
         }
     }, [user, logout]);

@@ -11,7 +11,7 @@ interface AuthState {
     loadUser: () => void;
     fetchFreshUser: (force?: boolean) => Promise<void>;
     setUser: (user: User | null) => void;
-    logout: () => void;
+    logout: (reason?: string) => void;
 }
 
 let isInitialFetching = false;
@@ -75,18 +75,35 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 localStorage.setItem('user', JSON.stringify(newUser));
             }
         } catch (err: any) {
-            set({ loading: false, initialized: true });
+            // If token expired (401), immediately clear auth state
+            if (err.response?.status === 401) {
+                // api.ts interceptor already handles redirect, but we need to clear store too
+                set({ user: null, loading: false, initialized: true });
+            } else {
+                // Other errors (network, 500, etc.) — keep user logged in, just stop loading
+                set({ loading: false, initialized: true });
+            }
         } finally {
             isInitialFetching = false; // Reset lock so future fetches (e.g. on focus) can run
             set({ isFetching: false });
         }
     },
 
-    logout: () => {
+    logout: (reason?: string) => {
+        if (typeof window === 'undefined') return;
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        set({ user: null });
-        window.location.href = '/login';
+        localStorage.removeItem('is_logging_out');
+        set({ user: null, loading: false });
+
+        // Show toast before redirect so user sees why they're logged out
+        import('react-hot-toast').then((toastModule) => {
+            const message = reason || 'Sesi Anda telah berakhir. Silakan login kembali.';
+            toastModule.default.error(message, { duration: 3000 });
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+        });
     }
 }));
 

@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             return;
         }
 
-        set({ isFetching: true });
+        set({ isFetching: true, initialized: true });
         try {
             const res = await api.get('/auth/me');
             if (res.data.success) {
@@ -66,7 +66,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 set({ 
                     user: newUser, 
                     loading: false, 
-                    initialized: true,
                     lastFetch: now 
                 });
                 localStorage.setItem('user', JSON.stringify(newUser));

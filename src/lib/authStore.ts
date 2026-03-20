@@ -6,8 +6,10 @@ interface AuthState {
     user: User | null;
     loading: boolean;
     initialized: boolean;
+    isFetching: boolean;
+    lastFetch: number;
     loadUser: () => void;
-    fetchFreshUser: () => Promise<void>;
+    fetchFreshUser: (force?: boolean) => Promise<void>;
     setUser: (user: User | null) => void;
     logout: () => void;
 }
@@ -16,6 +18,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     loading: true,
     initialized: false,
+    isFetching: false,
+    lastFetch: 0,
     
     setUser: (user) => set({ user, loading: false }),
 
@@ -35,26 +39,42 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         }
     },
 
-    fetchFreshUser: async () => {
+    fetchFreshUser: async (force = false) => {
         if (typeof window === 'undefined') return;
 
-        const token = localStorage.getItem('token');
-        if (!token) {
-            set({ loading: false });
+        // Prevent duplicate concurrent requests
+        if (get().isFetching) return;
+
+        // Rate limit: don't fetch more than once every 10 seconds unless forced
+        const now = Date.now();
+        if (!force && now - get().lastFetch < 10000) {
+            set({ loading: false, initialized: true });
             return;
         }
 
+        const token = localStorage.getItem('token');
+        if (!token) {
+            set({ loading: false, initialized: true, isFetching: false });
+            return;
+        }
+
+        set({ isFetching: true });
         try {
             const res = await api.get('/auth/me');
             if (res.data.success) {
                 const newUser = res.data.data;
-                set({ user: newUser, loading: false });
+                set({ 
+                    user: newUser, 
+                    loading: false, 
+                    initialized: true,
+                    lastFetch: now 
+                });
                 localStorage.setItem('user', JSON.stringify(newUser));
             }
         } catch (err: any) {
-            // 401 logic is handled by api.ts interceptor
-            // We just ensure loading is stopped here
-            set({ loading: false });
+            set({ loading: false, initialized: true });
+        } finally {
+            set({ isFetching: false });
         }
     },
 

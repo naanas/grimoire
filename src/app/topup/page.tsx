@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Loader2, Wallet, CreditCard, CheckCircle, XCircle, Zap, ShieldAlert, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
+import { useAuthStore } from '@/lib/authStore';
 import { PAYMENT_CHANNELS, PaymentChannel } from '@/lib/PaymentChannels';
 
 const DEPOSIT_AMOUNTS = [10000, 25000, 50000, 100000, 250000, 500000];
@@ -21,7 +22,7 @@ const RunicCircle = () => (
 
 export default function TopupPage() {
     const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const { user, loading: authLoading, fetchFreshUser } = useAuthStore();
     const [loading, setLoading] = useState(true);
 
     const [amount, setAmount] = useState<number | null>(null);
@@ -32,45 +33,27 @@ export default function TopupPage() {
     const [error, setError] = useState('');
 
     useEffect(() => {
-        const storedUser = localStorage.getItem('user');
-        if (!storedUser) {
+        if (!authLoading && !user) {
             router.push('/login');
-            return;
+        } else if (!authLoading && user) {
+            setLoading(false);
         }
-        setUser(JSON.parse(storedUser));
-
-        api.get('/auth/me')
-            .then(res => {
-                if (res.data.success) {
-                    setUser(res.data.data);
-                    localStorage.setItem('user', JSON.stringify(res.data.data));
-                }
-            })
-            .catch(() => {
-                // Silent fail or redirect
-            })
-            .finally(() => setLoading(false));
-    }, [router]);
+    }, [user, authLoading, router]);
 
     // Poll for status update
     useEffect(() => {
         if (result?.invoice) {
             const interval = setInterval(() => {
-                api.get('/auth/me').then(res => {
-                    if (res.data.success) {
-                        const freshUser = res.data.data;
-                        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-                        if (freshUser.balance > currentUser.balance) {
-                            localStorage.setItem('user', JSON.stringify(freshUser));
-                            setUser(freshUser);
-                            window.location.reload();
-                        }
+                fetchFreshUser(true).then(() => {
+                    const freshUser = useAuthStore.getState().user;
+                    if (freshUser && user && freshUser.balance > user.balance) {
+                        window.location.reload();
                     }
-                }).catch(() => { });
+                });
             }, 5000);
             return () => clearInterval(interval);
         }
-    }, [result]);
+    }, [result, fetchFreshUser, user]);
 
     const handleDeposit = async () => {
         if (!amount || amount < 10000) {
@@ -88,7 +71,7 @@ export default function TopupPage() {
 
         try {
             const res = await api.post('/deposit', {
-                userId: user.id,
+                userId: user?.id,
                 amount,
                 paymentMethod: selectedChannel.code // Sending Code as requested/mapped in backend
             });

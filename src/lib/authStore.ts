@@ -14,6 +14,8 @@ interface AuthState {
     logout: () => void;
 }
 
+let isInitialFetching = false;
+
 export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     loading: true,
@@ -42,13 +44,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     fetchFreshUser: async (force = false) => {
         if (typeof window === 'undefined') return;
 
-        // Prevent duplicate concurrent requests
-        if (get().isFetching) return;
+        // Ultimate lock: prevent duplicate concurrent requests even in concurrent renders
+        if (isInitialFetching && !force) return;
+        if (get().isFetching && !force) return;
 
         // Rate limit: don't fetch more than once every 10 seconds unless forced
         const now = Date.now();
-        if (!force && now - get().lastFetch < 10000) {
-            set({ loading: false, initialized: true });
+        if (!force && now - get().lastFetch < 10000 && get().initialized) {
+            set({ loading: false });
             return;
         }
 
@@ -58,6 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             return;
         }
 
+        isInitialFetching = true;
         set({ isFetching: true, initialized: true });
         try {
             const res = await api.get('/auth/me');
@@ -85,10 +89,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 }));
 
-// Initialize listeners ONCE at module level (client-side only)
+// Initialize listeners and fetch user ONCE at module level (client-side only)
 if (typeof window !== 'undefined') {
-    // Initial sync
     const store = useAuthStore.getState();
+    
+    // Initial fetch
+    store.loadUser();
+    store.fetchFreshUser();
     
     // Sync across tabs
     window.addEventListener('storage', (e) => {

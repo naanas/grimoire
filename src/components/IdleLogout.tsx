@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 
 const IDLE_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
@@ -9,7 +9,7 @@ export default function IdleLogout() {
     const { user, logout } = useAuth();
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const resetTimer = () => {
+    const resetTimer = useCallback(() => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
         }
@@ -19,7 +19,7 @@ export default function IdleLogout() {
                 logout();
             }, IDLE_TIMEOUT);
         }
-    };
+    }, [user, logout]);
 
     useEffect(() => {
         // Only run if user is logged in
@@ -56,7 +56,7 @@ export default function IdleLogout() {
                 window.removeEventListener(event, resetTimer);
             });
         };
-    }, [user, logout]);
+    }, [user, logout, resetTimer]);
 
     return null; // This component doesn't render anything
 }

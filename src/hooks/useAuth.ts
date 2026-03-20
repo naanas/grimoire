@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/authStore';
 
 export function useAuth() {

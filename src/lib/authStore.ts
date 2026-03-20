@@ -77,6 +77,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch (err: any) {
             set({ loading: false, initialized: true });
         } finally {
+            isInitialFetching = false; // Reset lock so future fetches (e.g. on focus) can run
             set({ isFetching: false });
         }
     },
@@ -89,14 +90,8 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     }
 }));
 
-// Initialize listeners and fetch user ONCE at module level (client-side only)
+// Initialize listeners ONCE at module level (client-side only)
 if (typeof window !== 'undefined') {
-    const store = useAuthStore.getState();
-    
-    // Initial fetch
-    store.loadUser();
-    store.fetchFreshUser();
-    
     // Sync across tabs
     window.addEventListener('storage', (e) => {
         if (e.key === 'user' || e.key === 'token') {
@@ -104,7 +99,7 @@ if (typeof window !== 'undefined') {
         }
     });
 
-    // Refresh on focus
+    // Refresh on focus (rate-limited by lastFetch)
     window.addEventListener('focus', () => {
         useAuthStore.getState().fetchFreshUser();
     });
@@ -115,6 +110,6 @@ if (typeof window !== 'undefined') {
     });
     
     window.addEventListener('balance_updated', () => {
-        useAuthStore.getState().loadUser();
+        useAuthStore.getState().fetchFreshUser(true);
     });
 }

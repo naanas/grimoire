@@ -26,7 +26,6 @@ export default function TopupPage() {
     const [loading, setLoading] = useState(true);
 
     const [amount, setAmount] = useState<number | null>(null);
-    const [paymentMethod, setPaymentMethod] = useState(''); // method: 'va', 'qris', etc
     const [selectedChannel, setSelectedChannel] = useState<PaymentChannel | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [result, setResult] = useState<any>(null);
@@ -278,7 +277,6 @@ export default function TopupPage() {
                                                         const isBelowMin = amount && amount < (channel.minAmount || 0);
                                                         if (!isBelowMin) {
                                                             setSelectedChannel(channel);
-                                                            setPaymentMethod(channel.method);
                                                         }
                                                     }}
                                                     className={`

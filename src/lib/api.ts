@@ -12,9 +12,6 @@ const api = axios.create({
 
 // Request Logger & Auth Token
 api.interceptors.request.use(request => {
-    // Only log URL and Method to avoid leaking PII (passwords) in Console
-    console.log('🚀 [API] Request:', request.method?.toUpperCase(), request.url);
-
     // Attach Token if exists
     if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token');
@@ -26,14 +23,12 @@ api.interceptors.request.use(request => {
     return request;
 });
 
-// Response Logger
+// Response Interceptor
 api.interceptors.response.use(
     response => {
-        console.log('✅ [API] Response:', response.status, response.config.url);
         return response;
     },
     error => {
-        console.error('❌ [API] Error:', error.response?.status, error.message);
         if (error.response?.status === 401 && typeof window !== 'undefined') {
             if (!localStorage.getItem('is_logging_out')) {
                 localStorage.setItem('is_logging_out', 'true');

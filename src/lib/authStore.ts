@@ -22,7 +22,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     initialized: false,
     isFetching: false,
     lastFetch: 0,
-    
+
     setUser: (user) => set({ user, loading: false }),
 
     loadUser: () => {
@@ -67,10 +67,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
             const res = await api.get('/auth/me');
             if (res.data.success) {
                 const newUser = res.data.data;
-                set({ 
-                    user: newUser, 
-                    loading: false, 
-                    lastFetch: now 
+                set({
+                    user: newUser,
+                    loading: false,
+                    lastFetch: now
                 });
                 localStorage.setItem('user', JSON.stringify(newUser));
             }
@@ -125,7 +125,7 @@ if (typeof window !== 'undefined') {
     window.addEventListener('auth-change', () => {
         useAuthStore.getState().loadUser();
     });
-    
+
     window.addEventListener('balance_updated', () => {
         useAuthStore.getState().fetchFreshUser(true);
     });

@@ -48,15 +48,18 @@ export function useAuth() {
         const handleStorage = () => loadUser();
         const handleFocus = () => fetchFreshUser();
         const handleBalanceUpdate = () => loadUser(); // Listen for custom events
+        const handleAuthChange = () => loadUser(); // Listen for internal auth changes
 
         window.addEventListener('storage', handleStorage);
         window.addEventListener('focus', handleFocus);
         window.addEventListener('balance_updated', handleBalanceUpdate);
+        window.addEventListener('auth-change', handleAuthChange);
 
         return () => {
             window.removeEventListener('storage', handleStorage);
             window.removeEventListener('focus', handleFocus);
             window.removeEventListener('balance_updated', handleBalanceUpdate);
+            window.removeEventListener('auth-change', handleAuthChange);
         };
     }, [loadUser, fetchFreshUser]);
 

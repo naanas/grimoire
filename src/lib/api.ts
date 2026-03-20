@@ -34,6 +34,25 @@ api.interceptors.response.use(
     },
     error => {
         console.error('❌ [API] Error:', error.response?.status, error.message);
+        if (error.response?.status === 401 && typeof window !== 'undefined') {
+            if (!localStorage.getItem('is_logging_out')) {
+                localStorage.setItem('is_logging_out', 'true');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                
+                // Notify hooks to update state immediately
+                window.dispatchEvent(new Event('auth-change'));
+                
+                import('react-hot-toast').then((toast) => {
+                    toast.default.error('Sesi Anda telah berakhir. Silakan login kembali.');
+                });
+                
+                setTimeout(() => {
+                    localStorage.removeItem('is_logging_out');
+                    window.location.href = '/login';
+                }, 2000);
+            }
+        }
         return Promise.reject(error);
     }
 );

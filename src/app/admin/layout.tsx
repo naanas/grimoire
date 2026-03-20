@@ -16,37 +16,27 @@ import {
     Palette,
     Star
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { user, loading, logout } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
 
-    // Protect Admin Route (Client-side simple check)
+    // Protect Admin Route
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        const userStr = localStorage.getItem('user');
-
-        if (!token || !userStr) {
-            router.push('/login');
-            return;
-        }
-
-        try {
-            const user = JSON.parse(userStr);
-            if (user.role !== 'ADMIN') {
+        if (!loading) {
+            if (!user) {
+                router.push('/login');
+            } else if (user.role !== 'ADMIN') {
                 router.push('/');
             }
-        } catch (e) {
-            router.push('/login');
         }
-    }, [router]);
+    }, [user, loading, router]);
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.dispatchEvent(new Event('auth-change'));
-        router.push('/login');
+        logout();
     };
 
     const menuItems = [

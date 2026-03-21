@@ -4,6 +4,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { useRouter } from 'next/navigation';
 
 import api from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
 
 export type CheckoutResult = {
     id?: string;
@@ -18,6 +19,9 @@ export type CheckoutResult = {
     paymentNo?: string;
     paymentUrl?: string;
     product?: { price_sell: number };
+    userId?: string;
+    zoneId?: string;
+    createdAt?: string;
 };
 
 type Props = {
@@ -28,8 +32,10 @@ type Props = {
 
 export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult }: Props) {
     const router = useRouter();
+    const { user } = useAuth();
     const [showPaymentNo, setShowPaymentNo] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(false);
+    const [showGuestReceipt, setShowGuestReceipt] = useState(false);
 
     return (
         <div className="min-h-[60vh] pt-4 pb-12 px-4 flex items-start justify-center relative">
@@ -254,19 +260,109 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                 {/* Return Buttons */}
                 <div className="flex gap-4 mt-8">
                     <button
-                        onClick={() => router.push('/profile/transactions')}
+                        onClick={() => {
+                            if (user) {
+                                router.push('/profile/transactions');
+                            } else {
+                                setShowGuestReceipt(true);
+                            }
+                        }}
                         className="flex-1 py-3 border border-[var(--blood-red)] text-[var(--blood-red)] hover:bg-[var(--blood-red)] hover:text-black font-bold uppercase tracking-widest text-sm transition-all text-center"
                     >
                         HISTORY
                     </button>
                     <button
-                        onClick={() => window.location.reload()}
+                        onClick={() => window.location.href = '/'}
                         className="flex-1 py-3 bg-[var(--blood-red)] hover:bg-red-700 text-black font-bold uppercase tracking-widest text-sm transition-all text-center"
                     >
                         NEW ORDER
                     </button>
                 </div>
             </div>
+
+            {/* Guest Receipt Modal */}
+            {showGuestReceipt && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+                    <div className="bg-[#0a0a0a] border border-[var(--blood-red)] max-w-sm w-full relative shadow-[0_0_30px_rgba(220,38,38,0.2)] overflow-hidden">
+                        {/* Receipt Header */}
+                        <div className="bg-gradient-to-b from-[#1a0505] to-[#0a0a0a] p-6 text-center border-b border-dashed border-red-900/50">
+                            <h2 className="text-[var(--blood-red)] font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-widest mb-1">GRIMOIRE COINS</h2>
+                            <p className="text-gray-500 text-xs font-mono uppercase tracking-widest">Official Invoice Struk</p>
+                        </div>
+
+                        {/* Receipt Body - WhatsApp style monospace */}
+                        <div className="p-6 font-mono text-sm text-gray-300 space-y-4 relative">
+                            <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
+                                <svg viewBox="0 0 100 100" className="w-48 h-48 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
+                                    <polygon points="50,5 20,95 95,35 5,35 80,95" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                                    <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
+                                </svg>
+                            </div>
+
+                            <div className="space-y-1 relative z-10">
+                                <p className="flex justify-between border-b border-dashed border-gray-800 pb-2">
+                                    <span className="text-gray-500">STATUS</span>
+                                    <span className={result.status === 'SUCCESS' ? 'text-green-500 font-bold' : result.status === 'PROCESSING' ? 'text-blue-500 font-bold' : 'text-yellow-500 font-bold'}>{result.status}</span>
+                                </p>
+                                <p className="flex justify-between py-1">
+                                    <span className="text-gray-500">TRX ID</span>
+                                    <span className="text-white">{result.invoice}</span>
+                                </p>
+                                <p className="flex justify-between py-1">
+                                    <span className="text-gray-500">DATE</span>
+                                    <span className="text-white">{result.createdAt ? new Date(result.createdAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                                </p>
+                            </div>
+
+                            <div className="space-y-1 pt-2 border-t border-dashed border-gray-800 relative z-10">
+                                <p className="flex justify-between py-1">
+                                    <span className="text-gray-500">ITEM</span>
+                                    <span className="text-white text-right max-w-[150px] truncate">{result.productName}</span>
+                                </p>
+                                <p className="flex justify-between py-1">
+                                    <span className="text-gray-500">TARGET</span>
+                                    <span className="text-white">{result.userId}{result.zoneId ? ` (${result.zoneId})` : ''}</span>
+                                </p>
+                                <p className="flex justify-between py-1">
+                                    <span className="text-gray-500">PAYMENT</span>
+                                    <span className="text-white">{result.paymentName || 'Balance'}</span>
+                                </p>
+                            </div>
+
+                            <div className="pt-4 mt-2 border-t-2 border-dashed border-[var(--blood-red)] relative z-10">
+                                <p className="flex justify-between items-center bg-red-950/20 p-2 rounded">
+                                    <span className="text-[var(--blood-red)] font-bold">TOTAL</span>
+                                    <span className="text-white font-bold tracking-wider">Rp {Number(result.amount).toLocaleString('id-ID')}</span>
+                                </p>
+                            </div>
+                            
+                            <p className="text-center text-[10px] text-gray-500 pt-4 relative z-10 italic">
+                                "Terima kasih telah bersekutu dengan Grimoire."
+                            </p>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex border-t border-gray-900 bg-[#050505]">
+                            <button
+                                onClick={() => {
+                                    const text = `*GRIMOIRE COINS - INVOICE*\n\nStatus: ${result.status}\nInvoice: ${result.invoice}\nDate: ${new Date().toLocaleString('id-ID')}\n\nItem: ${result.productName}\nTarget: ${result.userId}${result.zoneId ? ` (${result.zoneId})` : ''}\nPayment: ${result.paymentName || 'Balance'}\n\n*Total: Rp ${Number(result.amount).toLocaleString('id-ID')}*\n\nTerima kasih telah topup di Grimoire!`;
+                                    navigator.clipboard.writeText(text);
+                                    alert('Struk tersalin ke clipboard!');
+                                }}
+                                className="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-gray-900 transition-colors border-r border-gray-900"
+                            >
+                                COPY TEXT
+                            </button>
+                            <button
+                                onClick={() => setShowGuestReceipt(false)}
+                                className="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-[var(--blood-red)] hover:text-red-400 hover:bg-red-950/30 transition-colors"
+                            >
+                                CLOSE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

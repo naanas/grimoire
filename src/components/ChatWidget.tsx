@@ -8,6 +8,7 @@ import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { ChatMessage, ChatSession } from '@/types/chat';
 import { useUIStore } from '@/lib/uiStore';
+import { usePathname } from 'next/navigation';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
 
@@ -192,8 +193,15 @@ export default function ChatWidget() {
         if (e.key === 'Enter') handleSend();
     };
 
+    const pathname = usePathname();
+    const isOrderPage = pathname?.startsWith('/order/');
+
     return (
-        <div className={`fixed right-6 z-50 flex flex-col items-end transition-all duration-300 ${isMobileSummaryExpanded ? 'bottom-[45vh]' : 'bottom-24 md:bottom-6'}`}>
+        <div className={`fixed right-6 z-[60] flex flex-col items-end transition-all duration-300 ${
+            isOrderPage 
+                ? (isMobileSummaryExpanded ? 'bottom-[62vh]' : 'bottom-[5.5rem] lg:bottom-6') 
+                : 'bottom-6'
+        }`}>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div

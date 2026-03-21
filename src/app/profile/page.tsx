@@ -103,7 +103,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] pt-24 pb-20 px-4">
+        <div className="min-h-screen bg-transparent pt-24 pb-20 px-4">
             <div className="max-w-7xl mx-auto space-y-6">
                 {/* User Profile Card */}
                 <div className="bg-gradient-to-br from-[#1a0505] to-[#0a0a0a] border border-red-900/30 rounded-none p-6 relative overflow-hidden">

@@ -53,8 +53,26 @@ export default function BannerCarousel() {
                                 priority
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-80" />
+                            {/* Fire sparks effect */}
+                            <div className="absolute inset-x-0 bottom-0 h-24 overflow-hidden pointer-events-none z-20">
+                                {Array.from({ length: 25 }).map((_, i) => (
+                                    <div
+                                        key={i}
+                                        className="absolute bottom-0 w-1 h-1 md:w-1.5 md:h-1.5 bg-[#ff4d00] rounded-full"
+                                        style={{
+                                            left: `${Math.random() * 100}%`,
+                                            boxShadow: '0 0 10px #ff0000, 0 0 20px #ff4d00',
+                                            animation: `spark-rise ${1 + Math.random() * 2}s infinite linear`,
+                                            animationDelay: `${Math.random() * 2}s`,
+                                            opacity: 0
+                                        }}
+                                    />
+                                ))}
+                            </div>
+                            {/* Gradient overlay specifically for bottom blending */}
+                            <div className="absolute bottom-0 inset-x-0 h-10 bg-gradient-to-t from-black to-transparent pointer-events-none z-10" />
                             {banner.title && (
-                                <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 max-w-lg">
+                                <div className="absolute bottom-6 left-6 md:bottom-10 md:left-10 max-w-lg z-30">
                                     <h2 className="text-xl md:text-4xl font-black text-white mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,1)] font-[family-name:var(--font-cinzel)] tracking-wider">{banner.title}</h2>
                                 </div>
                             )}

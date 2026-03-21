@@ -199,7 +199,7 @@ export default function ChatWidget() {
     return (
         <div className={`fixed right-6 z-[60] flex flex-col items-end transition-all duration-300 ${
             isOrderPage 
-                ? (isMobileSummaryExpanded ? 'bottom-[62vh]' : 'bottom-[5.5rem] lg:bottom-6') 
+                ? (isMobileSummaryExpanded ? 'bottom-[360px]' : 'bottom-[5.5rem] lg:bottom-6') 
                 : 'bottom-6'
         }`}>
             <AnimatePresence>

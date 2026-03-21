@@ -87,7 +87,7 @@ export default function TopupPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex flex-col items-center justify-center bg-black gap-4">
+            <div className="min-h-screen flex flex-col items-center justify-center bg-transparent gap-4">
                 <Loader2 className="animate-spin text-[var(--blood-red)]" size={40} />
                 <p className="text-[var(--blood-red)] font-[family-name:var(--font-cinzel)] tracking-widest animate-pulse">PREPARING ALTAR...</p>
             </div>
@@ -97,9 +97,9 @@ export default function TopupPage() {
     // --- RECEIPT VIEW ---
     if (result) {
         return (
-            <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center relative bg-black overflow-hidden">
+            <div className="min-h-screen pt-24 pb-12 px-4 flex items-center justify-center relative bg-transparent overflow-hidden">
                 <RunicCircle />
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_90%)] z-0"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_90%)] z-0 pointer-events-none opacity-50"></div>
 
                 <div className="relative z-10 text-center space-y-8 animate-in fade-in zoom-in duration-500 max-w-md w-full">
                     {/* Status Icon */}
@@ -156,10 +156,10 @@ export default function TopupPage() {
 
     // --- TOPUP FORM VIEW ---
     return (
-        <div className="min-h-screen pt-24 pb-12 px-4 bg-black relative overflow-hidden selection:bg-[var(--blood-red)] selection:text-white">
+        <div className="min-h-screen pt-24 pb-12 px-4 bg-transparent relative overflow-hidden selection:bg-[var(--blood-red)] selection:text-white">
             <RunicCircle />
             {/* Red Vignette */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] z-0 pointer-events-none opacity-80"></div>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] z-0 pointer-events-none opacity-50"></div>
 
             <div className="max-w-4xl mx-auto space-y-8 relative z-10">
                 {/* Header */}

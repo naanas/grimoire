@@ -293,7 +293,7 @@ function LoginContent() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black selection:bg-[var(--blood-red)] selection:text-white">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-transparent selection:bg-[var(--blood-red)] selection:text-white">
 
             {/* Global Effects */}
             <RunicCircle />

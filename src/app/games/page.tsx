@@ -47,7 +47,7 @@ export default function GamesPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-black text-white">
+            <div className="min-h-screen flex items-center justify-center bg-transparent text-white">
                 <Navbar />
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--blood-red)]"></div>
             </div>
@@ -55,7 +55,7 @@ export default function GamesPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center pt-32 pb-20 px-4 relative overflow-hidden">
+        <div className="min-h-screen bg-transparent text-white flex flex-col items-center pt-32 pb-20 px-4 relative overflow-hidden">
             <Navbar />
 
             {/* Background Ambience */}

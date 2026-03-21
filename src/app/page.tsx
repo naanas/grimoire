@@ -52,10 +52,10 @@ export default function Home() {
         .slice(0, 16);
 
     return (
-        <div className="flex flex-col items-center justify-start min-h-screen gap-12 overflow-hidden relative bg-[#0a0a0a]">
+        <div className="flex flex-col items-center justify-start min-h-screen gap-12 overflow-hidden relative bg-transparent">
 
             {/* Background Ambience */}
-            <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[#1a0505] to-transparent z-0 pointer-events-none" />
+            <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[#1a0505]/50 to-transparent z-0 pointer-events-none" />
 
             {/* Hero Section */}
             <section className="text-center space-y-6 pt-4 md:pt-8 relative z-10 w-full flex justify-center mt-20 md:mt-24 px-4">

@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* ─── CUSTOM SCROLLBAR ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #bb0a1e, #4a040b);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover { background: #ff3333; }
+* { scrollbar-width: thin; scrollbar-color: #bb0a1e #0a0a0a; }
+
 @layer base {
   :root {
     --background: #581212;
@@ -204,3 +214,39 @@
 .clip-path-button {
   clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
 }
+/* ─── GLITCH TEXT ─────────────────────────────────────────────────────────── */
+@keyframes glitch-1 {
+  0%, 90%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+  92% { clip-path: inset(10% 0 60% 0); transform: translate(-3px, 1px); }
+  94% { clip-path: inset(60% 0 10% 0); transform: translate(3px, -1px); }
+  96% { clip-path: inset(30% 0 40% 0); transform: translate(-2px, 2px); }
+  98% { clip-path: inset(50% 0 20% 0); transform: translate(2px, -2px); }
+}
+@keyframes glitch-2 {
+  0%, 88%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+  90% { clip-path: inset(40% 0 30% 0); transform: translate(3px, -1px); color: #ff0000; }
+  93% { clip-path: inset(20% 0 55% 0); transform: translate(-3px, 1px); color: #00ffff; }
+  97% { clip-path: inset(70% 0 5% 0); transform: translate(2px, -2px); color: #ff0000; }
+}
+.glitch-text { position: relative; display: inline-block; }
+.glitch-text::before,.glitch-text::after { content: attr(data-text); position: absolute; inset: 0; font: inherit; color: inherit; }
+.glitch-text::before { animation: glitch-1 8s infinite linear; color: #ff0000; z-index: -1; }
+.glitch-text::after { animation: glitch-2 8s infinite linear; animation-delay: 0.5s; color: #0ff; z-index: -1; }
+
+/* ─── HERO GRADIENT TEXT ──────────────────────────────────────────────────── */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.hero-gradient-text {
+  background: linear-gradient(135deg, #ffffff 0%, #bb0a1e 40%, #d4af37 70%, #ffffff 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift 5s ease infinite;
+}
+
+/* ─── PAGE ENTER ──────────────────────────────────────────────────────────── */
+@keyframes page-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.page-enter { animation: page-enter 0.5s ease forwards; }

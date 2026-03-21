@@ -18,8 +18,8 @@ export type CheckoutResult = {
     paymentName?: string;
     paymentNo?: string;
     paymentUrl?: string;
-    product?: { price_sell: number };
-    userId?: string;
+    product?: { price_sell: number; name?: string };
+    targetId?: string;
     zoneId?: string;
     createdAt?: string;
 };
@@ -118,7 +118,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                     </div>
                     <div className="flex justify-between items-start py-4 border-b border-gray-900 border-dashed">
                         <span className="text-gray-500 text-xs uppercase tracking-widest">Item</span>
-                        <span className="text-white font-bold text-sm text-right flex-1 ml-4">{result.productName}</span>
+                        <span className="text-white font-bold text-sm text-right flex-1 ml-4">{result.productName || result.product?.name}</span>
                     </div>
                     <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
                         <span className="text-gray-500 text-xs uppercase tracking-widest">Item Price</span>
@@ -317,11 +317,11 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                             <div className="space-y-1 pt-2 border-t border-dashed border-gray-800 relative z-10">
                                 <p className="flex justify-between py-1">
                                     <span className="text-gray-500">ITEM</span>
-                                    <span className="text-white text-right max-w-[150px] truncate">{result.productName}</span>
+                                    <span className="text-white text-right max-w-[150px] truncate">{result.productName || result.product?.name}</span>
                                 </p>
                                 <p className="flex justify-between py-1">
                                     <span className="text-gray-500">TARGET</span>
-                                    <span className="text-white">{result.userId}{result.zoneId ? ` (${result.zoneId})` : ''}</span>
+                                    <span className="text-white">{result.targetId}{result.zoneId ? ` (${result.zoneId})` : ''}</span>
                                 </p>
                                 <p className="flex justify-between py-1">
                                     <span className="text-gray-500">PAYMENT</span>
@@ -345,7 +345,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                         <div className="flex border-t border-gray-900 bg-[#050505]">
                             <button
                                 onClick={() => {
-                                    const text = `*GRIMOIRE COINS - INVOICE*\n\nStatus: ${result.status}\nInvoice: ${result.invoice}\nDate: ${new Date().toLocaleString('id-ID')}\n\nItem: ${result.productName}\nTarget: ${result.userId}${result.zoneId ? ` (${result.zoneId})` : ''}\nPayment: ${result.paymentName || 'Balance'}\n\n*Total: Rp ${Number(result.amount).toLocaleString('id-ID')}*\n\nTerima kasih telah topup di Grimoire!`;
+                                    const text = `*GRIMOIRE COINS - INVOICE*\n\nStatus: ${result.status}\nInvoice: ${result.invoice}\nDate: ${new Date().toLocaleString('id-ID')}\n\nItem: ${result.productName || result.product?.name}\nTarget: ${result.targetId}${result.zoneId ? ` (${result.zoneId})` : ''}\nPayment: ${result.paymentName || 'Balance'}\n\n*Total: Rp ${Number(result.amount).toLocaleString('id-ID')}*\n\nTerima kasih telah topup di Grimoire!`;
                                     navigator.clipboard.writeText(text);
                                     alert('Struk tersalin ke clipboard!');
                                 }}

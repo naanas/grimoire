@@ -175,6 +175,8 @@ export default function OrderSummary({
 }
 
 // Mobile Summary Bar Component
+import { createPortal } from 'react-dom';
+
 export function MobileSummaryBar({
     selectedProduct,
     totalPrice,
@@ -213,6 +215,11 @@ export function MobileSummaryBar({
     shouldHighlightInput?: boolean;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         if (shouldHighlightInput && isExpanded) {
@@ -224,8 +231,10 @@ export function MobileSummaryBar({
         }
     }, [shouldHighlightInput, isExpanded]);
 
-    return (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-t border-[var(--dark-blood)]/50 shadow-[0_-10px_30px_rgba(187,10,30,0.15)]">
+    if (!mounted) return null;
+
+    return createPortal(
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-[var(--dark-blood)]/50 shadow-[0_-10px_30px_rgba(187,10,30,0.15)] pb-safe">
             <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-red-700 to-transparent" />
 
             {/* Expanded View */}
@@ -346,6 +355,7 @@ export function MobileSummaryBar({
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Star } from 'lucide-react';
 import api from '@/lib/api';
 
@@ -17,10 +17,10 @@ export default function ReviewForm({ categorySlug, onReviewSubmitted }: ReviewFo
     const [message, setMessage] = useState('');
     const [user, setUser] = useState<any>(null);
 
-    useState(() => {
+    useEffect(() => {
         const storedUser = localStorage.getItem('user');
         if (storedUser) setUser(JSON.parse(storedUser));
-    });
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

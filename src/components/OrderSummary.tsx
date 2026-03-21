@@ -225,27 +225,29 @@ export function MobileSummaryBar({
     }, [shouldHighlightInput, isExpanded]);
 
     return (
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-md border-t border-gray-800 shadow-2xl">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/80 backdrop-blur-xl border-t border-[var(--dark-blood)]/50 shadow-[0_-10px_30px_rgba(187,10,30,0.15)]">
+            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-red-700 to-transparent" />
+
             {/* Expanded View */}
             {isExpanded && selectedProduct && (
-                <div className="p-4 border-b border-gray-800 space-y-4 animate-in slide-in-from-bottom-4 overflow-y-auto max-h-[60vh]">
+                <div className="p-4 border-b border-[var(--dark-blood)]/40 space-y-4 animate-in slide-in-from-bottom-4 overflow-y-auto max-h-[60vh]">
                     <div className="flex justify-between text-sm">
-                        <span className="text-gray-400">Product</span>
-                        <span className="text-white font-semibold">{selectedProduct.name}</span>
+                        <span className="text-gray-400 font-mono text-[10px] tracking-widest uppercase">Product</span>
+                        <span className="text-white font-bold">{selectedProduct.name}</span>
                     </div>
 
                     {/* INPUTS MOVED HERE */}
-                    <div className="space-y-4 pt-2 border-t border-gray-800/50">
+                    <div className="space-y-4 pt-4 border-t border-[var(--dark-blood)]/30">
                         {/* WhatsApp Input */}
                         {(!user || !user.phoneNumber) && (
                             <div className="space-y-2">
-                                <p className="text-xs text-gray-500 uppercase tracking-widest flex justify-between">
-                                    WhatsApp <span className="text-yellow-500 font-bold">(Required)</span>
+                                <p className="text-[10px] text-gray-500 uppercase tracking-widest flex justify-between font-mono">
+                                    WhatsApp <span className="text-yellow-600 font-bold tracking-normal">(Required)</span>
                                 </p>
                                 <input
                                     type="text"
                                     placeholder="08XXXXXXXXXX"
-                                    className="w-full bg-[#111] border border-gray-700 p-3 rounded focus:border-red-600 outline-none text-white text-sm font-mono transition-all duration-300"
+                                    className="w-full bg-black/60 border border-[var(--dark-blood)]/50 p-3 outline-none text-white text-sm font-mono transition-all duration-300 focus:border-red-500 focus:bg-black"
                                     value={guestContact}
                                     ref={inputRef}
                                     onChange={(e) => onGuestContactChange(e.target.value.replace(/\D/g, ''))}
@@ -255,21 +257,21 @@ export function MobileSummaryBar({
 
                         {/* Voucher Input */}
                         <div className="space-y-2">
-                            <p className="text-xs text-gray-500 uppercase tracking-widest">Voucher Code</p>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-mono">Voucher Code</p>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
                                     placeholder="CODE"
-                                    className="flex-1 bg-[#111] border border-gray-700 px-3 py-3 text-white focus:border-red-600 outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-700 rounded"
+                                    className="flex-1 bg-black/60 border border-[var(--dark-blood)]/50 px-3 py-3 text-white outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-700 transition-all focus:border-red-500 focus:bg-black"
                                     value={voucherCode}
                                     onChange={(e) => onVoucherCodeChange(e.target.value.toUpperCase())}
                                 />
                                 <button
                                     onClick={onApplyVoucher}
                                     disabled={checkingVoucher}
-                                    className="bg-gray-800 border border-gray-700 hover:bg-gray-700 text-white px-4 py-3 rounded font-bold disabled:opacity-50 transition-colors"
+                                    className="bg-stone-900 border border-[var(--dark-blood)] hover:bg-red-950/30 text-white px-4 py-3 font-bold disabled:opacity-50 transition-colors"
                                 >
-                                    {checkingVoucher ? '...' : <Ticket size={18} />}
+                                    {checkingVoucher ? '...' : <Ticket size={18} className="text-red-500" />}
                                 </button>
                             </div>
                             {voucherStats?.isValid && (
@@ -285,24 +287,24 @@ export function MobileSummaryBar({
                         </div>
                     </div>
 
-                    <div className="flex justify-between text-sm border-t border-gray-800/50 pt-2">
-                        <span className="text-gray-400">Price</span>
+                    <div className="flex justify-between text-sm border-t border-[var(--dark-blood)]/30 pt-4 mt-2">
+                        <span className="text-gray-400 font-mono text-[10px] tracking-widest uppercase">Price</span>
                         <span suppressHydrationWarning className="text-white font-mono">
                             Rp {selectedProduct.price_sell.toLocaleString('id-ID')}
                         </span>
                     </div>
                     {voucherStats?.isValid && (
                         <div className="flex justify-between text-sm">
-                            <span className="text-green-400">Discount</span>
-                            <span suppressHydrationWarning className="text-green-400 font-mono">
+                            <span className="text-green-500 font-mono text-[10px] tracking-widest uppercase">Discount</span>
+                            <span suppressHydrationWarning className="text-green-500 font-mono">
                                 - Rp {voucherStats.discount.toLocaleString('id-ID')}
                             </span>
                         </div>
                     )}
                     {dynamicFee !== null && dynamicFee > 0 && (
                         <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Fee</span>
-                            <span suppressHydrationWarning className="text-white font-mono">
+                            <span className="text-gray-400 font-mono text-[10px] tracking-widest uppercase">Fee</span>
+                            <span suppressHydrationWarning className="text-[var(--blood-red)] font-mono">
                                 {loadingFee ? '...' : `+ Rp ${dynamicFee.toLocaleString('id-ID')}`}
                             </span>
                         </div>
@@ -311,23 +313,23 @@ export function MobileSummaryBar({
             )}
 
             {/* Collapsed / Main Bar */}
-            <div className="p-4">
-                <div className="flex items-center gap-3">
+            <div className="p-4 py-3">
+                <div className="flex items-center gap-4">
                     {/* Expand/Collapse Trigger (Clickable Area) */}
                     <div
                         onClick={() => selectedProduct && onToggle()}
-                        className="flex-1 flex items-center gap-3 cursor-pointer group"
+                        className="flex-1 flex items-center gap-3 cursor-pointer group pl-2"
                     >
-                        <div className={`p-2 rounded-lg transition-colors ${isExpanded ? 'bg-gray-800 text-white' : 'group-hover:bg-gray-800 text-gray-400'}`}>
-                            {isExpanded ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                        <div className={`transition-colors ${isExpanded ? 'text-red-500' : 'text-stone-500 group-hover:text-red-400'}`}>
+                            {isExpanded ? <ChevronDown size={24} /> : <ChevronUp size={24} />}
                         </div>
 
                         {/* Total */}
                         <div>
-                            <p className="text-xs text-gray-500 uppercase flex items-center gap-1">
-                                Total <span className="text-[10px] text-gray-600">(Click details)</span>
+                            <p className="text-[10px] text-stone-500 uppercase flex items-center gap-2 tracking-[0.2em] font-mono leading-none mb-1">
+                                Total <span className="text-[8px] text-stone-700 tracking-normal">(Click details)</span>
                             </p>
-                            <p suppressHydrationWarning className="text-xl font-black text-red-600">
+                            <p suppressHydrationWarning className="text-xl font-black text-[var(--blood-red)] leading-none drop-shadow-[0_0_8px_rgba(187,10,30,0.5)]">
                                 Rp {totalPrice.toLocaleString('id-ID')}
                             </p>
                         </div>
@@ -337,9 +339,10 @@ export function MobileSummaryBar({
                     <button
                         onClick={onCheckout}
                         disabled={isProcessing || !selectedProduct}
-                        className="bg-red-600 hover:bg-red-700 disabled:bg-gray-800 text-white font-bold py-3 px-6 rounded-lg uppercase tracking-wider transition-colors disabled:cursor-not-allowed text-sm"
+                        className="relative bg-red-700 hover:bg-red-600 disabled:bg-stone-900 disabled:border disabled:border-stone-800 disabled:text-stone-600 text-white font-black py-3 px-8 uppercase tracking-widest transition-all disabled:cursor-not-allowed text-sm clip-path-button overflow-hidden group"
                     >
-                        {isProcessing ? '...' : 'Order'}
+                        <span className="relative z-10">{isProcessing ? 'Wait...' : 'Order'}</span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </button>
                 </div>
             </div>

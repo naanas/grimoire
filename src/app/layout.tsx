@@ -24,22 +24,42 @@ export const metadata: Metadata = {
     default: 'Grimoire Coins - Top Up Game Murah, Cepat & Aman',
     template: '%s | Grimoire Coins'
   },
-  description: 'Top up game termurah dan tercepat! Mobile Legends, Free Fire, PUBG Mobile, Genshin Impact, dan game populer lainnya. Proses otomatis 24/7, pembayaran mudah, dan customer service responsif.',
+  description: 'Top up game murah, aman, dan instan! Mobile Legends diamond, Free Fire diamond, UC PUBG, Genshin Genesis Crystal, Valorant Points, dan 100+ game lainnya. Proses otomatis 24/7, harga termurah, garansi keamanan. Bayar via transfer bank, QRIS, GoPay, OVO, Dana.',
   keywords: [
+    // Primary
     'top up game',
+    'topup game',
     'top up game murah',
+    'topup game murah',
+    'top up game indonesia',
+    // Mobile Legends
     'diamond ml',
     'diamond mobile legends',
-    'uc pubg',
+    'top up mobile legends',
+    'topup ml murah',
+    'beli diamond ml murah',
+    // Free Fire
     'dm ff',
+    'diamond free fire',
     'top up ff',
-    'voucher game',
-    'joki game',
-    'topup game indonesia',
+    'topup ff murah',
+    'beli diamond ff',
+    // PUBG
+    'uc pubg',
+    'top up pubg mobile',
+    'beli uc pubg murah',
+    // Others
+    'top up genshin impact',
+    'genesis crystal genshin',
+    'valorant points murah',
+    'top up honkai star rail',
+    'top up call of duty mobile',
+    // Brand
     'grimoire coins',
-    'beli diamond',
-    'top up cepat',
-    'top up otomatis'
+    'top up otomatis',
+    'top up 24 jam',
+    'voucher game murah',
+    'jual diamond game',
   ],
   authors: [{ name: 'Grimoire Coins' }],
   creator: 'Grimoire Coins',

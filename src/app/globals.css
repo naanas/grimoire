@@ -13,6 +13,11 @@
     --gold-accent: #d4af37;
     --glass-border: rgba(143, 123, 123, 0.08);
     --void-black: #0a0a0a;
+
+    /* NEW — Ritual Palette */
+    --ember: #ff4500;
+    --crimson-glow: rgba(187, 10, 30, 0.6);
+    --rune-gold: #c9a84c;
   }
 
   body {
@@ -40,8 +45,23 @@
     text-shadow: 0 0 20px var(--blood-red), 0 0 40px var(--dark-blood);
   }
 
+  /* NEW: Gold rune glow for headings */
+  .rune-glow {
+    text-shadow:
+      0 0 10px var(--rune-gold),
+      0 0 30px rgba(201, 168, 76, 0.4),
+      0 0 60px rgba(201, 168, 76, 0.1);
+  }
+
+  /* NEW: Intense red glow */
+  .blood-glow {
+    text-shadow:
+      0 0 8px var(--blood-red),
+      0 0 20px var(--blood-red),
+      0 0 40px var(--dark-blood);
+  }
+
   .obsidian-panel {
-    /* OPTIMIZED: Less blur calculation, static opacity */
     background-color: rgba(144, 3, 3, 0.95);
     border: 1px solid rgba(255, 255, 255, 0.05);
     box-shadow:
@@ -67,43 +87,112 @@
     background: radial-gradient(circle at center, var(--dark-blood) 0%, #000 80%);
   }
 
+  /* NEW: Animated molten/ritual border */
+  .molten-border {
+    position: relative;
+  }
+  .molten-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, #bb0a1e, #ff4500, #4a040b, #bb0a1e);
+    background-size: 300% 300%;
+    animation: molten-shift 3s ease infinite;
+    z-index: -1;
+  }
+  @keyframes molten-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* NEW: Flicker animation */
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    8% { opacity: 0.9; }
+    9% { opacity: 0.6; }
+    10% { opacity: 1; }
+    49% { opacity: 1; }
+    50% { opacity: 0.8; }
+    51% { opacity: 1; }
+  }
+  .animate-flicker {
+    animation: flicker 5s infinite;
+  }
+
+  /* NEW: Scan line rise from bottom */
+  @keyframes scan-rise {
+    0% { transform: translateY(100%); }
+    100% { transform: translateY(-100%); }
+  }
+
+  /* NEW: Ritual divider */
+  .ritual-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .ritual-divider::before,
+  .ritual-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--blood-red), transparent);
+  }
+
+  /* NEW: Float rune particle animation */
+  @keyframes rune-float {
+    0% { transform: translateY(0px) rotate(0deg); opacity: 0.15; }
+    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
+    100% { transform: translateY(0px) rotate(360deg); opacity: 0.15; }
+  }
+
   /* Animated Background Blob */
   @keyframes blob {
-    0% {
-      transform: translate(0px, 0px) scale(1);
-    }
-
-    33% {
-      transform: translate(30px, -50px) scale(1.1);
-    }
-
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
-
-    100% {
-      transform: translate(0px, 0px) scale(1);
-    }
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
   }
 
   .animate-blob {
     animation: blob 7s infinite;
   }
 
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
 
   .bg-grid-pattern {
     background-size: 40px 40px;
-    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
     -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
+  }
+
+  /* NEW: Marquee / ticker scroll */
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 30s linear infinite;
+    display: flex;
+    width: max-content;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
+  /* NEW: Blood pulse for badges */
+  @keyframes blood-pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(187,10,30,0.5); }
+    50% { box-shadow: 0 0 15px rgba(187,10,30,0.9), 0 0 30px rgba(187,10,30,0.3); }
+  }
+  .blood-pulse {
+    animation: blood-pulse 2s ease-in-out infinite;
   }
 }
 

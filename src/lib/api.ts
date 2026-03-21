@@ -1,5 +1,4 @@
 import axios from 'axios';
-import toast from 'react-hot-toast';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -13,9 +12,6 @@ const api = axios.create({
 
 // Request Logger & Auth Token
 api.interceptors.request.use(request => {
-    // Only log URL and Method to avoid leaking PII (passwords) in Console
-    console.log('🚀 [API] Request:', request.method?.toUpperCase(), request.url);
-
     // Attach Token if exists
     if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token');
@@ -27,25 +23,22 @@ api.interceptors.request.use(request => {
     return request;
 });
 
-// Response Logger
+// Response Interceptor
+let isHandling401 = false; // module-level flag, resets on page reload — no stuck risk
 api.interceptors.response.use(
     response => {
-        console.log('✅ [API] Response:', response.status, response.config.url);
         return response;
     },
-    error => {
-        console.error('❌ [API] Error:', error.response?.status, error.message);
-        if (error.response?.status === 401 && typeof window !== 'undefined') {
-            if (!localStorage.getItem('is_logging_out')) {
-                localStorage.setItem('is_logging_out', 'true');
-                localStorage.removeItem('token');
-                localStorage.removeItem('user');
-                toast.error('Sesi Anda telah berakhir. Silakan login kembali.');
-                setTimeout(() => {
-                    localStorage.removeItem('is_logging_out');
-                    window.location.href = '/login';
-                }, 2000);
-            }
+    async error => {
+        // Skip 401 handling for the /auth/me endpoint itself (authStore handles it directly)
+        const isAuthMeRequest = error.config?.url?.includes('/auth/me');
+
+        if (error.response?.status === 401 && typeof window !== 'undefined' && !isHandling401 && !isAuthMeRequest) {
+            isHandling401 = true;
+
+            // Use authStore logout for consistent handling (shows toast + clears store)
+            const { useAuthStore } = await import('./authStore');
+            useAuthStore.getState().logout('Sesi Anda telah berakhir. Silakan login kembali.');
         }
         return Promise.reject(error);
     }

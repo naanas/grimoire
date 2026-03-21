@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Star, Loader2 } from 'lucide-react';
-import axios from 'axios';
-
-const API = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
-});
+import api from '@/lib/api';
 
 type ReviewStatsProps = {
     categorySlug: string;
@@ -34,7 +30,7 @@ export default function ReviewStats({ categorySlug }: ReviewStatsProps) {
 
     const fetchStats = async () => {
         try {
-            const res = await API.get(`/reviews/stats?categorySlug=${categorySlug}`);
+            const res = await api.get(`/reviews/stats?categorySlug=${categorySlug}`);
             setStats(res.data.data);
         } catch (error) {
             console.error('Failed to fetch review stats', error);

@@ -1,12 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Power, PowerOff, Loader2 } from 'lucide-react';
-
-const API = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
-});
 
 type PaymentMethod = {
     code: string;
@@ -27,10 +23,7 @@ export default function PaymentMethodSettings() {
 
     const fetchMethods = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await API.get('/admin/payment-methods', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/admin/payment-methods');
             setMethods(res.data.data);
         } catch (error) {
             console.error('Failed to fetch payment methods', error);
@@ -42,10 +35,8 @@ export default function PaymentMethodSettings() {
     const toggleMethod = async (code: string, currentStatus: boolean) => {
         setToggling(code);
         try {
-            const token = localStorage.getItem('token');
-            await API.post('/admin/payment-methods/toggle',
-                { code, active: !currentStatus },
-                { headers: { Authorization: `Bearer ${token}` } }
+            await api.post('/admin/payment-methods/toggle',
+                { code, active: !currentStatus }
             );
 
             // Update local state

@@ -1,9 +1,9 @@
+'use client';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Category } from '@/app/page'; // Need to export/move this type potentially, or redefine.
+import { Category } from '@/app/page';
 
-// Redefine for now to avoid circular dependency if I move it later.
 export type GameData = {
     id: string;
     name: string;
@@ -24,25 +24,31 @@ export default function GameCard({ game, index }: GameCardProps) {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05, duration: 0.5, ease: "easeOut" }}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="relative h-[120px] md:h-[180px] w-full rounded-xl bg-[#1a1a1a] overflow-hidden transition-all duration-300 md:duration-500 hover:shadow-[0_0_20px_rgba(255,165,0,0.3)] border border-transparent hover:border-yellow-500/50"
+                whileHover={{ y: -8, scale: 1.03 }}
+                className="relative h-[120px] md:h-[180px] w-full rounded-xl bg-[#111] overflow-hidden transition-all duration-500"
+                style={{
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+                }}
             >
-                {/* Simple Gradient Background for Card - Different from Main Page for variety? Or consistent? 
-            User image shows meaningful backgrounds. Assuming images are full cover or transparent on colored bg.
-            Let's keep it simple dark styling but "Premier" look.
-        */}
+                {/* Molten border glow on hover */}
+                <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-30"
+                    style={{
+                        boxShadow: 'inset 0 0 0 1px rgba(187,10,30,0.8), 0 0 20px rgba(187,10,30,0.4), 0 0 40px rgba(187,10,30,0.15)'
+                    }}
+                />
 
                 {/* Image Container */}
                 <div className="absolute inset-0 z-0">
-                    {/* Layer 1: Blurred Background (Fills the card) */}
+                    {/* Layer 1: Blurred Background */}
                     <Image
                         src={game.image || 'https://via.placeholder.com/200?text=No+Image'}
                         alt={`${game.name} bg`}
                         fill
-                        className="object-cover blur-xl scale-125 opacity-50 dark:opacity-40"
+                        className="object-cover blur-xl scale-125 opacity-40 group-hover:opacity-60 transition-opacity duration-500"
                     />
 
-                    {/* Layer 2: Main Image (Contained - No cropping) */}
+                    {/* Layer 2: Main Image */}
                     <div className="absolute inset-2 md:inset-4 z-10 flex items-center justify-center">
                         <div className="relative w-full h-full">
                             <Image
@@ -50,24 +56,46 @@ export default function GameCard({ game, index }: GameCardProps) {
                                 alt={game.name}
                                 fill
                                 sizes="(max-width: 768px) 50vw, 20vw"
-                                className="object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] transition-transform duration-500 group-hover:scale-110"
+                                className="object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.7)] transition-transform duration-500 group-hover:scale-110"
                             />
                         </div>
                     </div>
 
-                    {/* Gradient Overlay for Text Visibility */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a1a] via-transparent to-transparent opacity-90 z-20"></div>
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-black/20 to-transparent opacity-90 z-20" />
+
+                    {/* Scan line rise effect on hover */}
+                    <div className="absolute inset-0 z-20 overflow-hidden opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300">
+                        <div
+                            className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-600 to-transparent"
+                            style={{ animation: 'scan-rise 1.5s ease-in-out infinite', bottom: 0 }}
+                        />
+                    </div>
                 </div>
 
-                {/* Content */}
-                <div className="absolute bottom-0 inset-x-0 p-4 text-center">
-                    <h3 className="text-sm md:text-base font-bold text-gray-200 group-hover:text-yellow-400 transition-colors uppercase tracking-wider">
-                        {game.name}
+                {/* TOP UP Badge — top right corner */}
+                <div className="absolute top-2 right-2 z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                    <div className="bg-[var(--blood-red)] text-white text-[8px] font-black uppercase px-2 py-0.5 tracking-widest"
+                        style={{ clipPath: 'polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%)' }}>
+                        TOP UP
+                    </div>
+                </div>
+
+                {/* Corner rune — top left */}
+                <div className="absolute top-1.5 left-2 z-30 text-[var(--rune-gold)] text-xs opacity-0 group-hover:opacity-60 transition-opacity duration-500 font-mono select-none">
+                    ᛟ
+                </div>
+
+                {/* Content — Name */}
+                <div className="absolute bottom-0 inset-x-0 p-2 md:p-3 text-center z-30">
+                    <h3 className="text-xs md:text-sm font-black text-stone-300 group-hover:text-white transition-all duration-300 uppercase tracking-wider group-hover:text-shadow"
+                        style={{ textShadow: 'none' }}
+                    >
+                        <span className="group-hover:drop-shadow-[0_0_8px_rgba(255,100,100,0.8)]">
+                            {game.name}
+                        </span>
                     </h3>
                 </div>
-
-                {/* Shine Effect */}
-                <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none"></div>
 
             </motion.div>
         </Link>

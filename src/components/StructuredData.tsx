@@ -1,23 +1,45 @@
 import Script from 'next/script';
 
 export default function StructuredData() {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://grimoirecoins.store';
+
     const structuredData = {
         '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: 'Grimoire Coins',
-        url: 'https://grimoirecoins.store',
-        logo: 'https://grimoirecoins.store/logo.png',
-        description: 'Platform top-up game terpercaya di Indonesia dengan proses instan, aman, dan resmi.',
-        contactPoint: {
-            '@type': 'ContactPoint',
-            contactType: 'Customer Service',
-            availableLanguage: ['Indonesian', 'English']
-        },
-        sameAs: [
-            // Add your social media URLs here when available
-            // 'https://facebook.com/grimoirecoins',
-            // 'https://instagram.com/grimoirecoins',
-            // 'https://twitter.com/grimoirecoins',
+        '@graph': [
+            {
+                '@type': 'Organization',
+                '@id': `${baseUrl}/#organization`,
+                name: 'Grimoire Coins',
+                url: baseUrl,
+                logo: `${baseUrl}/logo.png`,
+                description: 'Platform top-up game murah dan terpercaya di Indonesia dengan proses instan 24/7.',
+                contactPoint: {
+                    '@type': 'ContactPoint',
+                    contactType: 'Customer Service',
+                    availableLanguage: ['Indonesian', 'English']
+                },
+                sameAs: [
+                    'https://instagram.com/grimoirecoins',
+                ]
+            },
+            {
+                '@type': 'WebSite',
+                '@id': `${baseUrl}/#website`,
+                url: baseUrl,
+                name: 'Grimoire Coins',
+                description: 'Top up game murah, aman, dan instan!',
+                publisher: {
+                    '@id': `${baseUrl}/#organization`
+                },
+                potentialAction: {
+                    '@type': 'SearchAction',
+                    target: {
+                        '@type': 'EntryPoint',
+                        urlTemplate: `${baseUrl}/track?invoice={search_term_string}`
+                    },
+                    'query-input': 'required name=search_term_string'
+                }
+            }
         ]
     };
 

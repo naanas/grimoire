@@ -118,7 +118,7 @@ export default function Navbar() {
                                         <Link href="/topup" className="block px-3 py-2 text-[10px] uppercase font-bold text-stone-300 hover:bg-red-900/30 hover:text-white transition-colors">
                                             Top Up
                                         </Link>
-                                        <button onClick={handleLogout} className="w-full text-left block px-3 py-2 text-[10px] uppercase font-bold text-red-500 hover:bg-red-900/30 transition-colors">
+                                        <button onClick={() => handleLogout()} className="w-full text-left block px-3 py-2 text-[10px] uppercase font-bold text-red-500 hover:bg-red-900/30 transition-colors">
                                             Disconnect
                                         </button>
                                     </div>
@@ -233,7 +233,7 @@ export default function Navbar() {
                                                 Top Up
                                             </Link>
                                         </div>
-                                        <button onClick={handleLogout} className="w-full border border-red-900 text-red-500 text-center py-3 text-xs font-black uppercase tracking-widest hover:bg-red-950/30">
+                                        <button onClick={() => handleLogout()} className="w-full border border-red-900 text-red-500 text-center py-3 text-xs font-black uppercase tracking-widest hover:bg-red-950/30">
                                             Log Out
                                         </button>
                                     </div>

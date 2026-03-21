@@ -2,11 +2,7 @@
 
 import { useState } from 'react';
 import { Star } from 'lucide-react';
-import axios from 'axios';
-
-const API = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'
-});
+import api from '@/lib/api';
 
 type ReviewFormProps = {
     categorySlug: string;
@@ -43,15 +39,12 @@ export default function ReviewForm({ categorySlug, onReviewSubmitted }: ReviewFo
         setMessage('');
 
         try {
-            const token = localStorage.getItem('token');
-
             // Get category ID from slug
-            const categoryRes = await API.get(`/categories/${categorySlug}`);
+            const categoryRes = await api.get(`/categories/${categorySlug}`);
             const categoryId = categoryRes.data.data.id;
 
-            await API.post('/reviews',
-                { categoryId, rating, comment: comment.trim() || null },
-                { headers: { Authorization: `Bearer ${token}` } }
+            await api.post('/reviews',
+                { categoryId, rating, comment: comment.trim() || null }
             );
 
             setMessage('✅ Review submitted! Awaiting admin approval.');

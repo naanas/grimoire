@@ -1,17 +1,14 @@
-# Allow all user agents
 User-agent: *
 Allow: /
-
-# Disallow admin pages
 Disallow: /admin/
-Disallow: /admin/*
-
-# Disallow API routes
 Disallow: /api/
-Disallow: /api/*
-
-# Disallow payment callback pages
+Disallow: /profile/
+Disallow: /history/
 Disallow: /payment/
+Disallow: /sentry-example-page/
 
-# Sitemap location
+# Sitemap
 Sitemap: https://grimoirecoins.store/sitemap.xml
+
+# Crawl-delay for bots (seconds)
+Crawl-delay: 1

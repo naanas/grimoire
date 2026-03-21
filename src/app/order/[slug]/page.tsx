@@ -68,7 +68,7 @@ export default async function OrderPage({ params }: { params: Promise<{ slug: st
     return (
         <div className="min-h-screen">
             {/* ─── GAME HERO HEADER ─────────────────────────────────────────────── */}
-            <div className="relative w-full pt-16 overflow-hidden">
+            <div className="relative w-full overflow-hidden" style={{ paddingTop: '72px' }}>
                 {/* Dark gradient base */}
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#1a0404] to-[#0a0a0a]" />
 
@@ -80,7 +80,7 @@ export default async function OrderPage({ params }: { params: Promise<{ slug: st
                 <div className="absolute right-0 top-0 bottom-0 w-1 bg-gradient-to-b from-transparent via-[var(--blood-red)] to-transparent opacity-60" />
 
                 {/* Content */}
-                <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 py-10 md:py-14">
+                <div className="relative z-10 max-w-4xl mx-auto px-4 md:px-8 pt-4 pb-8 md:py-10">
                     {/* Breadcrumb */}
                     <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-stone-600 mb-6 font-mono">
                         <span>Grimoire</span>
@@ -102,7 +102,7 @@ export default async function OrderPage({ params }: { params: Promise<{ slug: st
                             </p>
                             <h1 className="text-3xl md:text-5xl font-black uppercase leading-tight">
                                 <span className="text-stone-500 text-xl md:text-2xl block font-bold tracking-widest mb-1">Top Up</span>
-                                <span className="hero-gradient-text font-[family-name:var(--font-cinzel)] tracking-wider">{gameName}</span>
+                                <span className="glitch-text font-[family-name:var(--font-cinzel)] tracking-wider text-white" data-text={gameName}>{gameName}</span>
                             </h1>
                             <div className="flex items-center gap-4 mt-4">
                                 <div className="flex items-center gap-1.5">

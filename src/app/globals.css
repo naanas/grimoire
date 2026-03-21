@@ -1,14 +1,28 @@
 @import "tailwindcss";
 
 /* ─── CUSTOM SCROLLBAR ─────────────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+
 ::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, #bb0a1e, #4a040b);
   border-radius: 0;
 }
-::-webkit-scrollbar-thumb:hover { background: #ff3333; }
-* { scrollbar-width: thin; scrollbar-color: #bb0a1e #0a0a0a; }
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff3333;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #bb0a1e #0a0a0a;
+}
 
 @layer base {
   :root {
@@ -33,7 +47,8 @@
   body {
     background-color: transparent;
     color: var(--foreground);
-    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     font-family: var(--font-inter);
     overflow-x: hidden;
   }
@@ -101,6 +116,7 @@
   .molten-border {
     position: relative;
   }
+
   .molten-border::before {
     content: '';
     position: absolute;
@@ -111,30 +127,67 @@
     animation: molten-shift 3s ease infinite;
     z-index: -1;
   }
+
   @keyframes molten-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
   }
 
   /* NEW: Flicker animation */
   @keyframes flicker {
-    0%, 100% { opacity: 1; }
-    8% { opacity: 0.9; }
-    9% { opacity: 0.6; }
-    10% { opacity: 1; }
-    49% { opacity: 1; }
-    50% { opacity: 0.8; }
-    51% { opacity: 1; }
+
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    8% {
+      opacity: 0.9;
+    }
+
+    9% {
+      opacity: 0.6;
+    }
+
+    10% {
+      opacity: 1;
+    }
+
+    49% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.8;
+    }
+
+    51% {
+      opacity: 1;
+    }
   }
+
   .animate-flicker {
     animation: flicker 5s infinite;
   }
 
   /* NEW: Scan line rise from bottom */
   @keyframes scan-rise {
-    0% { transform: translateY(100%); }
-    100% { transform: translateY(-100%); }
+    0% {
+      transform: translateY(100%);
+    }
+
+    100% {
+      transform: translateY(-100%);
+    }
   }
 
   /* NEW: Ritual divider */
@@ -143,6 +196,7 @@
     align-items: center;
     gap: 12px;
   }
+
   .ritual-divider::before,
   .ritual-divider::after {
     content: '';
@@ -153,25 +207,52 @@
 
   /* NEW: Float rune particle animation */
   @keyframes rune-float {
-    0% { transform: translateY(0px) rotate(0deg); opacity: 0.15; }
-    50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
-    100% { transform: translateY(0px) rotate(360deg); opacity: 0.15; }
+    0% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.15;
+    }
+
+    50% {
+      transform: translateY(-20px) rotate(180deg);
+      opacity: 0.3;
+    }
+
+    100% {
+      transform: translateY(0px) rotate(360deg);
+      opacity: 0.15;
+    }
   }
 
   /* Animated Background Blob */
   @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
   }
 
   .animate-blob {
     animation: blob 7s infinite;
   }
 
-  .animation-delay-2000 { animation-delay: 2s; }
-  .animation-delay-4000 { animation-delay: 4s; }
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
 
   .bg-grid-pattern {
     background-size: 40px 40px;
@@ -184,23 +265,38 @@
 
   /* NEW: Marquee / ticker scroll */
   @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+    0% {
+      transform: translateX(0);
+    }
+
+    100% {
+      transform: translateX(-50%);
+    }
   }
+
   .animate-marquee {
     animation: marquee 30s linear infinite;
     display: flex;
     width: max-content;
   }
+
   .animate-marquee:hover {
     animation-play-state: paused;
   }
 
   /* NEW: Blood pulse for badges */
   @keyframes blood-pulse {
-    0%, 100% { box-shadow: 0 0 5px rgba(187,10,30,0.5); }
-    50% { box-shadow: 0 0 15px rgba(187,10,30,0.9), 0 0 30px rgba(187,10,30,0.3); }
+
+    0%,
+    100% {
+      box-shadow: 0 0 5px rgba(187, 10, 30, 0.5);
+    }
+
+    50% {
+      box-shadow: 0 0 15px rgba(187, 10, 30, 0.9), 0 0 30px rgba(187, 10, 30, 0.3);
+    }
   }
+
   .blood-pulse {
     animation: blood-pulse 2s ease-in-out infinite;
   }
@@ -214,30 +310,106 @@
 .clip-path-button {
   clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
 }
+
 /* ─── GLITCH TEXT ─────────────────────────────────────────────────────────── */
 @keyframes glitch-1 {
-  0%, 90%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
-  92% { clip-path: inset(10% 0 60% 0); transform: translate(-3px, 1px); }
-  94% { clip-path: inset(60% 0 10% 0); transform: translate(3px, -1px); }
-  96% { clip-path: inset(30% 0 40% 0); transform: translate(-2px, 2px); }
-  98% { clip-path: inset(50% 0 20% 0); transform: translate(2px, -2px); }
+
+  0%,
+  90%,
+  100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+
+  92% {
+    clip-path: inset(10% 0 60% 0);
+    transform: translate(-3px, 1px);
+  }
+
+  94% {
+    clip-path: inset(60% 0 10% 0);
+    transform: translate(3px, -1px);
+  }
+
+  96% {
+    clip-path: inset(30% 0 40% 0);
+    transform: translate(-2px, 2px);
+  }
+
+  98% {
+    clip-path: inset(50% 0 20% 0);
+    transform: translate(2px, -2px);
+  }
 }
+
 @keyframes glitch-2 {
-  0%, 88%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
-  90% { clip-path: inset(40% 0 30% 0); transform: translate(3px, -1px); color: #ff0000; }
-  93% { clip-path: inset(20% 0 55% 0); transform: translate(-3px, 1px); color: #00ffff; }
-  97% { clip-path: inset(70% 0 5% 0); transform: translate(2px, -2px); color: #ff0000; }
+
+  0%,
+  88%,
+  100% {
+    clip-path: inset(0 0 100% 0);
+    transform: translate(0);
+  }
+
+  90% {
+    clip-path: inset(40% 0 30% 0);
+    transform: translate(3px, -1px);
+    color: #ff0000;
+  }
+
+  93% {
+    clip-path: inset(20% 0 55% 0);
+    transform: translate(-3px, 1px);
+    color: #00ffff;
+  }
+
+  97% {
+    clip-path: inset(70% 0 5% 0);
+    transform: translate(2px, -2px);
+    color: #ff0000;
+  }
 }
-.glitch-text { position: relative; display: inline-block; }
-.glitch-text::before,.glitch-text::after { content: attr(data-text); position: absolute; inset: 0; font: inherit; color: inherit; }
-.glitch-text::before { animation: glitch-1 8s infinite linear; color: #ff0000; z-index: -1; }
-.glitch-text::after { animation: glitch-2 8s infinite linear; animation-delay: 0.5s; color: #0ff; z-index: -1; }
+
+.glitch-text {
+  position: relative;
+  display: inline-block;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.glitch-text::before {
+  animation: glitch-1 8s infinite linear;
+  color: #ff0000;
+  z-index: -1;
+}
+
+.glitch-text::after {
+  animation: glitch-2 8s infinite linear;
+  animation-delay: 0.5s;
+  color: #0ff;
+  z-index: -1;
+}
 
 /* ─── HERO GRADIENT TEXT ──────────────────────────────────────────────────── */
 @keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
 }
+
 .hero-gradient-text {
   background: linear-gradient(135deg, #ffffff 0%, #bb0a1e 40%, #d4af37 70%, #ffffff 100%);
   background-size: 300% 300%;
@@ -248,5 +420,18 @@
 }
 
 /* ─── PAGE ENTER ──────────────────────────────────────────────────────────── */
-@keyframes page-enter { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-.page-enter { animation: page-enter 0.5s ease forwards; }
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: page-enter 0.5s ease forwards;
+}

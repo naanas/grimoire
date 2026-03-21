@@ -26,9 +26,9 @@ export function getGoogleDriveDirectLink(url: string): string {
             // Using &confirm=t to bypass possible virus scan warning for large files, 
             // though this is not always 100% reliable without an API key handling, 
             // it's the standard workaround for direct links.
-            // However, confirm=t usually requires a cookie or interaction. 
-            // For <video> src, we just hope the file is small enough or the redirect works.
-            return `https://drive.google.com/uc?export=download&id=${id}`;
+            // DO NOT use export=download because it sends Content-Disposition: attachment
+            // which breaks <video> and <img> inline rendering on modern browsers.
+            return `https://drive.google.com/uc?export=view&id=${id}`;
         }
     } catch (e) {
         console.error("Error parsing Drive URL", e);

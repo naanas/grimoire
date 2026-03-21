@@ -51,11 +51,12 @@ export default function BackgroundEffects() {
 
     // 2. Image Background
     if (config.type === 'IMAGE' && config.url) {
+        const imageUrl = getGoogleDriveDirectLink(config.url);
         return (
             <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-black">
                 <div
                     className="absolute inset-0 bg-cover bg-center opacity-60"
-                    style={{ backgroundImage: `url(${config.url})` }}
+                    style={{ backgroundImage: `url('${imageUrl}')` }}
                 />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="fixed inset-0 z-50 vignette"></div>

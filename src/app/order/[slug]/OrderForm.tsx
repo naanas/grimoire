@@ -464,9 +464,16 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     {/* Status Icon */}
                     <div className="flex justify-center mb-6">
                         {result.status === 'SUCCESS' ? (
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-[#00ff4c] blur-2xl opacity-20 animate-pulse"></div>
-                                <CheckCircle size={80} className="text-[#00ff4c] relative z-10" />
+                            <div className="relative flex items-center justify-center p-4 w-32 h-32 mx-auto">
+                                {/* Satanic Pentagram Background Glowing */}
+                                <div className="absolute inset-0 flex items-center justify-center animate-[spin_15s_linear_infinite] opacity-50 text-green-500">
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(34,197,94,0.8)]">
+                                        <polygon points="50,5 20,95 95,35 5,35 80,95" fill="none" stroke="currentColor" strokeWidth="1.5" />
+                                        <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
+                                    </svg>
+                                </div>
+                                <div className="absolute inset-0 bg-green-500 blur-3xl opacity-20 animate-pulse"></div>
+                                <CheckCircle size={64} className="text-green-400 relative z-20 drop-shadow-[0_0_10px_rgba(34,197,94,1)]" />
                             </div>
                         ) : result.status === 'PROCESSING' ? (
                             <div className="relative">
@@ -480,8 +487,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         )}
                     </div>
 
-                    <h2 className="text-3xl font-[family-name:var(--font-cinzel)] font-bold text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]">
-                        {result.status === 'SUCCESS' ? 'Topup Complete' :
+                    <h2 className={`text-3xl font-[family-name:var(--font-cinzel)] font-bold uppercase tracking-widest ${result.status === 'SUCCESS' ? 'text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)] glitch-text' : 'text-white'}`} data-text={result.status === 'SUCCESS' ? 'RITUAL COMPLETE' : ''}>
+                        {result.status === 'SUCCESS' ? 'Ritual Complete' :
                             result.status === 'PROCESSING' ? 'Processing...' :
                                 result.status === 'FAILED' ? 'Transaction Failed' :
                                     'WAITS FOR PAYMENT'}
@@ -840,22 +847,22 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                                             setSelectedProduct(p);
                                                                                         }}
                                                                                         className={`
-                                                                                    cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border rounded-lg transition-all duration-300 overflow-hidden group/item
+                                                                                    cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border transition-all duration-500 overflow-hidden group/item rounded-sm
                                                                                     ${selectedProduct?.id === p.id
-                                                                                                ? 'bg-[#2a0a0a] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)] ring-opacity-50'
-                                                                                                : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
+                                                                                                ? 'bg-[#150202] border-red-600 shadow-[0_0_20px_rgba(187,10,30,0.5)] scale-[1.02] z-10'
+                                                                                                : 'bg-[#050505] border-gray-900/80 hover:border-red-900/50 hover:bg-[#0a0202] hover:shadow-[0_0_15px_rgba(187,10,30,0.2)]'}
                                                                                 `}
                                                                                     >
                                                                                         {/* Subtle Glow Background for Selected */}
                                                                                         {selectedProduct?.id === p.id && (
-                                                                                            <div className="absolute inset-0 bg-[var(--blood-red)] opacity-5 blur-xl"></div>
+                                                                                            <div className="absolute inset-0 bg-gradient-to-t from-[var(--blood-red)]/20 to-transparent"></div>
                                                                                         )}
 
                                                                                         <div className="flex flex-col items-center z-10 text-center gap-1">
-                                                                                            <span className={`text-xs sm:text-sm font-bold leading-tight ${selectedProduct?.id === p.id ? 'text-gray-100' : 'text-gray-400 group-hover/item:text-gray-200'}`}>
+                                                                                            <span className={`text-xs sm:text-sm font-bold leading-tight transition-colors ${selectedProduct?.id === p.id ? 'text-white drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]' : 'text-gray-500 group-hover/item:text-gray-300'}`}>
                                                                                                 {p.name}
                                                                                             </span>
-                                                                                            <span className={`text-sm sm:text-base font-mono font-bold ${selectedProduct?.id === p.id ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
+                                                                                            <span className={`text-sm sm:text-base font-mono font-bold transition-all ${selectedProduct?.id === p.id ? 'text-red-500 drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]' : 'text-gray-600 group-hover/item:text-red-900'}`}>
                                                                                                 {p.price_sell.toLocaleString()}
                                                                                             </span>
                                                                                         </div>
@@ -900,21 +907,32 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         }
                                     }}
                                     className={`
-                                cursor-pointer border p-4 flex items-center gap-4 transition-all relative rounded-lg
-                                ${paymentMethod === 'BALANCE' ? 'bg-white text-black border-white' : 'bg-black border-gray-800 hover:border-gray-600'}
+                                cursor-pointer border p-4 flex items-center gap-4 transition-all duration-500 relative rounded-sm group overflow-hidden
+                                ${paymentMethod === 'BALANCE' ? 'bg-[#150202] border-red-600 shadow-[0_0_20px_rgba(187,10,30,0.4)] scale-[1.02] z-10' : 'bg-[#050505] border-gray-900/80 hover:border-red-900/50 hover:bg-[#0a0202] hover:shadow-[0_0_15px_rgba(187,10,30,0.15)]'}
                                 ${(!user || (selectedProduct && user.balance < selectedProduct?.price_sell)) ? 'opacity-50 grayscale cursor-not-allowed' : ''}
                             `}
                                 >
-                                    <Wallet size={24} className={paymentMethod === 'BALANCE' ? 'text-black' : 'text-gray-500'} />
-                                    <div className="flex-1">
-                                        <p className="text-sm font-bold uppercase tracking-wider">My Balance</p>
+                                    {/* Subtle Glow */}
+                                    {paymentMethod === 'BALANCE' && (
+                                        <div className="absolute inset-0 bg-gradient-to-r from-[var(--blood-red)]/20 to-transparent"></div>
+                                    )}
+
+                                    <div className="relative z-10">
+                                        <Wallet size={24} className={paymentMethod === 'BALANCE' ? 'text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.8)]' : 'text-gray-500 group-hover:text-red-400 transition-colors'} />
+                                    </div>
+                                    <div className="flex-1 relative z-10">
+                                        <p className={`text-sm font-bold uppercase tracking-wider transition-colors ${paymentMethod === 'BALANCE' ? 'text-white' : 'text-gray-300'}`}>My Balance</p>
                                         {user ? (
-                                            <p className="text-xs font-mono">Rp {user.balance.toLocaleString()}</p>
+                                            <p className={`text-xs font-mono transition-colors ${paymentMethod === 'BALANCE' ? 'text-red-400' : 'text-gray-500'}`}>Rp {user.balance.toLocaleString()}</p>
                                         ) : (
-                                            <p className="text-[10px] text-gray-500">Login to use balance</p>
+                                            <p className="text-[10px] text-gray-500 font-mono tracking-widest">Login to use balance</p>
                                         )}
                                     </div>
-                                    {paymentMethod === 'BALANCE' && <CheckCircle className="text-green-500" size={20} />}
+                                    {paymentMethod === 'BALANCE' && (
+                                        <div className="relative z-10">
+                                            <CheckCircle className="text-green-500 drop-shadow-[0_0_8px_rgba(34,197,94,0.8)]" size={24} />
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -974,33 +992,38 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                             }
                                                                         }}
                                                                         className={`
-                                        cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all rounded text-center min-h-[110px] relative
-                                        ${selectedChannel?.code === channel.code ? 'bg-[#1a0505] border-[var(--blood-red)] ring-1 ring-[var(--blood-red)]' : 'bg-[#0a0a0a] border-gray-800 hover:border-gray-600 hover:bg-[#151515]'}
+                                        cursor-pointer border p-4 flex flex-col items-center justify-center gap-2 transition-all duration-500 rounded-sm text-center min-h-[110px] relative overflow-hidden group
+                                        ${selectedChannel?.code === channel.code ? 'bg-[#150202] border-red-600 shadow-[0_0_20px_rgba(187,10,30,0.4)] scale-[1.02] z-10' : 'bg-[#050505] border-gray-900/80 hover:border-red-900/50 hover:bg-[#0a0202] hover:shadow-[0_0_15px_rgba(187,10,30,0.15)]'}
                                         ${isBelowMin ? 'opacity-40 grayscale cursor-not-allowed' : ''}
                                     `}
                                                                     >
+                                                                        {/* Subtle Glow Background for Selected */}
+                                                                        {selectedChannel?.code === channel.code && (
+                                                                            <div className="absolute inset-0 bg-gradient-to-t from-[var(--blood-red)]/20 to-transparent"></div>
+                                                                        )}
+
                                                                         {/* Logo Placeholder or Text */}
-                                                                        <div className="flex-1 flex items-center justify-center">
-                                                                            {channel.group === 'QRIS' ? <Zap size={24} className="text-white" /> :
-                                                                                channel.group === 'Retail' ? <Store size={24} className="text-blue-400" /> :
-                                                                                    <CreditCard size={24} className="text-gray-400" />}
+                                                                        <div className="flex-1 flex items-center justify-center relative z-10">
+                                                                            {channel.group === 'QRIS' ? <Zap size={24} className={selectedChannel?.code === channel.code ? 'text-white' : 'text-gray-400 group-hover:text-red-400 transition-colors'} /> :
+                                                                                channel.group === 'Retail' ? <Store size={24} className={selectedChannel?.code === channel.code ? 'text-white' : 'text-gray-400 group-hover:text-red-400 transition-colors'} /> :
+                                                                                    <CreditCard size={24} className={selectedChannel?.code === channel.code ? 'text-white' : 'text-gray-400 group-hover:text-red-400 transition-colors'} />}
                                                                         </div>
 
-                                                                        <span className={`text-xs font-bold uppercase tracking-wider ${selectedChannel?.code === channel.code ? 'text-[var(--blood-red)]' : 'text-gray-500'}`}>
+                                                                        <span className={`text-xs font-bold uppercase tracking-wider relative z-10 transition-colors ${selectedChannel?.code === channel.code ? 'text-white drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]' : 'text-gray-500 group-hover:text-gray-300'}`}>
                                                                             {channel.name}
                                                                         </span>
 
                                                                         {/* Minimum Amount Warning - More Prominent */}
                                                                         {isBelowMin && (
-                                                                            <div className="absolute inset-0 bg-black/90 flex items-center justify-center rounded">
-                                                                                <span suppressHydrationWarning className="text-[10px] text-red-500 font-bold text-center px-1 leading-tight">
-                                                                                    {isGlobalRestricted ? 'Min: Rp 10.000' : `Min: Rp ${channel.minAmount?.toLocaleString('id-ID')}`}
+                                                                            <div className="absolute inset-0 bg-black/95 flex items-center justify-center backdrop-blur-sm z-20 transition-all">
+                                                                                <span suppressHydrationWarning className="text-[10px] text-red-500 font-bold text-center px-1 leading-tight tracking-widest border border-red-900/50 bg-red-950/20 py-1 rounded-sm w-[90%] font-mono">
+                                                                                    {isGlobalRestricted ? 'MIN: RP 10.000' : `MIN: RP ${channel.minAmount?.toLocaleString('id-ID')}`}
                                                                                 </span>
                                                                             </div>
                                                                         )}
 
                                                                         {selectedChannel?.code === channel.code && (
-                                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-[var(--blood-red)] rounded-full animate-pulse"></div>
+                                                                            <div className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(255,0,0,0.8)] z-10"></div>
                                                                         )}
                                                                     </div>
                                                                 );

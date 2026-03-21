@@ -33,18 +33,39 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
             <Toaster
                 position="top-right"
                 toastOptions={{
-                    duration: 3000,
+                    duration: 4000,
                     style: {
-                        background: '#171717',
-                        color: '#fff',
-                        border: '1px solid #262626',
+                        background: '#0a0a0a',
+                        color: '#d6d3d1',
+                        border: '1px solid #450a0a',
+                        borderLeft: '4px solid #b91c1c',
+                        borderRadius: '0.25rem',
+                        boxShadow: '0 4px 20px rgba(185, 28, 28, 0.15)',
+                        fontFamily: 'monospace',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        fontSize: '0.875rem'
                     },
                     success: {
                         iconTheme: {
-                            primary: '#ef4444', // Blood red for success matches theme
-                            secondary: '#fff',
+                            primary: '#22c55e',
+                            secondary: '#0a0a0a',
                         },
+                        style: {
+                            borderLeft: '4px solid #22c55e',
+                            boxShadow: '0 4px 20px rgba(34, 197, 94, 0.15)',
+                        }
                     },
+                    error: {
+                        iconTheme: {
+                            primary: '#ef4444',
+                            secondary: '#0a0a0a',
+                        },
+                        style: {
+                            borderLeft: '4px solid #ef4444',
+                            boxShadow: '0 4px 20px rgba(239, 68, 68, 0.25)',
+                        }
+                    }
                 }}
             />
             <CompleteProfileModal />

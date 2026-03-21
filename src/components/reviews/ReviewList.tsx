@@ -59,28 +59,31 @@ export default function ReviewList({ categorySlug }: ReviewListProps) {
             {reviews.map((review) => (
                 <div
                     key={review.id}
-                    className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 hover:border-neutral-700 transition-colors"
+                    className="bg-[#050202] border border-dashed border-red-900/40 rounded-sm p-6 hover:border-red-900/80 hover:bg-[#0a0202] hover:shadow-[0_0_15px_rgba(187,10,30,0.1)] transition-all relative group"
                 >
+                    {/* Subtle red glow corner */}
+                    <div className="absolute top-0 right-0 w-16 h-16 bg-[var(--blood-red)] opacity-0 group-hover:opacity-10 blur-2xl transition-opacity"></div>
+
                     {/* Header */}
-                    <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-start justify-between mb-4 relative z-10">
                         <div>
-                            <p className="font-semibold text-white">
+                            <p className="font-bold text-red-500 font-mono tracking-wider drop-shadow-[0_0_2px_rgba(220,38,38,0.5)]">
                                 {review.user.name || review.user.email.split('@')[0]}
                             </p>
                             <div className="flex items-center gap-1 mt-1">
                                 {[1, 2, 3, 4, 5].map((star) => (
                                     <Star
                                         key={star}
-                                        size={16}
+                                        size={14}
                                         className={`${star <= review.rating
-                                                ? 'fill-yellow-500 text-yellow-500'
-                                                : 'text-neutral-700'
+                                                ? 'fill-yellow-600 text-yellow-600 drop-shadow-[0_0_5px_rgba(202,138,4,0.5)]'
+                                                : 'text-neutral-800'
                                             }`}
                                     />
                                 ))}
                             </div>
                         </div>
-                        <p className="text-xs text-neutral-500">
+                        <p className="text-[10px] text-stone-600 font-mono uppercase tracking-widest border border-stone-800 px-2 py-1 rounded-sm bg-black/50">
                             {new Date(review.createdAt).toLocaleDateString('en-US', {
                                 year: 'numeric',
                                 month: 'short',
@@ -91,7 +94,9 @@ export default function ReviewList({ categorySlug }: ReviewListProps) {
 
                     {/* Comment */}
                     {review.comment && (
-                        <p className="text-neutral-300 leading-relaxed">{review.comment}</p>
+                        <p className="text-stone-300 leading-relaxed font-[family-name:var(--font-cinzel)] text-md italic tracking-wide relative z-10 border-l-2 border-red-900/30 pl-4 mt-2">
+                            "{review.comment}"
+                        </p>
                     )}
                 </div>
             ))}

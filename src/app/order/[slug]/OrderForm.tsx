@@ -476,22 +476,57 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                 <CheckCircle size={64} className="text-green-400 relative z-20 drop-shadow-[0_0_10px_rgba(34,197,94,1)]" />
                             </div>
                         ) : result.status === 'PROCESSING' ? (
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-blue-500 blur-2xl opacity-20 animate-pulse"></div>
-                                <Loader2 size={80} className="text-blue-500 relative z-10 animate-spin" />
+                            <div className="relative flex items-center justify-center p-4 w-32 h-32 mx-auto">
+                                {/* Alchemic Transfer Circle */}
+                                <div className="absolute inset-0 flex items-center justify-center animate-[spin_4s_linear_infinite] opacity-50 text-blue-500">
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(59,130,246,0.8)]">
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" strokeDasharray="20 10 5 10" />
+                                        <circle cx="50" cy="50" r="35" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="10 5" className="animate-[spin_3s_linear_infinite_reverse]" style={{ transformOrigin: 'center' }} />
+                                    </svg>
+                                </div>
+                                <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 animate-pulse"></div>
+                                <Loader2 size={48} className="text-blue-400 relative z-20 animate-spin drop-shadow-[0_0_10px_rgba(59,130,246,1)]" />
                             </div>
                         ) : result.status === 'FAILED' ? (
-                            <XCircle size={80} className="text-red-500" />
+                            <div className="relative flex items-center justify-center p-4 w-32 h-32 mx-auto">
+                                {/* Shattered Blood Circle */}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-60 text-red-600">
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_20px_rgba(220,38,38,0.9)] animate-pulse">
+                                        <path d="M 20 20 L 80 80 M 80 20 L 20 80" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="5 5" />
+                                    </svg>
+                                </div>
+                                <div className="absolute inset-0 bg-red-600 blur-3xl opacity-30 animate-pulse"></div>
+                                <XCircle size={64} className="text-red-500 relative z-20 drop-shadow-[0_0_15px_rgba(239,68,68,1)]" />
+                            </div>
                         ) : (
-                            <Clock size={80} className="text-yellow-500 animate-pulse" />
+                            <div className="relative flex items-center justify-center p-4 w-32 h-32 mx-auto">
+                                {/* Awaiting Eye/Diamond */}
+                                <div className="absolute inset-0 flex items-center justify-center animate-[spin_10s_linear_infinite] opacity-50 text-yellow-500">
+                                    <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-[0_0_15px_rgba(234,179,8,0.8)]">
+                                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="1" />
+                                        <polygon points="50,10 90,50 50,90 10,50" fill="none" stroke="currentColor" strokeWidth="1" />
+                                    </svg>
+                                </div>
+                                <div className="absolute inset-0 bg-yellow-500 blur-3xl opacity-20 animate-pulse"></div>
+                                <Clock size={48} className="text-yellow-400 relative z-20 drop-shadow-[0_0_10px_rgba(234,179,8,1)] animate-pulse" />
+                            </div>
                         )}
                     </div>
 
-                    <h2 className={`text-3xl font-[family-name:var(--font-cinzel)] font-bold uppercase tracking-widest ${result.status === 'SUCCESS' ? 'text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)] glitch-text' : 'text-white'}`} data-text={result.status === 'SUCCESS' ? 'RITUAL COMPLETE' : ''}>
+                    <h2 className={`text-2xl md:text-3xl font-[family-name:var(--font-cinzel)] font-bold uppercase tracking-widest ${
+                        result.status === 'SUCCESS' ? 'text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)] glitch-text' : 
+                        result.status === 'PROCESSING' ? 'text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]' :
+                        result.status === 'FAILED' ? 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] glitch-text' :
+                        'text-yellow-400 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse'
+                    }`} data-text={
+                        result.status === 'SUCCESS' ? 'RITUAL COMPLETE' : 
+                        result.status === 'FAILED' ? 'OFFERING REJECTED' : ''
+                    }>
                         {result.status === 'SUCCESS' ? 'Ritual Complete' :
-                            result.status === 'PROCESSING' ? 'Processing...' :
-                                result.status === 'FAILED' ? 'Transaction Failed' :
-                                    'WAITS FOR PAYMENT'}
+                            result.status === 'PROCESSING' ? 'Soul Transferring...' :
+                                result.status === 'FAILED' ? 'Offering Rejected' :
+                                    'Awaiting Tribute'}
                     </h2>
 
                     {/* Receipt Card */}

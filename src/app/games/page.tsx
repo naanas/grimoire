@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Gamepad2, Ticket, X, SlidersHorizontal, Grid3x3 } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
-import Navbar from '@/components/Navbar';
 
 type Category = {
     id: string;
@@ -15,172 +16,312 @@ type Category = {
     isActive: boolean;
 };
 
-export default function GamesPage() {
+type Filter = 'all' | 'topup' | 'voucher';
+
+function GamesContent() {
+    const params = useSearchParams();
+    const initialQuery = params?.get('q') || '';
+
     const [games, setGames] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState(initialQuery);
+    const [activeFilter, setActiveFilter] = useState<Filter>('all');
 
     useEffect(() => {
         api.get('/categories')
-            .then(res => {
+            .then((res) => {
                 if (res.data.success) {
                     setGames(res.data.data);
                 }
             })
-            .catch(err => console.error("Failed to fetch games:", err))
+            .catch((err) => console.error('Failed to fetch games:', err))
             .finally(() => setLoading(false));
     }, []);
 
-    const [searchQuery, setSearchQuery] = useState('');
-    const [activeFilter, setActiveFilter] = useState('Top Up Game');
+    const filteredGames = useMemo(() => {
+        const q = searchQuery.toLowerCase().trim();
+        return games.filter((g) => {
+            const matchesSearch = !q || g.name.toLowerCase().includes(q);
+            const isVoucher =
+                g.name.toLowerCase().includes('voucher') ||
+                g.slug.toLowerCase().includes('voucher');
+            const matchesFilter =
+                activeFilter === 'all' ? true : activeFilter === 'voucher' ? isVoucher : !isVoucher;
+            return matchesSearch && matchesFilter;
+        });
+    }, [games, searchQuery, activeFilter]);
 
-    // Simple filter logic (Tag data not real yet, but prepared)
-    const filteredGames = games.filter(g => {
-        const matchesSearch = g.name.toLowerCase().includes(searchQuery.toLowerCase());
-
-        // Regrouping Logic: 'Voucher' vs 'Top Up Game'
-        const isVoucher = g.name.toLowerCase().includes('voucher') || g.slug.toLowerCase().includes('voucher');
-
-        const matchesFilter = activeFilter === 'Voucher' ? isVoucher : !isVoucher;
-
-        return matchesSearch && matchesFilter;
-    });
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-transparent text-white">
-                <Navbar />
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[var(--blood-red)]"></div>
-            </div>
-        );
-    }
+    const filters: { id: Filter; label: string; icon: typeof Grid3x3; count?: number }[] = [
+        { id: 'all', label: 'Semua', icon: Grid3x3, count: games.length },
+        {
+            id: 'topup',
+            label: 'Top Up',
+            icon: Gamepad2,
+            count: games.filter(
+                (g) =>
+                    !g.name.toLowerCase().includes('voucher') &&
+                    !g.slug.toLowerCase().includes('voucher')
+            ).length,
+        },
+        {
+            id: 'voucher',
+            label: 'Voucher',
+            icon: Ticket,
+            count: games.filter(
+                (g) =>
+                    g.name.toLowerCase().includes('voucher') ||
+                    g.slug.toLowerCase().includes('voucher')
+            ).length,
+        },
+    ];
 
     return (
-        <div className="min-h-screen bg-transparent text-white flex flex-col items-center pt-32 pb-20 px-4 relative overflow-hidden">
-            <Navbar />
-
-            {/* Background Ambience */}
-            <div className="absolute top-0 inset-x-0 h-[500px] bg-gradient-to-b from-[var(--void)] to-transparent z-0 pointer-events-none"></div>
-
-            <div className="max-w-7xl w-full z-10 space-y-8">
-
+        <div className="min-h-screen text-white pt-4 md:pt-10 pb-12 px-4 md:px-6 relative overflow-hidden">
+            <div className="max-w-7xl mx-auto w-full space-y-6 md:space-y-10">
                 {/* Header */}
-                <div className="text-center space-y-4">
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
+                <div className="text-center space-y-3 md:space-y-4 pt-2">
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-4xl md:text-6xl font-[family-name:var(--font-cinzel)] font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-white to-gray-400"
+                        transition={{ duration: 0.5 }}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-panel"
                     >
-                        SELECT YOUR REALM
+                        <span className="text-(--gold-soft) text-xs">*</span>
+                        <span className="text-[9px] md:text-[10px] font-mono uppercase tracking-[0.3em] text-(--text-secondary)">
+                            Katalog Game
+                        </span>
+                    </motion.div>
+                    <motion.h1
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="text-3xl md:text-5xl font-(family-name:--font-cinzel) font-black tracking-tight"
+                    >
+                        <span className="text-white">Pilih</span>{' '}
+                        <span className="gradient-text-mystic">Realm-mu</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.2 }}
-                        className="text-gray-400 tracking-widest uppercase text-sm"
+                        className="text-(--text-secondary) text-sm md:text-base max-w-md mx-auto"
                     >
-                        Choose a game to begin your topup journey
+                        Ratusan game siap di-top-up dengan harga termurah dan proses instan.
                     </motion.p>
                 </div>
 
-                {/* Search & Filter Section */}
+                {/* Search & Filter */}
                 <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                    className="flex flex-col md:flex-row items-center justify-between gap-4 bg-[#0a0a0a]/80 backdrop-blur-md p-4 rounded-2xl border border-white/10"
+                    transition={{ delay: 0.25 }}
+                    className="space-y-3"
                 >
-                    {/* Search Bar */}
-                    <div className="relative w-full md:max-w-md">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                    {/* Search bar */}
+                    <div className="relative group">
+                        <div className="absolute -inset-0.5 rounded-2xl bg-linear-to-r from-(--violet)/20 to-(--crimson)/20 opacity-0 group-focus-within:opacity-100 blur-md transition-opacity" />
+                        <div className="relative flex items-center glass-panel rounded-2xl pl-3 pr-2 py-2 ring-1 ring-white/5 focus-within:ring-(--violet)/40 transition-all">
+                            <Search size={18} className="text-(--text-muted) mr-2 shrink-0" />
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Cari game..."
+                                className="flex-1 bg-transparent outline-none text-sm md:text-base text-white placeholder:text-(--text-muted) font-medium py-2 min-w-0"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="w-8 h-8 rounded-lg hover:bg-white/5 flex items-center justify-center text-(--text-muted) hover:text-white transition-colors"
+                                    aria-label="Clear search"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
                         </div>
-                        <input
-                            type="text"
-                            placeholder="Search games..."
-                            className="bg-black/50 border border-gray-700 text-white text-sm rounded-xl focus:ring-[var(--blood-red)] focus:border-[var(--blood-red)] block w-full pl-10 p-3 placeholder-gray-500 transition-all outline-none"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
                     </div>
 
-                    {/* Filter Tags */}
-                    <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto scrollbar-hide">
-                        {['Top Up Game', 'Voucher'].map((tag) => (
-                            <button
-                                key={tag}
-                                onClick={() => setActiveFilter(tag)}
-                                className={`px-6 py-2 rounded-lg text-sm font-bold uppercase tracking-wider transition-all whitespace-nowrap
-                                    ${activeFilter === tag
-                                        ? 'bg-[var(--blood-red)] text-white shadow-[0_0_10px_rgba(187,10,30,0.5)]'
-                                        : 'bg-black/50 text-gray-400 hover:text-white border border-gray-800 hover:border-gray-600'
+                    {/* Filter chips */}
+                    <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-1">
+                        <SlidersHorizontal
+                            size={14}
+                            className="text-(--text-muted) shrink-0 ml-1 hidden sm:block"
+                        />
+                        {filters.map((f) => {
+                            const Icon = f.icon;
+                            const active = activeFilter === f.id;
+                            return (
+                                <button
+                                    key={f.id}
+                                    onClick={() => setActiveFilter(f.id)}
+                                    className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-xs font-bold uppercase tracking-[0.12em] transition-all whitespace-nowrap ${
+                                        active
+                                            ? 'btn-mystic text-white'
+                                            : 'glass-panel text-(--text-secondary) hover:text-white hover:border-(--violet)/30'
                                     }`}
-                            >
-                                {tag}
-                            </button>
-                        ))}
+                                >
+                                    <Icon size={13} />
+                                    {f.label}
+                                    {typeof f.count === 'number' && (
+                                        <span
+                                            className={`text-[9px] px-1.5 py-0.5 rounded-md font-mono ${
+                                                active
+                                                    ? 'bg-white/20 text-white'
+                                                    : 'bg-white/5 text-(--text-muted)'
+                                            }`}
+                                        >
+                                            {f.count}
+                                        </span>
+                                    )}
+                                </button>
+                            );
+                        })}
+
+                        <div className="ml-auto text-[10px] font-mono text-(--text-muted) uppercase tracking-[0.2em] shrink-0">
+                            {filteredGames.length} hasil
+                        </div>
                     </div>
                 </motion.div>
 
                 {/* Game Grid */}
-                <motion.div
-                    layout
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, ease: "easeOut" }}
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 md:gap-8"
-                >
-                    {filteredGames.length > 0 ? (
-                        filteredGames.map((game, i) => (
-                            <Link href={`/order/${game.slug}`} key={game.id} className="block group">
-                                <motion.div
-                                    layout
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, ease: "easeOut", delay: i * 0.05 }}
-                                    whileHover={{ y: -5, transition: { duration: 0.2, ease: "easeOut" } }}
-                                    className="relative h-[320px] md:h-[420px] rounded-lg obsidian-panel overflow-hidden transition-all duration-300 md:duration-500 hover:shadow-[0_0_20px_rgba(187,10,30,0.4)] hover:border-[var(--blood-red)/50]"
-                                >
-                                    {/* Dark Vignette Overlay */}
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black opacity-80 z-10"></div>
+                {loading ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4">
+                        {Array.from({ length: 15 }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="aspect-3/4 rounded-2xl bg-white/3 border border-white/5 overflow-hidden relative"
+                            >
+                                <div className="absolute inset-0 shimmer" />
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <AnimatePresence mode="popLayout">
+                        {filteredGames.length > 0 ? (
+                            <motion.div
+                                layout
+                                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4"
+                            >
+                                {filteredGames.map((game, i) => (
+                                    <motion.div
+                                        layout
+                                        key={game.id}
+                                        initial={{ opacity: 0, y: 16 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        transition={{
+                                            duration: 0.35,
+                                            delay: Math.min(i * 0.025, 0.4),
+                                        }}
+                                    >
+                                        <Link href={`/order/${game.slug}`} className="block group">
+                                            <motion.div
+                                                whileHover={{ y: -6 }}
+                                                whileTap={{ scale: 0.97 }}
+                                                className="relative aspect-3/4 rounded-2xl overflow-hidden glass-card border border-white/5 group-hover:border-(--violet)/40 transition-all duration-500 group-hover:shadow-[0_12px_40px_rgba(124,58,237,0.25)]"
+                                            >
+                                                {/* Blurred background */}
+                                                <div className="absolute inset-0 z-0">
+                                                    <Image
+                                                        src={
+                                                            game.image ||
+                                                            'https://placehold.co/300x400/1a0e2a/a78bfa?text=Grimoire'
+                                                        }
+                                                        alt=""
+                                                        aria-hidden
+                                                        fill
+                                                        sizes="(max-width: 768px) 50vw, 20vw"
+                                                        className="object-cover blur-2xl scale-125 opacity-50"
+                                                    />
+                                                </div>
 
-                                    {/* Red Glow on Hover */}
-                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[var(--blood-red)]/80 to-transparent opacity-0 group-hover:opacity-30 transition-opacity duration-700 z-10"></div>
+                                                {/* Foreground game art */}
+                                                <div className="absolute inset-0 z-10 flex items-center justify-center p-4 sm:p-6">
+                                                    <div className="relative w-full h-[70%]">
+                                                        <Image
+                                                            src={
+                                                                game.image ||
+                                                                'https://placehold.co/300x400/1a0e2a/a78bfa?text=Grimoire'
+                                                            }
+                                                            alt={game.name}
+                                                            fill
+                                                            sizes="(max-width: 768px) 50vw, 20vw"
+                                                            className="object-contain drop-shadow-[0_8px_20px_rgba(0,0,0,0.6)] transition-transform duration-700 ease-out group-hover:scale-110"
+                                                        />
+                                                    </div>
+                                                </div>
 
-                                    <div className="relative z-20 h-full flex flex-col items-center justify-end pb-8 p-4 md:pb-12 md:p-6">
-                                        {/* Game Image */}
-                                        <div className="absolute top-8 md:top-10 inset-x-0 flex justify-center items-center h-[180px] md:h-[200px]" style={{ willChange: "transform" }}>
-                                            <div className="relative w-[70%] md:w-[80%] h-[70%] md:h-[80%] transition-transform duration-700 ease-out group-hover:scale-105">
-                                                <Image
-                                                    src={game.image || 'https://via.placeholder.com/200?text=No+Image'}
-                                                    alt={game.name}
-                                                    fill
-                                                    sizes="(max-width: 768px) 70vw, 30vw"
-                                                    className="object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] grayscale-[0.8] group-hover:grayscale-0 transition-all duration-500"
+                                                {/* Gradient overlay */}
+                                                <div className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-(--bg-void) via-(--bg-void)/85 to-transparent z-15 pointer-events-none" />
+
+                                                {/* Title */}
+                                                <div className="absolute inset-x-0 bottom-0 z-30 p-3 md:p-4">
+                                                    <h3 className="text-xs md:text-sm font-black text-white uppercase tracking-wide leading-tight line-clamp-2 group-hover:gradient-text transition-all duration-500">
+                                                        {game.name}
+                                                    </h3>
+                                                    <div className="mt-1.5 flex items-center gap-1.5">
+                                                        <div className="h-[2px] w-6 rounded-full bg-linear-to-r from-(--violet) to-(--crimson) group-hover:w-12 transition-all duration-500" />
+                                                        <span className="text-[8px] md:text-[9px] font-mono text-(--text-muted) uppercase tracking-[0.2em]">
+                                                            Top Up
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Hover spotlight */}
+                                                <div
+                                                    className="absolute inset-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                                                    style={{
+                                                        background:
+                                                            'radial-gradient(circle at 50% 30%, rgba(167,139,250,0.18) 0%, transparent 60%)',
+                                                    }}
                                                 />
-                                            </div>
-                                        </div>
-
-                                        {/* Title */}
-                                        <div className="relative z-30 text-center">
-                                            <h3 className="text-xl md:text-2xl font-[family-name:var(--font-cinzel)] font-bold text-gray-400 group-hover:text-white transition-colors tracking-wide uppercase group-hover:tracking-wider duration-300" style={{ willChange: "color, letter-spacing" }}>
-                                                {game.name}
-                                            </h3>
-                                            <div className="h-[2px] w-0 bg-[var(--blood-red)] mx-auto mt-2 transition-all duration-300 group-hover:w-1/2"></div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                            </Link>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-12 text-center text-gray-500">
-                            <p className="text-xl">No games found matching your search.</p>
-                        </div>
-                    )}
-                </motion.div>
+                                            </motion.div>
+                                        </Link>
+                                    </motion.div>
+                                ))}
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="empty"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="py-16 md:py-24 text-center glass-panel rounded-3xl"
+                            >
+                                <div className="text-5xl mb-4">ðŸ”</div>
+                                <p className="text-lg md:text-xl font-bold text-white mb-2">
+                                    Tidak ada game ditemukan
+                                </p>
+                                <p className="text-sm text-(--text-muted)">
+                                    Coba kata kunci lain atau ubah filter pencarian
+                                </p>
+                                {searchQuery && (
+                                    <button
+                                        onClick={() => setSearchQuery('')}
+                                        className="mt-5 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-(--violet-glow) hover:text-white transition-colors"
+                                    >
+                                        <X size={13} /> Hapus pencarian
+                                    </button>
+                                )}
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                )}
             </div>
         </div>
     );
 }
+
+export default function GamesPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-(--violet)/30 border-t-(--violet-glow) animate-spin" />
+                </div>
+            }
+        >
+            <GamesContent />
+        </Suspense>
+    );
+}
+

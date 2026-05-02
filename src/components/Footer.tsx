@@ -1,25 +1,25 @@
 export default function Footer() {
     return (
-        <footer className="border-t border-[var(--dark-blood)] bg-[var(--void-black)] py-8 mt-auto relative z-50 overflow-hidden">
-            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[var(--blood-red)] to-transparent opacity-50"></div>
-            <div className="max-w-7xl mx-auto px-4 text-center">
-                <p className="text-stone-500 text-sm font-medium tracking-wide">
-                    &copy; {new Date().getFullYear()} Grimoire Coins. All Souls Reserved.
-                </p>
-                <p className="text-xs text-stone-700 mt-2 tracking-widest uppercase group cursor-default">
-                    Made with <span className="text-[var(--blood-red)] font-bold group-hover:text-red-500 group-hover:shadow-[0_0_10px_red] transition-all duration-300">bad intentions</span>.
-                </p>
+        <footer className="relative z-30 bg-(--bg-void) border-t border-white/5 overflow-hidden">
+            {/* Top accent line */}
+            <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-(--violet)/50 to-transparent" />
 
-                <div className="mt-6 flex justify-center gap-6 text-xs uppercase tracking-widest font-bold flex-wrap">
-                    <a href="/privacy-policy" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">Privacy Policy</a>
-                    <span className="text-stone-800">|</span>
-                    <a href="/terms-of-service" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">Terms of Service</a>
-                    <span className="text-stone-800">|</span>
-                    <a href="/refund-policy" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">Refund Policy</a>
-                    <span className="text-stone-800">|</span>
-                    <a href="/about-us" className="text-stone-600 hover:text-[var(--blood-red)] transition-colors">About Us</a>
+            <div className="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+                    <p className="text-xs text-(--text-muted) font-medium tracking-wide">
+                        © {new Date().getFullYear()}{' '}
+                        <span className="text-white font-black">Grimoire Coins</span>. All rights
+                        reserved.
+                    </p>
+                    <div className="flex items-center gap-1.5 text-[10px] text-(--text-faint) tracking-[0.3em] uppercase font-bold">
+                        <span>Forged with</span>
+                        <span className="bg-linear-to-r from-(--violet-glow) via-(--crimson-glow) to-(--gold-soft) bg-clip-text text-transparent">
+                            magic
+                        </span>
+                    </div>
                 </div>
             </div>
         </footer>
     );
 }
+

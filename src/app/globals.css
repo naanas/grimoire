@@ -26,93 +26,237 @@
 
 @layer base {
   :root {
-    --background: #581212;
-    --foreground: #f5f5f5;
+    /* Core surfaces */
+    --bg-void: #07050d;
+    --bg-deep: #0d0913;
+    --bg-panel: #14101c;
+    --bg-elevated: #1c1626;
 
-    /* GOTHIC PREMIUM PALETTE */
-    --blood-red: #bb0a1e;
-    --dark-blood: #4a040b;
-    --hell-fire: #fb0000;
+    /* Brand gradient */
+    --crimson: #dc2626;
+    --crimson-deep: #991b1b;
+    --crimson-glow: #ef4444;
 
-    --gold-accent: #d4af37;
-    --glass-border: rgba(143, 123, 123, 0.08);
-    --void-black: #0a0a0a;
+    --violet: #7c3aed;
+    --violet-deep: #4c1d95;
+    --violet-glow: #a78bfa;
 
-    /* NEW — Ritual Palette */
-    --ember: #ff4500;
-    --crimson-glow: rgba(187, 10, 30, 0.6);
-    --rune-gold: #c9a84c;
+    --gold: #f59e0b;
+    --gold-soft: #fbbf24;
+
+    --ember: #f97316;
+
+    /* Text */
+    --text-primary: #f5f3ff;
+    --text-secondary: #d6cdf0;
+    --text-muted: #8b7c9c;
+    --text-faint: #4a3a5c;
+
+    /* Borders */
+    --border-subtle: rgba(167, 139, 250, 0.08);
+    --border-glow: rgba(124, 58, 237, 0.35);
+
+    /* Legacy aliases — keep so we don't break existing markup */
+    --background: var(--bg-void);
+    --foreground: var(--text-primary);
+    --blood-red: var(--crimson);
+    --dark-blood: var(--crimson-deep);
+    --hell-fire: var(--crimson-glow);
+    --gold-accent: var(--gold);
+    --rune-gold: var(--gold-soft);
+    --void-black: var(--bg-void);
+    --ember: var(--ember);
+    --crimson-glow: rgba(220, 38, 38, 0.5);
+    --glass-border: var(--border-subtle);
   }
 
   body {
-    background-color: transparent;
-    color: var(--foreground);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: var(--font-inter);
+    background-color: var(--bg-void);
+    color: var(--text-primary);
+    @apply antialiased;
+    font-family: var(--font-inter), system-ui, sans-serif;
     overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Prevent Zoom on Mobile */
+  /* Prevent zoom on mobile inputs but keep accessibility */
   input,
   select,
   textarea {
-    font-size: 16px !important;
+    font-size: 16px;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--bg-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--violet-deep), var(--crimson-deep));
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--violet), var(--crimson));
+  }
+
+  /* Selection */
+  ::selection {
+    background: var(--violet);
+    color: white;
   }
 }
 
 @layer utilities {
+  /* === Typography helpers === */
   .text-shadow {
     text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8);
   }
 
+  .text-glow-violet {
+    text-shadow:
+      0 0 12px rgba(167, 139, 250, 0.6),
+      0 0 30px rgba(124, 58, 237, 0.3);
+  }
+
+  .text-glow-crimson {
+    text-shadow:
+      0 0 10px rgba(239, 68, 68, 0.7),
+      0 0 25px rgba(220, 38, 38, 0.35);
+  }
+
+  .text-glow-gold {
+    text-shadow:
+      0 0 10px rgba(251, 191, 36, 0.6),
+      0 0 25px rgba(245, 158, 11, 0.3);
+  }
+
+  /* Legacy glow utilities — keep so existing components don't break */
   .text-glow {
     text-shadow: 0 0 20px var(--blood-red), 0 0 40px var(--dark-blood);
   }
-
-  /* NEW: Gold rune glow for headings */
   .rune-glow {
     text-shadow:
-      0 0 10px var(--rune-gold),
-      0 0 30px rgba(201, 168, 76, 0.4),
-      0 0 60px rgba(201, 168, 76, 0.1);
+      0 0 10px var(--gold-soft),
+      0 0 30px rgba(251, 191, 36, 0.4);
   }
-
-  /* NEW: Intense red glow */
   .blood-glow {
     text-shadow:
-      0 0 8px var(--blood-red),
-      0 0 20px var(--blood-red),
-      0 0 40px var(--dark-blood);
+      0 0 8px var(--crimson),
+      0 0 20px var(--crimson),
+      0 0 40px var(--crimson-deep);
   }
 
-  .obsidian-panel {
-    background-color: rgba(144, 3, 3, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow:
-      0 10px 30px rgba(0, 0, 0, 0.8),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  }
-
-  /* Vignette Overlay */
-  .vignette {
-    background: radial-gradient(circle at center, transparent 40%, #030000 100%);
-    pointer-events: none;
-  }
-
-  .grunge-text {
-    background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+  /* === Gradient text === */
+  .gradient-text {
+    background: linear-gradient(135deg, #f5f3ff 0%, #c4b5fd 40%, #ef4444 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    filter: contrast(150%) brightness(80%);
   }
 
+  .gradient-text-mystic {
+    background: linear-gradient(135deg, #fbbf24 0%, #ef4444 50%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* === Glass surfaces === */
+  .glass-panel {
+    background: linear-gradient(
+      135deg,
+      rgba(28, 22, 38, 0.85) 0%,
+      rgba(20, 16, 28, 0.8) 100%
+    );
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  }
+
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      rgba(124, 58, 237, 0.04) 0%,
+      rgba(20, 16, 28, 0.7) 50%,
+      rgba(220, 38, 38, 0.04) 100%
+    );
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-subtle);
+  }
+
+  /* Legacy obsidian-panel — refined */
+  .obsidian-panel {
+    background: linear-gradient(
+      135deg,
+      rgba(28, 22, 38, 0.9) 0%,
+      rgba(13, 9, 19, 0.95) 100%
+    );
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.7),
+      inset 0 1px 0 rgba(167, 139, 250, 0.05);
+  }
+
+  /* === Buttons / Interactive === */
+  .btn-primary {
+    background: linear-gradient(135deg, var(--crimson) 0%, var(--crimson-deep) 100%);
+    box-shadow:
+      0 4px 14px rgba(220, 38, 38, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.25s ease;
+  }
+  .btn-primary:hover {
+    box-shadow:
+      0 6px 24px rgba(220, 38, 38, 0.55),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn-mystic {
+    background: linear-gradient(135deg, var(--violet) 0%, var(--crimson) 100%);
+    box-shadow:
+      0 4px 14px rgba(124, 58, 237, 0.35),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    transition: all 0.25s ease;
+  }
+  .btn-mystic:hover {
+    box-shadow:
+      0 6px 24px rgba(124, 58, 237, 0.5),
+      0 0 30px rgba(220, 38, 38, 0.25);
+    transform: translateY(-1px);
+  }
+
+  /* === Vignette === */
+  .vignette {
+    background: radial-gradient(circle at center, transparent 40%, rgba(7, 5, 13, 0.85) 100%);
+    pointer-events: none;
+  }
+
+  /* === Backgrounds === */
   .gothic-gradient {
-    background: radial-gradient(circle at center, var(--dark-blood) 0%, #000 80%);
+    background: radial-gradient(circle at center, var(--violet-deep) 0%, var(--bg-void) 70%);
   }
 
-  /* NEW: Animated molten/ritual border */
+  .mystic-gradient {
+    background:
+      radial-gradient(ellipse at top left, rgba(124, 58, 237, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(220, 38, 38, 0.15) 0%, transparent 50%),
+      var(--bg-void);
+  }
+
+  /* === Borders === */
   .molten-border {
     position: relative;
   }
@@ -122,9 +266,9 @@
     position: absolute;
     inset: -1px;
     border-radius: inherit;
-    background: linear-gradient(135deg, #bb0a1e, #ff4500, #4a040b, #bb0a1e);
+    background: linear-gradient(135deg, var(--crimson), var(--violet), var(--gold), var(--crimson));
     background-size: 300% 300%;
-    animation: molten-shift 3s ease infinite;
+    animation: molten-shift 6s ease infinite;
     z-index: -1;
   }
 
@@ -142,44 +286,21 @@
     }
   }
 
-  /* NEW: Flicker animation */
+  /* === Animations === */
   @keyframes flicker {
-
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    8% {
-      opacity: 0.9;
-    }
-
-    9% {
-      opacity: 0.6;
-    }
-
-    10% {
-      opacity: 1;
-    }
-
-    49% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.8;
-    }
-
-    51% {
-      opacity: 1;
-    }
+    0%, 100% { opacity: 1; }
+    8% { opacity: 0.92; }
+    9% { opacity: 0.7; }
+    10% { opacity: 1; }
+    49% { opacity: 1; }
+    50% { opacity: 0.85; }
+    51% { opacity: 1; }
   }
 
   .animate-flicker {
     animation: flicker 5s infinite;
   }
 
-  /* NEW: Scan line rise from bottom */
   @keyframes scan-rise {
     0% {
       transform: translateY(100%);
@@ -190,7 +311,85 @@
     }
   }
 
-  /* NEW: Ritual divider */
+  @keyframes rune-float {
+    0% { transform: translateY(0px) rotate(0deg); opacity: 0.12; }
+    50% { transform: translateY(-24px) rotate(180deg); opacity: 0.28; }
+    100% { transform: translateY(0px) rotate(360deg); opacity: 0.12; }
+  }
+
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(40px, -50px) scale(1.12); }
+    66% { transform: translate(-30px, 30px) scale(0.92); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
+  .animate-blob {
+    animation: blob 12s infinite ease-in-out;
+  }
+  .animation-delay-2000 { animation-delay: 2s; }
+  .animation-delay-4000 { animation-delay: 4s; }
+
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+  .animate-marquee {
+    animation: marquee 35s linear infinite;
+    display: flex;
+    width: max-content;
+  }
+  .animate-marquee:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 10px rgba(124, 58, 237, 0.3),
+        0 0 20px rgba(220, 38, 38, 0.2);
+    }
+    50% {
+      box-shadow:
+        0 0 25px rgba(124, 58, 237, 0.5),
+        0 0 50px rgba(220, 38, 38, 0.3);
+    }
+  }
+  .glow-pulse {
+    animation: glow-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes blood-pulse {
+    0%, 100% { box-shadow: 0 0 5px rgba(220, 38, 38, 0.5); }
+    50% { box-shadow: 0 0 18px rgba(220, 38, 38, 0.85), 0 0 36px rgba(220, 38, 38, 0.3); }
+  }
+  .blood-pulse {
+    animation: blood-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(167, 139, 250, 0.1),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes float-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+  .animate-float-soft {
+    animation: float-soft 4s ease-in-out infinite;
+  }
+
+  /* === Dividers === */
   .ritual-divider {
     display: flex;
     align-items: center;
@@ -202,122 +401,62 @@
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, transparent, var(--blood-red), transparent);
+    background: linear-gradient(90deg, transparent, var(--crimson), transparent);
   }
 
-  /* NEW: Float rune particle animation */
-  @keyframes rune-float {
-    0% {
-      transform: translateY(0px) rotate(0deg);
-      opacity: 0.15;
-    }
-
-    50% {
-      transform: translateY(-20px) rotate(180deg);
-      opacity: 0.3;
-    }
-
-    100% {
-      transform: translateY(0px) rotate(360deg);
-      opacity: 0.15;
-    }
-  }
-
-  /* Animated Background Blob */
-  @keyframes blob {
-    0% {
-      transform: translate(0px, 0px) scale(1);
-    }
-
-    33% {
-      transform: translate(30px, -50px) scale(1.1);
-    }
-
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
-
-    100% {
-      transform: translate(0px, 0px) scale(1);
-    }
-  }
-
-  .animate-blob {
-    animation: blob 7s infinite;
-  }
-
-  /* NEW: Fire Sparks Animation */
-  @keyframes spark-rise {
-    0% {
-      transform: translateY(0) scale(1);
-      opacity: 0;
-    }
-    10% {
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(-60px) scale(0);
-      opacity: 0;
-    }
-  }
-
-  .animation-delay-2000 {
-    animation-delay: 2s;
-  }
-
-  .animation-delay-4000 {
-    animation-delay: 4s;
-  }
-
+  /* === Grid Pattern === */
   .bg-grid-pattern {
     background-size: 40px 40px;
     background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(167, 139, 250, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(167, 139, 250, 0.04) 1px, transparent 1px);
     mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
     -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
   }
 
-  /* NEW: Marquee / ticker scroll */
-  @keyframes marquee {
-    0% {
-      transform: translateX(0);
-    }
-
-    100% {
-      transform: translateX(-50%);
-    }
+  .bg-dots-pattern {
+    background-image: radial-gradient(rgba(167, 139, 250, 0.1) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
-  .animate-marquee {
-    animation: marquee 30s linear infinite;
-    display: flex;
-    width: max-content;
+  /* === Mobile-friendly utilities === */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+  .safe-top {
+    padding-top: env(safe-area-inset-top, 0);
   }
 
-  .animate-marquee:hover {
-    animation-play-state: paused;
+  /* Hide scrollbar but allow scrolling (used for horizontal lists) */
+  .scrollbar-hide {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 
-  /* NEW: Blood pulse for badges */
-  @keyframes blood-pulse {
-
-    0%,
-    100% {
-      box-shadow: 0 0 5px rgba(187, 10, 30, 0.5);
+  /* Card lift on hover (desktop only) */
+  @media (hover: hover) {
+    .card-lift {
+      transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1), box-shadow 0.35s ease;
     }
-
-    50% {
-      box-shadow: 0 0 15px rgba(187, 10, 30, 0.9), 0 0 30px rgba(187, 10, 30, 0.3);
+    .card-lift:hover {
+      transform: translateY(-6px);
     }
   }
 
-  .blood-pulse {
-    animation: blood-pulse 2s ease-in-out infinite;
+  /* Grunge text — kept for legacy */
+  .grunge-text {
+    background-image: url('https://grainy-gradients.vercel.app/noise.svg');
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    filter: contrast(150%) brightness(80%);
   }
 }
 
-/* Custom Clip Paths - Moved from Navbar.tsx */
+/* Legacy clip paths */
 .clip-path-slant {
   clip-path: polygon(10% 0, 100% 0, 90% 100%, 0% 100%);
 }
@@ -326,127 +465,7 @@
   clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
 }
 
-/* ─── GLITCH TEXT ─────────────────────────────────────────────────────────── */
-@keyframes glitch-1 {
-
-  0%,
-  90%,
-  100% {
-    clip-path: inset(0 0 100% 0);
-    transform: translate(0);
-  }
-
-  92% {
-    clip-path: inset(10% 0 60% 0);
-    transform: translate(-3px, 1px);
-  }
-
-  94% {
-    clip-path: inset(60% 0 10% 0);
-    transform: translate(3px, -1px);
-  }
-
-  96% {
-    clip-path: inset(30% 0 40% 0);
-    transform: translate(-2px, 2px);
-  }
-
-  98% {
-    clip-path: inset(50% 0 20% 0);
-    transform: translate(2px, -2px);
-  }
-}
-
-@keyframes glitch-2 {
-
-  0%,
-  88%,
-  100% {
-    clip-path: inset(0 0 100% 0);
-    transform: translate(0);
-  }
-
-  90% {
-    clip-path: inset(40% 0 30% 0);
-    transform: translate(3px, -1px);
-    color: #ff0000;
-  }
-
-  93% {
-    clip-path: inset(20% 0 55% 0);
-    transform: translate(-3px, 1px);
-    color: #00ffff;
-  }
-
-  97% {
-    clip-path: inset(70% 0 5% 0);
-    transform: translate(2px, -2px);
-    color: #ff0000;
-  }
-}
-
-.glitch-text {
-  position: relative;
-  display: inline-block;
-}
-
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  inset: 0;
-  font: inherit;
-  color: inherit;
-}
-
-.glitch-text::before {
-  animation: glitch-1 8s infinite linear;
-  color: #ff0000;
-  z-index: -1;
-}
-
-.glitch-text::after {
-  animation: glitch-2 8s infinite linear;
-  animation-delay: 0.5s;
-  color: #0ff;
-  z-index: -1;
-}
-
-/* ─── HERO GRADIENT TEXT ──────────────────────────────────────────────────── */
-@keyframes gradient-shift {
-
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.hero-gradient-text {
-  background: linear-gradient(135deg, #ffffff 0%, #bb0a1e 40%, #d4af37 70%, #ffffff 100%);
-  background-size: 300% 300%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: gradient-shift 5s ease infinite;
-}
-
-/* ─── PAGE ENTER ──────────────────────────────────────────────────────────── */
-@keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.page-enter {
-  animation: page-enter 0.5s ease forwards;
+/* Hexagon clip — for icon buttons */
+.clip-path-hex {
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
 }

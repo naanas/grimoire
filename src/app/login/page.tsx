@@ -5,23 +5,23 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Mail, Lock, Skull, Flame } from 'lucide-react';
+import { Loader2, Mail, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import api from '@/lib/api';
 import GoogleButton from '@/components/GoogleButton';
 import ReCAPTCHA from 'react-google-recaptcha';
 
-// --- VISUAL EFFECTS COMPONENTS ---
+// --- VISUAL EFFECTS ---
 
-const EmberParticles = () => {
-    // Generate random particles client-side
-    const [particles, setParticles] = useState<{ id: number; x: number; delay: number; duration: number }[]>([]);
+const GridParticles = () => {
+    const [particles, setParticles] = useState<{ id: number; x: number; delay: number; duration: number; size: number }[]>([]);
 
     useEffect(() => {
-        const p = Array.from({ length: 20 }).map((_, i) => ({
+        const p = Array.from({ length: 18 }).map((_, i) => ({
             id: i,
-            x: Math.random() * 100, // %
-            delay: Math.random() * 5,
-            duration: 3 + Math.random() * 5
+            x: Math.random() * 100,
+            delay: Math.random() * 6,
+            duration: 4 + Math.random() * 6,
+            size: Math.random() > 0.6 ? 2 : 1,
         }));
         setParticles(p);
     }, []);
@@ -32,40 +32,57 @@ const EmberParticles = () => {
                 <motion.div
                     key={p.id}
                     initial={{ y: '110%', x: `${p.x}%`, opacity: 0 }}
-                    animate={{
-                        y: '-10%',
-                        opacity: [0, 0.8, 0],
-                        scale: [0.5, 1.5, 0]
+                    animate={{ y: '-10%', opacity: [0, 0.7, 0] }}
+                    transition={{ duration: p.duration, repeat: Infinity, delay: p.delay, ease: 'linear' }}
+                    className="absolute rounded-full"
+                    style={{
+                        width: p.size,
+                        height: p.size * 6,
+                        background: p.id % 3 === 0
+                            ? 'rgba(0,245,255,0.6)'
+                            : p.id % 3 === 1
+                                ? 'rgba(240,0,255,0.4)'
+                                : 'rgba(255,255,255,0.2)',
+                        boxShadow: p.id % 3 === 0
+                            ? '0 0 6px rgba(0,245,255,0.8)'
+                            : p.id % 3 === 1
+                                ? '0 0 6px rgba(240,0,255,0.6)'
+                                : 'none',
                     }}
-                    transition={{
-                        duration: p.duration,
-                        repeat: Infinity,
-                        delay: p.delay,
-                        ease: "linear"
-                    }}
-                    className="absolute w-1 h-1 bg-red-500 rounded-full blur-[1px] shadow-[0_0_5px_#ff0000]"
                 />
             ))}
         </div>
     );
 };
 
-const RunicCircle = () => {
-    return (
+const CyberRings = () => (
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
+        {/* Outer slow ring */}
         <motion.div
             animate={{ rotate: 360 }}
-            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] md:w-[800px] md:h-[800px] border-[1px] border-red-900/10 rounded-full flex items-center justify-center pointer-events-none z-0 opacity-30"
+            transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+            className="w-[700px] h-[700px] rounded-full border border-[#00f5ff]/6 flex items-center justify-center"
         >
-            <div className="absolute inset-0 border border-red-900/10 rounded-full scale-75"></div>
-            <div className="absolute inset-0 border border-red-900/5 rounded-full scale-50 rotate-45"></div>
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-4 text-red-900/20 font-[family-name:var(--font-cinzel)] text-xs tracking-[1em]">NON SERVIAM</div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-4 text-red-900/20 font-[family-name:var(--font-cinzel)] text-xs tracking-[1em]">ABYSSUS ABYSSUM</div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[#00f5ff]/40 shadow-[0_0_8px_rgba(0,245,255,0.8)]" />
         </motion.div>
-    );
-}
+        {/* Mid ring counter-rotate */}
+        <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[480px] h-[480px] rounded-full border border-[#f000ff]/5 flex items-center justify-center"
+        >
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#f000ff]/50 shadow-[0_0_6px_rgba(240,0,255,0.8)]" />
+        </motion.div>
+        {/* Inner pulse ring */}
+        <motion.div
+            animate={{ scale: [1, 1.04, 1], opacity: [0.04, 0.08, 0.04] }}
+            transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[280px] h-[280px] rounded-full border border-[#00f5ff]/20"
+        />
+    </div>
+);
 
-// --- MAIN LOGIN COMPONENT ---
+// --- MAIN LOGIN FORM ---
 
 function LoginContent() {
     const router = useRouter();
@@ -73,10 +90,7 @@ function LoginContent() {
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
+    const [formData, setFormData] = useState({ email: '', password: '' });
     const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
     const registered = searchParams.get('registered');
@@ -104,15 +118,13 @@ function LoginContent() {
             const res = await api.post('/auth/login', {
                 email: formData.email,
                 password: formData.password,
-                recaptchaToken: recaptchaToken
+                recaptchaToken,
             });
 
             if (res.data.success) {
-                // Save Token
                 localStorage.setItem('token', res.data.data.token);
                 localStorage.setItem('user', JSON.stringify(res.data.data.user));
 
-                // Redirect based on Role
                 if (res.data.data.user.role === 'ADMIN') {
                     window.location.href = '/admin';
                 } else {
@@ -120,7 +132,7 @@ function LoginContent() {
                 }
             }
         } catch (err: any) {
-            setError(err.response?.data?.message || 'The Abyss Rejects You');
+            setError(err.response?.data?.message || 'Authentication failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -128,100 +140,97 @@ function LoginContent() {
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: "circOut" }}
-            className="w-full max-w-md relative z-10 p-4"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            className="w-full max-w-md relative z-10 px-4"
         >
-            {/* CONTAINER WITH DROP SHADOW (Parent of clipped element) */}
-            <div className="relative filter drop-shadow-[0_0_20px_rgba(187,10,30,0.3)]">
+            {/* Card */}
+            <div className="relative">
+                {/* Outer glow */}
+                <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#00f5ff]/20 via-transparent to-[#f000ff]/10 opacity-60 blur-sm pointer-events-none" />
 
-                {/* BACKING LAYER (Border) */}
-                <div
-                    className="absolute inset-0 bg-gradient-to-b from-red-900 to-black"
-                    style={{
-                        clipPath: "polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%)",
-                        transform: "scale(1.02)"
-                    }}
-                ></div>
+                <div className="relative bg-[#05050f]/95 backdrop-blur-xl border border-[#00f5ff]/12 rounded-2xl overflow-hidden">
+                    {/* Neon top scanline */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-[#00f5ff]/70 to-transparent" />
 
-                {/* MAIN CONTENT LAYER */}
-                <div
-                    className="bg-black relative overflow-hidden"
-                    style={{ clipPath: "polygon(10% 0, 90% 0, 100% 15%, 100% 85%, 90% 100%, 10% 100%, 0 85%, 0 15%)" }}
-                >
-                    {/* Inner Texture */}
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(50,0,0,0.5),transparent)]"></div>
+                    {/* Loading overlay */}
+                    {isLoading && (
+                        <div className="absolute inset-0 z-50 bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl">
+                            <Loader2 className="animate-spin text-[#00f5ff] mb-3" size={36} />
+                            <span className="text-[#00f5ff]/70 text-xs font-mono tracking-[0.3em] uppercase animate-pulse">
+                                Authenticating...
+                            </span>
+                        </div>
+                    )}
 
-                    <div className="relative p-8 md:p-12 z-10 flex flex-col items-center">
-                        {isLoading && (
-                            <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center rounded-2xl">
-                                <Loader2 className="animate-spin text-[var(--blood-red)] mb-4" size={48} />
-                                <span className="text-white font-[family-name:var(--font-cinzel)] tracking-widest animate-pulse">
-                                    AUTHENTICATING...
-                                </span>
-                            </div>
-                        )}
+                    <div className="p-8 md:p-10 flex flex-col items-center">
 
-                        {/* Header */}
-                        <div className="text-center mb-8 relative w-full">
+                        {/* Logo + Title */}
+                        <div className="text-center mb-8">
                             <motion.div
-                                animate={{
-                                    y: [-5, 5, -5],
-                                    filter: ["drop-shadow(0 0 5px rgba(187,10,30,0.3))", "drop-shadow(0 0 15px rgba(187,10,30,0.6))", "drop-shadow(0 0 5px rgba(187,10,30,0.3))"]
-                                }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                                className="inline-block mb-4 relative"
+                                animate={{ y: [-4, 4, -4] }}
+                                transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                                className="inline-block mb-5"
                             >
-                                <div className="w-24 h-24 bg-black rounded-full flex items-center justify-center border-2 border-red-900 shadow-2xl relative z-10 overflow-hidden p-2">
+                                <div className="w-20 h-20 rounded-2xl bg-[#00f5ff]/8 border border-[#00f5ff]/25 flex items-center justify-center shadow-[0_0_24px_rgba(0,245,255,0.12)] p-2.5 mx-auto">
                                     <Image
                                         src="/logo.png"
-                                        alt="Grimoire Coins Logo"
-                                        width={80}
-                                        height={80}
+                                        alt="Grimoire Coins"
+                                        width={64}
+                                        height={64}
                                         className="object-contain"
                                         priority
                                     />
                                 </div>
                             </motion.div>
 
-                            <h1 className="text-4xl font-[family-name:var(--font-cinzel)] font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 tracking-widest uppercase mb-2 drop-shadow-md">
+                            <h1 className="text-2xl md:text-3xl font-[family-name:var(--font-cinzel)] font-black tracking-[0.2em] text-white uppercase mb-1.5">
                                 Grimoire
                             </h1>
-                            <div className="flex items-center justify-center gap-2 text-[var(--blood-red)] opacity-80">
-                                <div className="h-[1px] w-8 bg-gradient-to-r from-transparent to-red-500"></div>
-                                <p className="text-[10px] tracking-[0.4em] uppercase font-bold text-nowrap">Gate Access</p>
-                                <div className="h-[1px] w-8 bg-gradient-to-l from-transparent to-red-500"></div>
+                            <div className="flex items-center justify-center gap-3">
+                                <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#00f5ff]/40" />
+                                <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-[#00f5ff]/50">
+                                    Sign In
+                                </p>
+                                <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#00f5ff]/40" />
                             </div>
                         </div>
 
+                        {/* Success Banner */}
                         {registered && (
                             <motion.div
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: 'auto', opacity: 1 }}
-                                className="w-full bg-green-950/20 border border-green-900/50 text-green-500 text-xs font-bold p-3 mb-6 text-center tracking-wide uppercase"
+                                className="w-full bg-green-500/8 border border-green-500/25 rounded-lg text-green-400 text-xs font-bold p-3 mb-6 text-center tracking-widest uppercase flex items-center justify-center gap-2"
                             >
-                                Registered. Enter.
+                                <CheckCircle2 size={13} />
+                                Account created. Sign in to continue.
                             </motion.div>
                         )}
 
+                        {/* Error Banner */}
                         <AnimatePresence>
                             {error && (
                                 <motion.div
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    className="w-full bg-red-950/30 border border-red-900/50 text-red-500 text-xs font-bold p-3 mb-6 text-center tracking-wide uppercase"
+                                    initial={{ opacity: 0, y: -8 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -8 }}
+                                    className="w-full bg-red-500/8 border border-red-500/25 rounded-lg text-red-400 text-xs font-bold p-3 mb-6 text-center tracking-wide flex items-center justify-center gap-2"
                                 >
-                                    <span className="flex items-center justify-center gap-2">
-                                        <Skull size={12} /> {error}
-                                    </span>
+                                    <AlertCircle size={13} />
+                                    {error}
                                 </motion.div>
                             )}
                         </AnimatePresence>
 
-                        <form onSubmit={handleLogin} className="w-full space-y-6">
+                        {/* Form */}
+                        <form onSubmit={handleLogin} className="w-full space-y-4">
+                            {/* Email */}
                             <div className="relative group">
+                                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 group-focus-within:text-[#00f5ff]/70 transition-colors">
+                                    <Mail size={15} />
+                                </div>
                                 <input
                                     type="email"
                                     name="email"
@@ -229,14 +238,18 @@ function LoginContent() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="peer w-full bg-transparent border-b border-gray-800 py-3 text-center text-white focus:border-[var(--blood-red)] outline-none transition-all placeholder:text-transparent text-sm font-[family-name:var(--font-cinzel)] tracking-widest group-hover:border-gray-600"
+                                    className="peer w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-4 pt-5 pb-2.5 text-white text-sm font-medium focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none transition-all"
                                 />
-                                <label className="absolute left-0 right-0 top-3 text-gray-600 text-[10px] uppercase tracking-[0.2em] transition-all duration-300 peer-focus:-top-3 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-3 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none text-center">
-                                    Identity (Email)
+                                <label className="absolute left-10 top-3.5 text-white/25 text-[10px] uppercase tracking-widest transition-all duration-200 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-[#00f5ff]/60 peer-[&:not(:placeholder-shown)]:top-1.5 peer-[&:not(:placeholder-shown)]:text-[9px] peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/50 pointer-events-none">
+                                    Email
                                 </label>
                             </div>
 
+                            {/* Password */}
                             <div className="relative group">
+                                <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25 group-focus-within:text-[#00f5ff]/70 transition-colors">
+                                    <Lock size={15} />
+                                </div>
                                 <input
                                     type="password"
                                     name="password"
@@ -244,14 +257,15 @@ function LoginContent() {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="peer w-full bg-transparent border-b border-gray-800 py-3 text-center text-white focus:border-[var(--blood-red)] outline-none transition-all placeholder:text-transparent text-sm font-[family-name:var(--font-cinzel)] tracking-widest group-hover:border-gray-600"
+                                    className="peer w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-4 pt-5 pb-2.5 text-white text-sm font-medium focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none transition-all"
                                 />
-                                <label className="absolute left-0 right-0 top-3 text-gray-600 text-[10px] uppercase tracking-[0.2em] transition-all duration-300 peer-focus:-top-3 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-3 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none text-center">
-                                    Secret Key
+                                <label className="absolute left-10 top-3.5 text-white/25 text-[10px] uppercase tracking-widest transition-all duration-200 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-[#00f5ff]/60 peer-[&:not(:placeholder-shown)]:top-1.5 peer-[&:not(:placeholder-shown)]:text-[9px] peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/50 pointer-events-none">
+                                    Password
                                 </label>
                             </div>
 
-                            <div className="flex justify-center my-4">
+                            {/* ReCAPTCHA */}
+                            <div className="flex justify-center pt-1">
                                 <ReCAPTCHA
                                     sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || ''}
                                     onChange={handleCaptchaChange}
@@ -259,33 +273,49 @@ function LoginContent() {
                                 />
                             </div>
 
+                            {/* Submit */}
                             <button
                                 type="submit"
                                 disabled={isLoading || !recaptchaToken}
-                                className="w-full mt-6 bg-red-900/20 hover:bg-red-900/40 border border-red-900 text-red-100 font-bold py-4 text-xs tracking-[0.3em] uppercase transition-all hover:shadow-[0_0_20px_rgba(187,10,30,0.2)] disabled:opacity-50 disabled:cursor-not-allowed group"
-                                style={{ clipPath: "polygon(10% 0, 90% 0, 100% 50%, 90% 100%, 10% 100%, 0% 50%)" }}
+                                className="w-full mt-2 relative group overflow-hidden rounded-xl py-3.5 font-black text-xs tracking-[0.25em] uppercase transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed
+                                    bg-[#00f5ff]/10 border border-[#00f5ff]/35 text-[#00f5ff]
+                                    hover:bg-[#00f5ff]/20 hover:border-[#00f5ff]/60 hover:shadow-[0_0_24px_rgba(0,245,255,0.2)]"
                             >
-                                <span className="relative z-10 flex justify-center items-center gap-2 group-hover:text-white transition-colors">
-                                    {isLoading ? <Loader2 className="animate-spin" /> : 'UNSEAL'}
+                                <span className="relative z-10 flex items-center justify-center gap-2">
+                                    {isLoading
+                                        ? <><Loader2 className="animate-spin" size={14} /> Processing</>
+                                        : 'Sign In'}
                                 </span>
                             </button>
                         </form>
 
-                        <div className="mt-8 text-center opacity-50 hover:opacity-100 transition-opacity">
-                            <Link href="/register" className="text-[9px] text-gray-500 font-bold tracking-[0.3em] uppercase hover:text-red-500" suppressHydrationWarning>
-                                Have no identity?
-                            </Link>
+                        {/* Divider */}
+                        <div className="w-full flex items-center gap-3 my-6">
+                            <div className="flex-1 h-px bg-white/6" />
+                            <span className="text-white/20 text-[10px] uppercase tracking-widest font-bold">or</span>
+                            <div className="flex-1 h-px bg-white/6" />
                         </div>
 
-                        <div className="w-full border-t border-gray-800 my-6"></div>
+                        {/* Google */}
                         <GoogleButton text="Sign in with Google" onLoading={setIsLoading} />
+
+                        {/* Register link */}
+                        <p className="mt-6 text-center text-white/25 text-xs">
+                            Don&apos;t have an account?{' '}
+                            <Link href="/register" className="text-[#00f5ff]/60 hover:text-[#00f5ff] font-bold transition-colors">
+                                Register
+                            </Link>
+                        </p>
                     </div>
+
+                    {/* Bottom scanline */}
+                    <div className="h-px bg-gradient-to-r from-transparent via-[#f000ff]/20 to-transparent" />
                 </div>
             </div>
 
-            {/* Footer Mystic Text */}
-            <p className="text-center text-red-900/30 text-[9px] tracking-[0.5em] mt-8 uppercase font-[family-name:var(--font-cinzel)]">
-                Omne Initium Est Difficile
+            {/* Tagline */}
+            <p className="text-center text-white/10 text-[9px] tracking-[0.5em] mt-6 uppercase font-mono">
+                Grimoire Coins · Secure Access
             </p>
         </motion.div>
     );
@@ -293,16 +323,20 @@ function LoginContent() {
 
 export default function LoginPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-transparent selection:bg-[var(--blood-red)] selection:text-white">
+        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-transparent">
+            {/* Radial vignette */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.85)_100%)] z-0 pointer-events-none" />
+            {/* Subtle cyan glow center */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#00f5ff]/3 rounded-full blur-3xl pointer-events-none z-0" />
 
-            {/* Global Effects */}
-            <RunicCircle />
-            <EmberParticles />
+            <CyberRings />
+            <GridParticles />
 
-            {/* Red Vignette */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,black_100%)] z-0 pointer-events-none opacity-80"></div>
-
-            <Suspense fallback={<div className="text-[var(--blood-red)] animate-pulse font-[family-name:var(--font-cinzel)] tracking-widest">OPENING GATE...</div>}>
+            <Suspense fallback={
+                <div className="text-[#00f5ff]/60 animate-pulse font-mono text-xs tracking-[0.3em] uppercase">
+                    Loading...
+                </div>
+            }>
                 <LoginContent />
             </Suspense>
         </div>

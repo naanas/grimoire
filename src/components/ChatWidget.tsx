@@ -197,10 +197,10 @@ export default function ChatWidget() {
     const isOrderPage = pathname?.startsWith('/order/');
 
     return (
-        <div className={`fixed right-6 z-[60] flex flex-col items-end transition-all duration-300 ${
+        <div className={`fixed right-4 lg:right-6 z-[60] flex flex-col items-end transition-all duration-300 ${
             isOrderPage 
                 ? (isMobileSummaryExpanded ? 'bottom-[360px]' : 'bottom-[5.5rem] lg:bottom-6') 
-                : 'bottom-6'
+                : 'bottom-24 lg:bottom-6'
         }`}>
             <AnimatePresence>
                 {isOpen && (

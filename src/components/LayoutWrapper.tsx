@@ -54,16 +54,6 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                     error: {
                         iconTheme: {
                             primary: '#ef4444',
-                            secondary: '#fff',
-                        },
-                        style: {
-                            borderLeft: '4px solid #22c55e',
-                            boxShadow: '0 4px 20px rgba(34, 197, 94, 0.15)',
-                        }
-                    },
-                    error: {
-                        iconTheme: {
-                            primary: '#ef4444',
                             secondary: '#0a0a0a',
                         },
                         style: {

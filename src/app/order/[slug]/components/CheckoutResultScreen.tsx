@@ -109,32 +109,32 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                 </h2>
 
                 {/* Receipt Card */}
-                <div className="bg-black border border-gray-800 p-8 relative overflow-hidden group text-left" style={{ clipPath: "polygon(5% 0, 95% 0, 100% 5%, 100% 95%, 95% 100%, 5% 100%, 0 95%, 0 5%)" }}>
-                    <div className="absolute top-0 left-0 w-full h-1 bg-[var(--blood-red)] shadow-[0_0_10px_red]"></div>
+                <div className="bg-[#05050f]/95 border border-[#00f5ff]/12 rounded-xl p-6 md:p-8 relative overflow-hidden group text-left">
+                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
-                    <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
-                        <span className="text-gray-500 text-xs uppercase tracking-widest">Invoices</span>
+                    <div className="flex justify-between items-center py-3.5 border-b border-white/6">
+                        <span className="text-white/35 text-xs uppercase tracking-widest">Invoice</span>
                         <span className="font-mono text-white text-sm">{result.invoice}</span>
                     </div>
-                    <div className="flex justify-between items-start py-4 border-b border-gray-900 border-dashed">
-                        <span className="text-gray-500 text-xs uppercase tracking-widest">Item</span>
+                    <div className="flex justify-between items-start py-3.5 border-b border-white/6">
+                        <span className="text-white/35 text-xs uppercase tracking-widest">Item</span>
                         <span className="text-white font-bold text-sm text-right flex-1 ml-4">{result.productName || result.product?.name}</span>
                     </div>
-                    <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed">
-                        <span className="text-gray-500 text-xs uppercase tracking-widest">Item Price</span>
+                    <div className="flex justify-between items-center py-3.5 border-b border-white/6">
+                        <span className="text-white/35 text-xs uppercase tracking-widest">Item Price</span>
                         <span className="text-white font-mono text-sm">
                             Rp {(Number(result.basePrice) || (Number(result.amount || 0) - (Number(result.adminFee || 0)) + (Number(result.discountAmount || 0)))).toLocaleString('id-ID')}
                         </span>
                     </div>
 
                     {result.discountAmount && result.discountAmount > 0 ? (
-                        <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed text-green-500">
+                        <div className="flex justify-between items-center py-3.5 border-b border-white/6 text-green-400">
                             <span className="text-xs uppercase tracking-widest">Voucher Discount</span>
                             <span className="font-mono text-sm">- Rp {result.discountAmount.toLocaleString()}</span>
                         </div>
                     ) : null}
 
-                    <div className="flex justify-between items-center py-4 border-b border-gray-900 border-dashed text-blue-400">
+                    <div className="flex justify-between items-center py-3.5 border-b border-white/6 text-[#00f5ff]/60">
                         <span className="text-xs uppercase tracking-widest">Admin Fee ({result.paymentName || 'Gateway'})</span>
                         <span className="font-mono text-sm">+ Rp {(result.adminFee || 0).toLocaleString()}</span>
                     </div>
@@ -217,9 +217,9 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                         </div>
                     )}
 
-                    <div className="flex justify-between items-center py-4 border-t border-gray-900 border-dashed">
-                        <span className="text-gray-500 text-xs uppercase tracking-widest">Total Payable</span>
-                        <span className="text-[var(--blood-red)] font-black text-xl tracking-wide">
+                    <div className="flex justify-between items-center py-4 border-t border-white/8 mt-2">
+                        <span className="text-white/40 text-xs uppercase tracking-widest font-bold">Total Payable</span>
+                        <span className="text-[#00f5ff] font-black text-xl tracking-wide drop-shadow-[0_0_8px_rgba(0,245,255,0.5)]">
                             Rp {(Number(result.amount) || 0).toLocaleString('id-ID')}
                         </span>
                     </div>
@@ -251,14 +251,14 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                             }
                         }}
                         disabled={checkingStatus || !onUpdateResult}
-                        className="block w-full border border-gray-800 text-gray-500 hover:text-white hover:border-gray-500 py-3 text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+                        className="block w-full border border-[#00f5ff]/15 hover:border-[#00f5ff]/40 text-white/30 hover:text-[#00f5ff]/70 py-3 text-xs uppercase tracking-widest transition-all disabled:opacity-30 rounded-lg font-mono"
                     >
                         {checkingStatus ? 'SYNCING...' : 'SYNC STATUS'}
                     </button>
                 </div>
 
                 {/* Return Buttons */}
-                <div className="flex gap-4 mt-8">
+                <div className="flex gap-3 mt-6">
                     <button
                         onClick={() => {
                             if (user) {
@@ -267,13 +267,13 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                                 setShowGuestReceipt(true);
                             }
                         }}
-                        className="flex-1 py-3 border border-[var(--blood-red)] text-[var(--blood-red)] hover:bg-[var(--blood-red)] hover:text-black font-bold uppercase tracking-widest text-sm transition-all text-center"
+                        className="flex-1 py-3 rounded-lg border border-[#00f5ff]/30 text-[#00f5ff]/70 hover:border-[#00f5ff]/60 hover:text-[#00f5ff] font-bold uppercase tracking-widest text-sm transition-all text-center"
                     >
                         HISTORY
                     </button>
                     <button
                         onClick={() => window.location.href = '/'}
-                        className="flex-1 py-3 bg-[var(--blood-red)] hover:bg-red-700 text-black font-bold uppercase tracking-widest text-sm transition-all text-center"
+                        className="flex-1 py-3 rounded-lg bg-[#00f5ff]/10 hover:bg-[#00f5ff]/20 border border-[#00f5ff]/40 hover:border-[#00f5ff]/70 text-[#00f5ff] font-bold uppercase tracking-widest text-sm transition-all text-center shadow-[0_0_15px_rgba(0,245,255,0.1)]"
                     >
                         NEW ORDER
                     </button>
@@ -283,79 +283,75 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
             {/* Guest Receipt Modal */}
             {showGuestReceipt && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
-                    <div className="bg-[#0a0a0a] border border-[var(--blood-red)] max-w-sm w-full relative shadow-[0_0_30px_rgba(220,38,38,0.2)] overflow-hidden">
+                    <div className="bg-[#05050f] border border-[#00f5ff]/20 max-w-sm w-full relative shadow-[0_0_40px_rgba(0,245,255,0.08)] overflow-hidden rounded-xl">
+                        {/* Scanline top */}
+                        <div className="h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
+
                         {/* Receipt Header */}
-                        <div className="bg-gradient-to-b from-[#1a0505] to-[#0a0a0a] p-6 text-center border-b border-dashed border-red-900/50">
-                            <h2 className="text-[var(--blood-red)] font-[family-name:var(--font-cinzel)] text-2xl font-bold tracking-widest mb-1">GRIMOIRE COINS</h2>
-                            <p className="text-gray-500 text-xs font-mono uppercase tracking-widest">Official Invoice Struk</p>
+                        <div className="bg-[#00f5ff]/[0.03] p-6 text-center border-b border-white/6">
+                            <h2 className="text-[#00f5ff] font-[family-name:var(--font-cinzel)] text-xl font-bold tracking-[0.3em] mb-1">GRIMOIRE COINS</h2>
+                            <p className="text-white/25 text-[10px] font-mono uppercase tracking-[0.25em]">Official Invoice Struk</p>
                         </div>
 
-                        {/* Receipt Body - WhatsApp style monospace */}
-                        <div className="p-6 font-mono text-sm text-gray-300 space-y-4 relative">
-                            <div className="absolute inset-0 opacity-5 pointer-events-none flex items-center justify-center">
-                                <svg viewBox="0 0 100 100" className="w-48 h-48 drop-shadow-[0_0_15px_rgba(220,38,38,0.8)]">
-                                    <polygon points="50,5 20,95 95,35 5,35 80,95" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                                    <circle cx="50" cy="50" r="48" fill="none" stroke="currentColor" strokeWidth="1" />
-                                </svg>
-                            </div>
-
+                        {/* Receipt Body */}
+                        <div className="p-6 font-mono text-sm text-white/60 space-y-3 relative">
                             <div className="space-y-1 relative z-10">
-                                <p className="flex justify-between border-b border-dashed border-gray-800 pb-2">
-                                    <span className="text-gray-500">STATUS</span>
-                                    <span className={result.status === 'SUCCESS' ? 'text-green-500 font-bold' : result.status === 'PROCESSING' ? 'text-blue-500 font-bold' : 'text-yellow-500 font-bold'}>{result.status}</span>
+                                <p className="flex justify-between border-b border-white/6 pb-2">
+                                    <span className="text-white/30">STATUS</span>
+                                    <span className={result.status === 'SUCCESS' ? 'text-green-400 font-bold' : result.status === 'PROCESSING' ? 'text-[#00f5ff] font-bold' : 'text-amber-400 font-bold'}>{result.status}</span>
                                 </p>
                                 <p className="flex justify-between py-1">
-                                    <span className="text-gray-500">TRX ID</span>
+                                    <span className="text-white/30">TRX ID</span>
                                     <span className="text-white">{result.invoice}</span>
                                 </p>
                                 <p className="flex justify-between py-1">
-                                    <span className="text-gray-500">DATE</span>
+                                    <span className="text-white/30">DATE</span>
                                     <span className="text-white">{result.createdAt ? new Date(result.createdAt).toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }) : new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })}</span>
                                 </p>
                             </div>
 
-                            <div className="space-y-1 pt-2 border-t border-dashed border-gray-800 relative z-10">
+                            <div className="space-y-1 pt-2 border-t border-white/6 relative z-10">
                                 <p className="flex justify-between py-1">
-                                    <span className="text-gray-500">ITEM</span>
+                                    <span className="text-white/30">ITEM</span>
                                     <span className="text-white text-right max-w-[150px] truncate">{result.productName || result.product?.name}</span>
                                 </p>
                                 <p className="flex justify-between py-1">
-                                    <span className="text-gray-500">TARGET</span>
+                                    <span className="text-white/30">TARGET</span>
                                     <span className="text-white">{result.targetId}{result.zoneId ? ` (${result.zoneId})` : ''}</span>
                                 </p>
                                 <p className="flex justify-between py-1">
-                                    <span className="text-gray-500">PAYMENT</span>
+                                    <span className="text-white/30">PAYMENT</span>
                                     <span className="text-white">{result.paymentName || 'Balance'}</span>
                                 </p>
                             </div>
 
-                            <div className="pt-4 mt-2 border-t-2 border-dashed border-[var(--blood-red)] relative z-10">
-                                <p className="flex justify-between items-center bg-red-950/20 p-2 rounded">
-                                    <span className="text-[var(--blood-red)] font-bold">TOTAL</span>
+                            <div className="pt-3 mt-1 border-t border-[#00f5ff]/20 relative z-10">
+                                <p className="flex justify-between items-center bg-[#00f5ff]/5 p-2.5 rounded-lg border border-[#00f5ff]/15">
+                                    <span className="text-[#00f5ff]/70 font-bold">TOTAL</span>
                                     <span className="text-white font-bold tracking-wider">Rp {Number(result.amount).toLocaleString('id-ID')}</span>
                                 </p>
                             </div>
-                            
-                            <p className="text-center text-[10px] text-gray-500 pt-4 relative z-10 italic">
-                                "Terima kasih telah bersekutu dengan Grimoire."
+
+                            <p className="text-center text-[10px] text-white/20 pt-3 relative z-10 italic">
+                                &quot;Terima kasih telah bersekutu dengan Grimoire.&quot;
                             </p>
                         </div>
 
                         {/* Actions */}
-                        <div className="flex border-t border-gray-900 bg-[#050505]">
+                        <div className="flex border-t border-white/6">
                             <button
                                 onClick={() => {
                                     const text = `*GRIMOIRE COINS - INVOICE*\n\nStatus: ${result.status}\nInvoice: ${result.invoice}\nDate: ${new Date().toLocaleString('id-ID')}\n\nItem: ${result.productName || result.product?.name}\nTarget: ${result.targetId}${result.zoneId ? ` (${result.zoneId})` : ''}\nPayment: ${result.paymentName || 'Balance'}\n\n*Total: Rp ${Number(result.amount).toLocaleString('id-ID')}*\n\nTerima kasih telah topup di Grimoire!`;
                                     navigator.clipboard.writeText(text);
                                     alert('Struk tersalin ke clipboard!');
                                 }}
-                                className="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white hover:bg-gray-900 transition-colors border-r border-gray-900"
+                                className="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-white/30 hover:text-white hover:bg-white/5 transition-colors border-r border-white/6"
                             >
                                 COPY TEXT
                             </button>
                             <button
                                 onClick={() => setShowGuestReceipt(false)}
-                                className="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-[var(--blood-red)] hover:text-red-400 hover:bg-red-950/30 transition-colors"
+                                className="flex-1 py-4 text-xs font-bold uppercase tracking-widest text-[#00f5ff]/60 hover:text-[#00f5ff] hover:bg-[#00f5ff]/5 transition-colors"
                             >
                                 CLOSE
                             </button>

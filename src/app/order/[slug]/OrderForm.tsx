@@ -478,19 +478,19 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     variants={containerVariants}
                     initial="hidden"
                     animate="show"
-                    className="bg-black/80 backdrop-blur-md border border-gray-900 shadow-2xl relative overflow-hidden w-full"
-                    style={{ clipPath: "polygon(0 0, 100% 0, 100% 98%, 98% 100%, 2% 100%, 0 98%)" }}>
+                    className="bg-[#05050f]/90 backdrop-blur-xl border border-[#00f5ff]/10 shadow-[0_0_60px_rgba(0,245,255,0.04)] rounded-xl relative overflow-hidden w-full">
 
-                    {/* Top Red Line */}
-                    <div className="absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--blood-red)] to-transparent opacity-70"></div>
+                    {/* Neon Scanline */}
+                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
                     <div className="p-4 md:p-8 space-y-8 relative z-10">
 
                         {/* 1. Account Data */}
                         <motion.section variants={sectionVariants}>
                             <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
-                                <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">01</span>
+                                <span className="w-8 h-8 rounded-md bg-[#00f5ff]/10 border border-[#00f5ff]/30 flex items-center justify-center text-[#00f5ff] text-xs font-mono shadow-[0_0_10px_rgba(0,245,255,0.2)]">01</span>
                                 ACCOUNT DATA
+                                <span className="flex-1 h-px bg-gradient-to-r from-[#00f5ff]/20 to-transparent" />
                             </h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -499,11 +499,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         id="target-id-input"
                                         type="text"
                                         placeholder=" "
-                                        className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                        className="peer w-full bg-white/[0.03] border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
                                         value={targetId}
                                         onChange={(e) => setTargetId(e.target.value)}
                                     />
-                                    <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
+                                    <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:bg-[#08081a] peer-[&:not(:placeholder-shown)]:px-1.5 peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/70 pointer-events-none">
                                         User ID
                                     </label>
                                 </div>
@@ -513,11 +513,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         <input
                                             type="text"
                                             placeholder=" "
-                                            className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                            className="peer w-full bg-white/[0.03] border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
                                             value={zoneId}
                                             onChange={(e) => setZoneId(e.target.value)}
                                         />
-                                        <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
+                                        <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:bg-[#08081a] peer-[&:not(:placeholder-shown)]:px-1.5 peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/70 pointer-events-none">
                                             Zone ID
                                         </label>
                                     </div>
@@ -528,11 +528,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         <input
                                             type="text"
                                             placeholder=" "
-                                            className="peer w-full bg-black border border-gray-800 p-4 pt-5 rounded-none focus:border-[var(--blood-red)] outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                            className="peer w-full bg-white/[0.03] border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
                                             value={serverId}
                                             onChange={(e) => setServerId(e.target.value)}
                                         />
-                                        <label className="absolute left-4 top-4 text-gray-600 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-2 peer-focus:bg-black peer-focus:px-2 peer-focus:text-[var(--blood-red)] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-2 peer-[&:not(:placeholder-shown)]:bg-black peer-[&:not(:placeholder-shown)]:px-2 peer-[&:not(:placeholder-shown)]:text-[var(--blood-red)] pointer-events-none">
+                                        <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:bg-[#08081a] peer-[&:not(:placeholder-shown)]:px-1.5 peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/70 pointer-events-none">
                                             Server ID
                                         </label>
                                     </div>
@@ -549,26 +549,24 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                 )}
 
                                 {!nickCheckLoading && nickResult && (
-                                    <div className="flex items-center gap-3 bg-green-950/20 border border-green-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
-                                        style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
-                                        <div className="bg-green-900/40 p-1 rounded-sm">
-                                            <CheckCircle size={16} className="text-green-500" />
+                                    <div className="flex items-center gap-3 bg-green-500/5 border border-green-500/25 p-3 rounded-lg animate-in fade-in slide-in-from-left-2">
+                                        <div className="bg-green-500/10 p-1.5 rounded-md">
+                                            <CheckCircle size={15} className="text-green-400" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-green-700 uppercase tracking-widest font-bold leading-none mb-1">Target Acquired</p>
+                                            <p className="text-[9px] text-green-500/60 uppercase tracking-widest font-bold leading-none mb-1">Target Acquired</p>
                                             <p className="text-green-400 font-bold text-sm tracking-wide font-mono">{nickResult}</p>
                                         </div>
                                     </div>
                                 )}
 
                                 {!nickCheckLoading && nickError && (
-                                    <div className="flex items-center gap-3 bg-red-950/20 border border-red-900/50 p-3 animate-in fade-in slide-in-from-left-2 clip-path-slant"
-                                        style={{ clipPath: "polygon(0 0, 100% 0, 98% 100%, 0 100%)" }}>
-                                        <div className="bg-red-900/40 p-1 rounded-sm">
-                                            <XCircle size={16} className="text-red-500" />
+                                    <div className="flex items-center gap-3 bg-red-500/5 border border-red-500/25 p-3 rounded-lg animate-in fade-in slide-in-from-left-2">
+                                        <div className="bg-red-500/10 p-1.5 rounded-md">
+                                            <XCircle size={15} className="text-red-400" />
                                         </div>
                                         <div>
-                                            <p className="text-[10px] text-red-700 uppercase tracking-widest font-bold leading-none mb-1">Target Unknown</p>
+                                            <p className="text-[9px] text-red-500/60 uppercase tracking-widest font-bold leading-none mb-1">Target Unknown</p>
                                             <p className="text-red-400 font-bold text-sm tracking-wide font-mono">{nickError}</p>
                                         </div>
                                     </div>
@@ -579,8 +577,9 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         {/* 2. Select Nominal (Grouped by Variation) */}
                         <motion.section variants={sectionVariants}>
                             <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
-                                <span className="w-8 h-8 bg-red-950/50 border border-red-900 flex items-center justify-center text-[var(--blood-red)] text-sm font-mono shadow-[0_0_10px_rgba(187,10,30,0.2)]">02</span>
+                                <span className="w-8 h-8 rounded-md bg-[#00f5ff]/10 border border-[#00f5ff]/30 flex items-center justify-center text-[#00f5ff] text-xs font-mono shadow-[0_0_10px_rgba(0,245,255,0.2)]">02</span>
                                 SELECT ITEM
+                                <span className="flex-1 h-px bg-gradient-to-r from-[#00f5ff]/20 to-transparent" />
                             </h3>
 
                             {loading ? (
@@ -603,13 +602,13 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                             const isExpanded = !hasMultipleVariations || expandedSections.includes(variationName);
 
                                             return (
-                                                <div key={variationName} className={`rounded-xl border ${hasMultipleVariations ? 'border-gray-800' : 'border-transparent'}`}>
+                                                <div key={variationName} className={`rounded-xl border ${hasMultipleVariations ? 'border-white/6' : 'border-transparent'}`}>
 
                                                     {/* Variation Header (Clickable if multiple) */}
                                                     {hasMultipleVariations && (
                                                         <button
                                                             onClick={() => toggleSection(variationName)}
-                                                            className="w-full flex items-center justify-between p-4 bg-gray-900/20 hover:bg-gray-900/30 transition-colors rounded-t-xl"
+                                                            className="w-full flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors rounded-t-xl"
                                                         >
                                                             <div className="flex items-center gap-3">
                                                                 <Globe size={16} className="text-[var(--blood-red)]" />
@@ -658,22 +657,22 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                                             setSelectedProduct(p);
                                                                                         }}
                                                                                         className={`
-                                                                                    cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border transition-all duration-500 overflow-hidden group/item rounded-sm
+                                                                                    cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border transition-all duration-300 overflow-hidden group/item rounded-lg
                                                                                     ${selectedProduct?.id === p.id
-                                                                                                ? 'bg-[#150202] border-red-600 shadow-[0_0_20px_rgba(187,10,30,0.5)] scale-[1.02] z-10'
-                                                                                                : 'bg-[#050505] border-gray-900/80 hover:border-red-900/50 hover:bg-[#0a0202] hover:shadow-[0_0_15px_rgba(187,10,30,0.2)]'}
+                                                                                                ? 'bg-[#00f5ff]/5 border-[#00f5ff]/60 shadow-[0_0_20px_rgba(0,245,255,0.15)] scale-[1.02] z-10'
+                                                                                                : 'bg-white/[0.02] border-white/8 hover:border-[#00f5ff]/25 hover:bg-[#00f5ff]/[0.03]'}
                                                                                 `}
                                                                                     >
                                                                                         {/* Subtle Glow Background for Selected */}
                                                                                         {selectedProduct?.id === p.id && (
-                                                                                            <div className="absolute inset-0 bg-gradient-to-t from-[var(--blood-red)]/20 to-transparent"></div>
+                                                                                            <div className="absolute inset-0 bg-gradient-to-t from-[#00f5ff]/8 to-transparent pointer-events-none" />
                                                                                         )}
 
                                                                                         <div className="flex flex-col items-center z-10 text-center gap-1">
-                                                                                            <span className={`text-xs sm:text-sm font-bold leading-tight transition-colors ${selectedProduct?.id === p.id ? 'text-white drop-shadow-[0_0_2px_rgba(255,255,255,0.5)]' : 'text-gray-500 group-hover/item:text-gray-300'}`}>
+                                                                                            <span className={`text-xs sm:text-sm font-bold leading-tight transition-colors ${selectedProduct?.id === p.id ? 'text-white' : 'text-white/40 group-hover/item:text-white/70'}`}>
                                                                                                 {p.name}
                                                                                             </span>
-                                                                                            <span className={`text-sm sm:text-base font-mono font-bold transition-all ${selectedProduct?.id === p.id ? 'text-red-500 drop-shadow-[0_0_8px_rgba(220,38,38,0.8)]' : 'text-gray-600 group-hover/item:text-red-900'}`}>
+                                                                                            <span className={`text-sm sm:text-base font-mono font-bold transition-all ${selectedProduct?.id === p.id ? 'text-[#00f5ff] drop-shadow-[0_0_8px_rgba(0,245,255,0.6)]' : 'text-white/25 group-hover/item:text-[#00f5ff]/50'}`}>
                                                                                                 {p.price_sell.toLocaleString()}
                                                                                             </span>
                                                                                         </div>
@@ -718,12 +717,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     </div>
 
 
-                    {/* Styles for Clip Path if not in global */}
-                    <style jsx>{`
-                .clip-path-button {
-                    clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-                }
-            `}</style>
+
                 </motion.div>
 
                 {/* RIGHT: Sticky Order Summary (Desktop Only) */}
@@ -785,25 +779,25 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             animate={{ scale: 1, y: 0 }}
                             exit={{ scale: 0.9, y: 20 }}
                             onClick={(e) => e.stopPropagation()}
-                            className="bg-[#1a0505] border border-red-900 rounded-2xl p-8 max-w-sm w-full shadow-[0_0_50px_rgba(255,0,0,0.2)] text-center relative overflow-hidden"
+                            className="bg-[#05050f] border border-[#00f5ff]/20 rounded-2xl p-8 max-w-sm w-full shadow-[0_0_50px_rgba(0,245,255,0.08)] text-center relative overflow-hidden"
                         >
-                            <div className="absolute top-0 left-0 w-full h-1 bg-[var(--blood-red)]"></div>
+                            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
-                            <div className="w-16 h-16 bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6 ring-1 ring-red-500/50">
-                                <AlertTriangle size={32} className="text-red-500" />
+                            <div className="w-16 h-16 bg-[#00f5ff]/10 rounded-xl flex items-center justify-center mx-auto mb-6 ring-1 ring-[#00f5ff]/25">
+                                <AlertTriangle size={30} className="text-[#00f5ff]" />
                             </div>
 
-                            <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-cinzel)] uppercase">
+                            <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-cinzel)] uppercase tracking-widest">
                                 Data Belum Lengkap
                             </h3>
-                            <p className="text-gray-400 text-sm mb-6">
+                            <p className="text-white/40 text-sm mb-6">
                                 Mohon lengkapi data berikut untuk melanjutkan pesanan Anda:
                             </p>
 
-                            <div className="space-y-2 mb-8 text-left bg-black/40 p-4 rounded border border-white/5">
+                            <div className="space-y-2 mb-8 text-left bg-white/[0.03] p-4 rounded-lg border border-white/8">
                                 {missingFields.map((field, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-red-400 text-sm font-bold">
-                                        <XCircle size={14} />
+                                    <div key={idx} className="flex items-center gap-2 text-[#00f5ff]/80 text-sm font-bold">
+                                        <XCircle size={13} className="text-[#00f5ff]/60" />
                                         <span>{field}</span>
                                     </div>
                                 ))}
@@ -811,7 +805,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                             <button
                                 onClick={() => setShowValidationModal(false)}
-                                className="w-full bg-[var(--blood-red)] hover:bg-red-700 text-white font-bold py-3 px-6 rounded transition-all uppercase tracking-widest text-sm shadow-[0_0_15px_rgba(220,38,38,0.4)]"
+                                className="w-full bg-[#00f5ff]/10 hover:bg-[#00f5ff]/20 border border-[#00f5ff]/40 hover:border-[#00f5ff]/70 text-[#00f5ff] font-bold py-3 px-6 rounded-lg transition-all uppercase tracking-widest text-sm shadow-[0_0_15px_rgba(0,245,255,0.1)]"
                             >
                                 Lengkapi Data
                             </button>

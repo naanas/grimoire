@@ -8,6 +8,7 @@ import BackgroundEffects from './BackgroundEffects';
 import ChatWidget from './ChatWidget';
 import NavigationLoader from './NavigationLoader';
 import IdleLogout from './IdleLogout';
+import MobileBottomNav from './MobileBottomNav';
 import PromoPopup from '@/components/PromoPopup';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from '@/lib/authStore';
@@ -31,17 +32,28 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
     return (
         <GoogleOAuthProvider clientId={clientId}>
             <Toaster
-                position="top-right"
+                position="top-center"
                 toastOptions={{
                     duration: 3000,
                     style: {
-                        background: '#171717',
-                        color: '#fff',
-                        border: '1px solid #262626',
+                        background: 'rgba(20, 16, 28, 0.95)',
+                        backdropFilter: 'blur(20px)',
+                        color: '#f5f3ff',
+                        border: '1px solid rgba(167, 139, 250, 0.15)',
+                        borderRadius: '12px',
+                        fontSize: '13px',
+                        padding: '12px 16px',
+                        boxShadow: '0 12px 32px rgba(0, 0, 0, 0.5)',
                     },
                     success: {
                         iconTheme: {
-                            primary: '#ef4444', // Blood red for success matches theme
+                            primary: '#a78bfa',
+                            secondary: '#fff',
+                        },
+                    },
+                    error: {
+                        iconTheme: {
+                            primary: '#ef4444',
                             secondary: '#fff',
                         },
                     },
@@ -58,10 +70,12 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                     </Suspense>
                     <BackgroundEffects />
                     <Navbar />
-                    <main className="relative z-10 flex flex-col flex-grow min-h-screen pt-20">
+                    {/* pt-16 for mobile (64px navbar), md:pt-20 (80px); pb for mobile bottom nav */}
+                    <main className="relative z-10 flex flex-col grow min-h-screen pt-16 md:pt-20 pb-24 lg:pb-0">
                         {children}
                     </main>
                     <Footer />
+                    <MobileBottomNav />
                     <PromoPopup />
                     <ChatWidget />
                 </>
@@ -69,3 +83,4 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
         </GoogleOAuthProvider>
     );
 }
+

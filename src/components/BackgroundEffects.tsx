@@ -1,50 +1,58 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import api from '@/lib/api';
 import { getGoogleDriveDirectLink } from '@/lib/driveHelper';
 
-const RUNE_SYMBOLS = ['ᛟ', 'ᚷ', '✦', '❋', 'ᚠ', 'ᚢ', 'ᚦ', 'ᚨ', '✧', '⟁'];
-
-const runeParticles = Array.from({ length: 12 }, (_, i) => ({
-    id: i,
-    symbol: RUNE_SYMBOLS[i % RUNE_SYMBOLS.length],
-    left: `${8 + (i * 8) % 90}%`,
-    top: `${10 + (i * 13) % 80}%`,
-    delay: `${(i * 0.7).toFixed(1)}s`,
-    duration: `${6 + (i % 4)}s`,
-    size: i % 3 === 0 ? 'text-lg' : 'text-xs',
-}));
+const RUNE_SYMBOLS = ['*', '+', '*', 'x', '#', '^', 'o', '~'];
 
 export default function BackgroundEffects() {
     const [config, setConfig] = useState({ type: 'CSS', url: '' });
 
     useEffect(() => {
-        api.get('/config').then(res => {
-            if (res.data.success) {
-                setConfig({
-                    type: res.data.data.BACKGROUND_TYPE || 'CSS',
-                    url: res.data.data.BACKGROUND_URL || ''
-                });
-            }
-        }).catch(err => console.error("Failed to load bg config", err));
+        api.get('/config')
+            .then((res) => {
+                if (res.data.success) {
+                    setConfig({
+                        type: res.data.data.BACKGROUND_TYPE || 'CSS',
+                        url: res.data.data.BACKGROUND_URL || '',
+                    });
+                }
+            })
+            .catch((err) => console.error('Failed to load bg config', err));
     }, []);
+
+    // Pre-compute rune particles deterministically (fewer + more refined)
+    const runeParticles = useMemo(
+        () =>
+            Array.from({ length: 8 }, (_, i) => ({
+                id: i,
+                symbol: RUNE_SYMBOLS[i % RUNE_SYMBOLS.length],
+                left: `${10 + ((i * 11) % 80)}%`,
+                top: `${15 + ((i * 17) % 70)}%`,
+                delay: `${(i * 0.9).toFixed(1)}s`,
+                duration: `${10 + (i % 4) * 2}s`,
+                size: i % 3 === 0 ? 'text-2xl' : 'text-base',
+                tone: i % 2 === 0 ? 'text-(--violet)/30' : 'text-(--crimson)/25',
+            })),
+        []
+    );
 
     // 1. Video Background
     if (config.type === 'VIDEO' && config.url) {
         const videoUrl = getGoogleDriveDirectLink(config.url);
         return (
-            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-black">
+            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-(--bg-void)">
                 <video
                     src={videoUrl}
                     autoPlay
                     loop
                     muted
                     playsInline
-                    className="absolute inset-0 w-full h-full object-cover opacity-60"
+                    className="absolute inset-0 w-full h-full object-cover opacity-40"
                 />
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="fixed inset-0 z-50 vignette"></div>
+                <div className="absolute inset-0 bg-linear-to-b from-(--bg-void)/50 via-transparent to-(--bg-void)/80" />
+                <div className="fixed inset-0 z-50 vignette" />
             </div>
         );
     }
@@ -52,58 +60,58 @@ export default function BackgroundEffects() {
     // 2. Image Background
     if (config.type === 'IMAGE' && config.url) {
         return (
-            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-black">
+            <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-(--bg-void)">
                 <div
-                    className="absolute inset-0 bg-cover bg-center opacity-60"
+                    className="absolute inset-0 bg-cover bg-center opacity-50"
                     style={{ backgroundImage: `url(${config.url})` }}
                 />
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="fixed inset-0 z-50 vignette"></div>
+                <div className="absolute inset-0 bg-linear-to-b from-(--bg-void)/40 via-transparent to-(--bg-void)/85" />
+                <div className="fixed inset-0 z-50 vignette" />
             </div>
         );
     }
 
-    // 3. Default CSS Background — Ritual Edition
+    // 3. Default - Refined Mystic CSS Background
     return (
-        <div className="fixed inset-0 z-[-1] bg-[var(--background)] overflow-hidden pointer-events-none">
-            {/* Grid Pattern */}
-            <div className="absolute inset-0 bg-grid-pattern opacity-30" />
+        <div className="fixed inset-0 z-[-1] bg-(--bg-void) overflow-hidden pointer-events-none">
+            {/* Aurora gradient - subtle violet/crimson glows */}
+            <div className="absolute inset-0">
+                <div className="absolute -top-32 -left-32 w-[420px] h-[420px] md:w-[640px] md:h-[640px] rounded-full bg-(--violet-deep)/30 blur-[120px] animate-blob will-change-transform" />
+                <div className="absolute top-1/4 -right-32 w-[380px] h-[380px] md:w-[560px] md:h-[560px] rounded-full bg-(--crimson-deep)/25 blur-[120px] animate-blob animation-delay-2000 will-change-transform" />
+                <div className="absolute bottom-0 left-1/3 w-[360px] h-[360px] md:w-[520px] md:h-[520px] rounded-full bg-[#1e1b4b]/40 blur-[140px] animate-blob animation-delay-4000 will-change-transform" />
+            </div>
 
-            {/* Animated Blobs */}
-            <div className="absolute top-0 -left-4 w-64 h-64 md:w-96 md:h-96 bg-[var(--dark-blood)] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob will-change-transform" />
-            <div className="absolute top-0 -right-4 w-64 h-64 md:w-96 md:h-96 bg-[var(--blood-red)] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 will-change-transform" />
-            <div className="absolute -bottom-32 left-20 w-64 h-64 md:w-96 md:h-96 bg-[var(--void-black)] rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000 border border-[var(--dark-blood)]/20 will-change-transform" />
+            {/* Soft grid */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-40" />
 
-            {/* Center Ritual Glow */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] md:w-[800px] md:h-[800px] bg-[radial-gradient(circle,rgba(60,4,11,0.25)_0%,transparent_70%)] pointer-events-none" />
-
-            {/* Faint Hexagram SVG at center */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.025]">
-                <svg viewBox="0 0 200 200" className="w-[400px] h-[400px] md:w-[700px] md:h-[700px]" fill="none" stroke="#bb0a1e" strokeWidth="0.5">
-                    {/* Outer circle */}
+            {/* Faint sigil - only on larger screens */}
+            <div className="hidden md:flex absolute inset-0 items-center justify-center pointer-events-none opacity-[0.04]">
+                <svg
+                    viewBox="0 0 200 200"
+                    className="w-[700px] h-[700px]"
+                    fill="none"
+                    stroke="#a78bfa"
+                    strokeWidth="0.4"
+                >
                     <circle cx="100" cy="100" r="95" />
-                    {/* Star of David / Hexagram */}
-                    <polygon points="100,10 127,55 173,55 146,90 163,135 100,110 37,135 54,90 27,55 73,55" />
-                    {/* Inner pentagon */}
-                    <circle cx="100" cy="100" r="45" />
-                    {/* Rune lines */}
-                    <line x1="100" y1="5" x2="100" y2="195" />
-                    <line x1="5" y1="100" x2="195" y2="100" />
-                    <line x1="20" y1="20" x2="180" y2="180" />
-                    <line x1="180" y1="20" x2="20" y2="180" />
+                    <circle cx="100" cy="100" r="70" strokeDasharray="2 4" />
+                    <polygon points="100,15 127,55 173,55 146,90 163,135 100,110 37,135 54,90 27,55 73,55" />
+                    <circle cx="100" cy="100" r="40" />
+                    <line x1="100" y1="5" x2="100" y2="195" strokeOpacity="0.5" />
+                    <line x1="5" y1="100" x2="195" y2="100" strokeOpacity="0.5" />
                 </svg>
             </div>
 
-            {/* Floating Rune Particles */}
-            {runeParticles.map(p => (
+            {/* Floating rune particles */}
+            {runeParticles.map((p) => (
                 <div
                     key={p.id}
-                    className={`absolute select-none font-mono ${p.size} text-[var(--blood-red)]`}
+                    className={`absolute select-none font-mono ${p.size} ${p.tone}`}
                     style={{
                         left: p.left,
                         top: p.top,
                         animation: `rune-float ${p.duration} ease-in-out ${p.delay} infinite`,
-                        opacity: 0.15,
+                        opacity: 0.18,
                         willChange: 'transform',
                     }}
                 >
@@ -111,9 +119,15 @@ export default function BackgroundEffects() {
                 </div>
             ))}
 
-            {/* Cinematic Vignette & Noise */}
+            {/* Top warm glow band */}
+            <div className="absolute top-0 inset-x-0 h-[300px] bg-linear-to-b from-(--crimson-deep)/15 via-(--violet-deep)/8 to-transparent" />
+
+            {/* Cinematic vignette */}
             <div className="fixed inset-0 z-50 vignette" />
-            <div className="fixed inset-0 z-0 opacity-[0.06] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+
+            {/* Subtle film grain */}
+            <div className="fixed inset-0 z-0 opacity-[0.035] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
         </div>
     );
 }
+

@@ -14,8 +14,9 @@ const cinzel = Cinzel({ subsets: ['latin'], variable: '--font-cinzel' });
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: '#07050d',
 };
 
 export const metadata: Metadata = {
@@ -118,10 +119,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="id" className="dark" suppressHydrationWarning>
-      <body className={`${inter.variable} ${cinzel.variable} bg-[var(--background)] text-white min-h-screen selection:bg-[var(--blood-red)] selection:text-white antialiased`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${cinzel.variable} bg-(--background) text-white min-h-screen selection:bg-(--blood-red) selection:text-white antialiased`} suppressHydrationWarning>
         <StructuredData />
         <LayoutWrapper>{children}</LayoutWrapper>
       </body>
     </html>
   );
 }
+

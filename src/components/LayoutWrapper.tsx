@@ -19,6 +19,7 @@ import CompleteProfileModal from './CompleteProfileModal';
 export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const isAdmin = pathname?.startsWith('/admin');
+    const isOrderPage = !!pathname?.match(/^\/order\/[^/]+$/);
     const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
     const { initialized, loadUser, fetchFreshUser } = useAuthStore();
 
@@ -73,15 +74,15 @@ export default function LayoutWrapper({ children }: { children: React.ReactNode 
                         <NavigationLoader />
                     </Suspense>
                     <BackgroundEffects />
-                    <Navbar />
-                    {/* pt-16 for mobile (64px navbar), md:pt-20 (80px); pb for mobile bottom nav */}
-                    <main className="relative z-10 flex flex-col grow min-h-screen pt-16 md:pt-20 pb-24 lg:pb-0">
+                    {!isOrderPage && <Navbar />}
+                    {/* pt-16/pt-20 for navbar offset — removed on order pages */}
+                    <main className={`relative z-10 flex flex-col grow min-h-screen pb-24 lg:pb-0 ${isOrderPage ? 'pt-0' : 'pt-16 md:pt-20'}`}>
                         {children}
                     </main>
                     <Footer />
-                    <MobileBottomNav />
+                    {!isOrderPage && <MobileBottomNav />}
                     <PromoPopup />
-                    <ChatWidget />
+                    {!isOrderPage && <ChatWidget />}
                 </>
             )}
         </GoogleOAuthProvider>

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, Suspense, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,18 +13,15 @@ import ReCAPTCHA from 'react-google-recaptcha';
 // --- VISUAL EFFECTS ---
 
 const GridParticles = () => {
-    const [particles, setParticles] = useState<{ id: number; x: number; delay: number; duration: number; size: number }[]>([]);
-
-    useEffect(() => {
-        const p = Array.from({ length: 18 }).map((_, i) => ({
+    const [particles] = useState<{ id: number; x: number; delay: number; duration: number; size: number }[]>(
+        () => Array.from({ length: 18 }).map((_, i) => ({
             id: i,
             x: Math.random() * 100,
             delay: Math.random() * 6,
             duration: 4 + Math.random() * 6,
             size: Math.random() > 0.6 ? 2 : 1,
-        }));
-        setParticles(p);
-    }, []);
+        }))
+    );
 
     return (
         <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
@@ -85,7 +82,6 @@ const CyberRings = () => (
 // --- MAIN LOGIN FORM ---
 
 function LoginContent() {
-    const router = useRouter();
     const searchParams = useSearchParams();
 
     const [isLoading, setIsLoading] = useState(false);
@@ -131,8 +127,14 @@ function LoginContent() {
                     window.location.href = '/';
                 }
             }
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Authentication failed. Please try again.');
+        } catch (err: unknown) {
+            const message =
+                typeof err === 'object' &&
+                    err !== null &&
+                    'response' in err
+                    ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+                    : undefined;
+            setError(message || 'Authentication failed. Please try again.');
         } finally {
             setIsLoading(false);
         }
@@ -148,11 +150,11 @@ function LoginContent() {
             {/* Card */}
             <div className="relative">
                 {/* Outer glow */}
-                <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-[#00f5ff]/20 via-transparent to-[#f000ff]/10 opacity-60 blur-sm pointer-events-none" />
+                <div className="absolute -inset-px rounded-2xl bg-linear-to-b from-[#00f5ff]/20 via-transparent to-[#f000ff]/10 opacity-60 blur-sm pointer-events-none" />
 
                 <div className="relative bg-[#05050f]/95 backdrop-blur-xl border border-[#00f5ff]/12 rounded-2xl overflow-hidden">
                     {/* Neon top scanline */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-[#00f5ff]/70 to-transparent" />
+                    <div className="h-px bg-linear-to-r from-transparent via-[#00f5ff]/70 to-transparent" />
 
                     {/* Loading overlay */}
                     {isLoading && (
@@ -185,15 +187,15 @@ function LoginContent() {
                                 </div>
                             </motion.div>
 
-                            <h1 className="text-2xl md:text-3xl font-[family-name:var(--font-cinzel)] font-black tracking-[0.2em] text-white uppercase mb-1.5">
+                            <h1 className="text-2xl md:text-3xl font-(family-name:--font-cinzel) font-black tracking-[0.2em] text-white uppercase mb-1.5">
                                 Grimoire
                             </h1>
                             <div className="flex items-center justify-center gap-3">
-                                <div className="h-px w-8 bg-gradient-to-r from-transparent to-[#00f5ff]/40" />
+                                <div className="h-px w-8 bg-linear-to-r from-transparent to-[#00f5ff]/40" />
                                 <p className="text-[9px] tracking-[0.4em] uppercase font-bold text-[#00f5ff]/50">
                                     Sign In
                                 </p>
-                                <div className="h-px w-8 bg-gradient-to-l from-transparent to-[#00f5ff]/40" />
+                                <div className="h-px w-8 bg-linear-to-l from-transparent to-[#00f5ff]/40" />
                             </div>
                         </div>
 
@@ -238,9 +240,9 @@ function LoginContent() {
                                     value={formData.email}
                                     onChange={handleChange}
                                     required
-                                    className="peer w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-4 pt-5 pb-2.5 text-white text-sm font-medium focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none transition-all"
+                                    className="peer w-full bg-white/3 border border-white/10 rounded-xl pl-10 pr-4 pt-5 pb-2.5 text-white text-sm font-medium focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none transition-all"
                                 />
-                                <label className="absolute left-10 top-3.5 text-white/25 text-[10px] uppercase tracking-widest transition-all duration-200 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-[#00f5ff]/60 peer-[&:not(:placeholder-shown)]:top-1.5 peer-[&:not(:placeholder-shown)]:text-[9px] peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/50 pointer-events-none">
+                                <label className="absolute left-10 top-3.5 text-white/25 text-[10px] uppercase tracking-widest transition-all duration-200 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-[#00f5ff]/60 peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-[9px] peer-not-placeholder-shown:text-[#00f5ff]/50 pointer-events-none">
                                     Email
                                 </label>
                             </div>
@@ -257,9 +259,9 @@ function LoginContent() {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
-                                    className="peer w-full bg-white/[0.03] border border-white/10 rounded-xl pl-10 pr-4 pt-5 pb-2.5 text-white text-sm font-medium focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none transition-all"
+                                    className="peer w-full bg-white/3 border border-white/10 rounded-xl pl-10 pr-4 pt-5 pb-2.5 text-white text-sm font-medium focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none transition-all"
                                 />
-                                <label className="absolute left-10 top-3.5 text-white/25 text-[10px] uppercase tracking-widest transition-all duration-200 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-[#00f5ff]/60 peer-[&:not(:placeholder-shown)]:top-1.5 peer-[&:not(:placeholder-shown)]:text-[9px] peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/50 pointer-events-none">
+                                <label className="absolute left-10 top-3.5 text-white/25 text-[10px] uppercase tracking-widest transition-all duration-200 peer-focus:top-1.5 peer-focus:text-[9px] peer-focus:text-[#00f5ff]/60 peer-not-placeholder-shown:top-1.5 peer-not-placeholder-shown:text-[9px] peer-not-placeholder-shown:text-[#00f5ff]/50 pointer-events-none">
                                     Password
                                 </label>
                             </div>
@@ -309,7 +311,7 @@ function LoginContent() {
                     </div>
 
                     {/* Bottom scanline */}
-                    <div className="h-px bg-gradient-to-r from-transparent via-[#f000ff]/20 to-transparent" />
+                    <div className="h-px bg-linear-to-r from-transparent via-[#f000ff]/20 to-transparent" />
                 </div>
             </div>
 

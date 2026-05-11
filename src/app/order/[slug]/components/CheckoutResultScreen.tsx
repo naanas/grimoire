@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Loader2, CheckCircle, XCircle, Clock, Eye, EyeOff } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 import api from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
@@ -22,12 +23,15 @@ export type CheckoutResult = {
     targetId?: string;
     zoneId?: string;
     createdAt?: string;
+    providerStatus?: string;
 };
+
+type CheckoutResultPayload = CheckoutResult & Record<string, unknown>;
 
 type Props = {
     result: CheckoutResult;
     urlTrxId?: string;
-    onUpdateResult?: (newResult: any) => void;
+    onUpdateResult?: (newResult: CheckoutResultPayload) => void;
 };
 
 export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult }: Props) {
@@ -36,6 +40,19 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
     const [showPaymentNo, setShowPaymentNo] = useState(false);
     const [checkingStatus, setCheckingStatus] = useState(false);
     const [showGuestReceipt, setShowGuestReceipt] = useState(false);
+    const [copiedProviderFailedInfo, setCopiedProviderFailedInfo] = useState(false);
+    const isFailed = result.status === 'FAILED' || result.status === 'PROVIDER_FAILED';
+
+    const providerFailedDetail = [
+        'Transaksi gagal di sisi provider. Mohon hubungi admin.',
+        `Invoice: ${result.invoice || '-'}`,
+        `Transaction ID: ${result.id || urlTrxId || '-'}`,
+        `Status: ${result.status || '-'}`,
+        `Provider Detail: ${result.providerStatus || '-'}`,
+        `Item: ${result.productName || result.product?.name || '-'}`,
+        `Target: ${result.targetId || '-'}${result.zoneId ? ` (${result.zoneId})` : ''}`,
+        `Total: Rp ${(Number(result.amount) || 0).toLocaleString('id-ID')}`
+    ].join('\n');
 
     return (
         <div className="min-h-[60vh] pt-4 pb-12 px-4 flex items-start justify-center relative">
@@ -66,7 +83,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                             <div className="absolute inset-0 bg-blue-500 blur-3xl opacity-20 animate-pulse"></div>
                             <Loader2 size={48} className="text-blue-400 relative z-20 animate-spin drop-shadow-[0_0_10px_rgba(59,130,246,1)]" />
                         </div>
-                    ) : result.status === 'FAILED' ? (
+                    ) : isFailed ? (
                         <div className="relative flex items-center justify-center p-4 w-32 h-32 mx-auto">
                             {/* Shattered Blood Circle */}
                             <div className="absolute inset-0 flex items-center justify-center opacity-60 text-red-600">
@@ -93,24 +110,47 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                     )}
                 </div>
 
-                <h2 className={`text-2xl md:text-3xl font-[family-name:var(--font-cinzel)] font-bold uppercase tracking-widest ${
+                <h2 className={`text-2xl md:text-3xl font-(family-name:--font-cinzel) font-bold uppercase tracking-widest ${
                     result.status === 'SUCCESS' ? 'text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)] glitch-text' : 
                     result.status === 'PROCESSING' ? 'text-blue-400 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]' :
-                    result.status === 'FAILED' ? 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] glitch-text' :
+                    isFailed ? 'text-red-500 drop-shadow-[0_0_20px_rgba(239,68,68,0.8)] glitch-text' :
                     'text-yellow-400 drop-shadow-[0_0_15px_rgba(234,179,8,0.5)] animate-pulse'
                 }`} data-text={
                     result.status === 'SUCCESS' ? 'RITUAL COMPLETE' : 
-                    result.status === 'FAILED' ? 'OFFERING REJECTED' : ''
+                    isFailed ? 'OFFERING REJECTED' : ''
                 }>
                     {result.status === 'SUCCESS' ? 'Ritual Complete' :
                         result.status === 'PROCESSING' ? 'Soul Transferring...' :
-                            result.status === 'FAILED' ? 'Offering Rejected' :
+                            result.status === 'PROVIDER_FAILED' ? 'Provider Rejected Order' :
+                                result.status === 'FAILED' ? 'Offering Rejected' :
                                 'Awaiting Tribute'}
                 </h2>
 
+                {result.status === 'PROVIDER_FAILED' && (
+                    <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-left">
+                        <p className="text-red-300 text-sm font-semibold">
+                            Pesanan gagal karena saldo provider tidak cukup. Tolong hubungi admin dan kirim detail transaksi di bawah.
+                        </p>
+                        <p className="text-white/70 text-xs font-mono mt-2 break-all">
+                            {result.providerStatus || 'Provider rejected the order.'}
+                        </p>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText(providerFailedDetail);
+                                setCopiedProviderFailedInfo(true);
+                                setTimeout(() => setCopiedProviderFailedInfo(false), 1500);
+                            }}
+                            className="mt-3 w-full py-2.5 rounded-lg border border-red-400/40 text-red-200 hover:bg-red-500/10 transition-all text-xs font-bold uppercase tracking-widest"
+                        >
+                            {copiedProviderFailedInfo ? 'DETAIL COPIED' : 'COPY DETAIL TRANSAKSI'}
+                        </button>
+                    </div>
+                )}
+
                 {/* Receipt Card */}
                 <div className="bg-[#05050f]/95 border border-[#00f5ff]/12 rounded-xl p-6 md:p-8 relative overflow-hidden group text-left">
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
+                    <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
                     <div className="flex justify-between items-center py-3.5 border-b border-white/6">
                         <span className="text-white/35 text-xs uppercase tracking-widest">Invoice</span>
@@ -150,10 +190,13 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                                         <div className="flex justify-center my-4 flex-col items-center">
                                             {/* Render QRIS QR Code using Tripay's QR string */}
                                             {result.paymentNo?.startsWith('http') ? (
-                                                <img
+                                                <Image
                                                     src={result.paymentNo}
                                                     className="w-48 h-48 bg-white p-2 rounded"
                                                     alt="QRIS Code"
+                                                    width={192}
+                                                    height={192}
+                                                    unoptimized
                                                 />
                                             ) : (
                                                 <div className="bg-white p-4 rounded">
@@ -172,7 +215,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                                             {/* Show/Hide Toggle Button */}
                                             <button
                                                 onClick={() => setShowPaymentNo(!showPaymentNo)}
-                                                className="absolute -top-8 right-0 flex items-center gap-1 text-xs text-gray-400 hover:text-[var(--blood-red)] transition-colors"
+                                                className="absolute -top-8 right-0 flex items-center gap-1 text-xs text-gray-400 hover:text-(--blood-red) transition-colors"
                                             >
                                                 {showPaymentNo ? (
                                                     <>
@@ -197,7 +240,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                                                         ? result.paymentNo
                                                         : result.paymentNo?.replace(/./g, '•')}
                                                 </p>
-                                                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-[var(--blood-red)] opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-(--blood-red) opacity-0 group-hover:opacity-100 transition-opacity">
                                                     CLICK TO COPY
                                                 </span>
                                             </div>
@@ -208,7 +251,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                                 result.paymentUrl && (
                                     <div className="text-center">
                                         <p className="text-xs text-gray-400 mb-2">Redirect Required</p>
-                                        <a href={result.paymentUrl} target="_self" className="block w-full bg-[var(--blood-red)] hover:bg-red-700 text-black font-bold py-3 px-4 text-xs uppercase tracking-widest rounded transition-all">
+                                        <a href={result.paymentUrl} target="_self" className="block w-full bg-(--blood-red) hover:bg-red-700 text-black font-bold py-3 px-4 text-xs uppercase tracking-widest rounded transition-all">
                                             PAY NOW
                                         </a>
                                     </div>
@@ -244,7 +287,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                                 } else {
                                     alert('Status Unchanged');
                                 }
-                            } catch (e) {
+                            } catch {
                                 alert('Failed to check');
                             } finally {
                                 setCheckingStatus(false);
@@ -282,14 +325,14 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
 
             {/* Guest Receipt Modal */}
             {showGuestReceipt && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
+                <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in">
                     <div className="bg-[#05050f] border border-[#00f5ff]/20 max-w-sm w-full relative shadow-[0_0_40px_rgba(0,245,255,0.08)] overflow-hidden rounded-xl">
                         {/* Scanline top */}
-                        <div className="h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
+                        <div className="h-px bg-linear-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
                         {/* Receipt Header */}
-                        <div className="bg-[#00f5ff]/[0.03] p-6 text-center border-b border-white/6">
-                            <h2 className="text-[#00f5ff] font-[family-name:var(--font-cinzel)] text-xl font-bold tracking-[0.3em] mb-1">GRIMOIRE COINS</h2>
+                        <div className="bg-[#00f5ff]/3 p-6 text-center border-b border-white/6">
+                            <h2 className="text-[#00f5ff] font-(family-name:--font-cinzel) text-xl font-bold tracking-[0.3em] mb-1">GRIMOIRE COINS</h2>
                             <p className="text-white/25 text-[10px] font-mono uppercase tracking-[0.25em]">Official Invoice Struk</p>
                         </div>
 

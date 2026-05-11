@@ -11,6 +11,7 @@ export default function TrackOrderPage() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<any>(null);
     const [error, setError] = useState('');
+    const [copiedFailedDetail, setCopiedFailedDetail] = useState(false);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -44,6 +45,7 @@ export default function TrackOrderPage() {
             case 'SUCCESS': return { color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', icon: CheckCircle, text: 'Berhasil' };
             case 'PENDING': return { color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', icon: Clock, text: 'Menunggu Pembayaran' };
             case 'PROCESSING': return { color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20', icon: Loader2, text: 'Sedang Diproses' };
+            case 'PROVIDER_FAILED': return { color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: XCircle, text: 'Gagal di Provider' };
             case 'FAILED': return { color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: XCircle, text: 'Gagal' };
             case 'EXPIRED': return { color: 'text-gray-500', bg: 'bg-gray-500/10', border: 'border-gray-500/20', icon: XCircle, text: 'Kadaluarsa' };
             default: return { color: 'text-stone-400', bg: 'bg-stone-500/10', border: 'border-stone-500/20', icon: AlertCircle, text: status };
@@ -51,7 +53,7 @@ export default function TrackOrderPage() {
     };
 
     return (
-        <div className="max-w-3xl mx-auto flex flex-col justify-start min-h-[100dvh] px-4 pt-40 pb-24 md:pt-48">
+        <div className="max-w-3xl mx-auto flex flex-col justify-start min-h-dvh px-4 pt-40 pb-24 md:pt-48">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -59,7 +61,7 @@ export default function TrackOrderPage() {
                 className="text-center mb-10"
             >
                 <h1 className="text-3xl md:text-5xl font-black text-white mb-4 tracking-tight drop-shadow-[0_0_15px_rgba(255,255,255,0.1)]">
-                    Lacak <span className="text-[var(--blood-red)]">Pesanan</span>
+                    Lacak <span className="text-(--blood-red)">Pesanan</span>
                 </h1>
                 <p className="text-stone-400">Masukkan Nomor Invoice (GRM-XXXX) untuk mengecek status transaksi Anda.</p>
             </motion.div>
@@ -72,7 +74,7 @@ export default function TrackOrderPage() {
                 className="relative z-10"
             >
                 <form onSubmit={handleSearch} className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-[var(--blood-red)] to-[var(--dark-blood)] rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                    <div className="absolute -inset-1 bg-linear-to-r from-(--blood-red) to-(--dark-blood) rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
                     <div className="relative flex flex-col sm:flex-row items-center bg-black/80 backdrop-blur-xl border border-white/10 rounded-xl p-3 md:p-4 shadow-2xl gap-3 sm:gap-4">
                         <div className="flex items-center w-full sm:flex-1 gap-2">
                             <Search className="text-stone-500 w-5 h-5 md:w-6 md:h-6 shrink-0 ml-1" />
@@ -87,7 +89,7 @@ export default function TrackOrderPage() {
                         <button
                             type="submit"
                             disabled={loading || !invoiceId}
-                            className="w-full sm:w-auto bg-[var(--blood-red)] hover:bg-[var(--hell-fire)] disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-bold uppercase tracking-wider transition-all flex justify-center items-center gap-2 shadow-lg hover:shadow-[0_0_15px_rgba(187,10,30,0.5)]"
+                            className="w-full sm:w-auto bg-(--blood-red) hover:bg-(--hell-fire) disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-bold uppercase tracking-wider transition-all flex justify-center items-center gap-2 shadow-lg hover:shadow-[0_0_15px_rgba(187,10,30,0.5)]"
                         >
                             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : 'Lacak'}
                         </button>
@@ -136,7 +138,7 @@ export default function TrackOrderPage() {
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-left md:text-right w-full md:w-auto pl-[3.5rem] md:pl-0">
+                                <div className="text-left md:text-right w-full md:w-auto pl-14 md:pl-0">
                                     <div className="text-xs text-stone-500 font-mono">{new Date(result.updatedAt || result.createdAt).toLocaleString('id-ID')}</div>
                                     <div className="font-mono font-bold text-white text-lg tracking-wider">{result.invoice}</div>
                                 </div>
@@ -154,7 +156,7 @@ export default function TrackOrderPage() {
                                     <div>
                                         <label className="text-xs text-stone-500 uppercase tracking-wider block mb-2">Target ID (User ID)</label>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl font-mono text-[var(--blood-red)] tracking-wider">{result.targetId}</span>
+                                            <span className="text-xl font-mono text-(--blood-red) tracking-wider">{result.targetId}</span>
                                             {result.zoneId && <span className="text-xs bg-white/10 px-2 py-1 rounded text-stone-400">({result.zoneId})</span>}
                                         </div>
                                     </div>
@@ -168,7 +170,7 @@ export default function TrackOrderPage() {
                                     </div>
                                     <div>
                                         <label className="text-xs text-stone-500 uppercase tracking-wider block mb-2">Total Bayar</label>
-                                        <div className="text-2xl font-black text-[var(--blood-red)]">Rp {Number(result.amount).toLocaleString('id-ID')}</div>
+                                        <div className="text-2xl font-black text-(--blood-red)">Rp {Number(result.amount).toLocaleString('id-ID')}</div>
                                     </div>
                                 </div>
 
@@ -181,10 +183,42 @@ export default function TrackOrderPage() {
                                         </div>
                                     </div>
                                 )}
+
+                                {result.status === 'PROVIDER_FAILED' && (
+                                    <div className="bg-red-500/10 p-4 rounded-lg border border-red-500/30 mt-4">
+                                        <p className="text-red-300 text-sm font-semibold">
+                                            Pesanan gagal karena provider menolak order (umumnya saldo provider tidak cukup). Tolong hubungi admin.
+                                        </p>
+                                        <p className="text-white/70 text-xs font-mono mt-2 break-all">
+                                            {result.providerStatus || 'Provider failed'}
+                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const detail = [
+                                                    'Detail transaksi gagal provider:',
+                                                    `Invoice: ${result.invoice || '-'}`,
+                                                    `Transaction ID: ${result.id || '-'}`,
+                                                    `Status: ${result.status || '-'}`,
+                                                    `Provider Detail: ${result.providerStatus || '-'}`,
+                                                    `Item: ${result.product?.name || 'Unknown Item'}`,
+                                                    `Target: ${result.targetId || '-'}${result.zoneId ? ` (${result.zoneId})` : ''}`,
+                                                    `Total: Rp ${Number(result.amount || 0).toLocaleString('id-ID')}`
+                                                ].join('\n');
+                                                navigator.clipboard.writeText(detail);
+                                                setCopiedFailedDetail(true);
+                                                setTimeout(() => setCopiedFailedDetail(false), 1500);
+                                            }}
+                                            className="mt-3 w-full py-2.5 rounded-lg border border-red-400/40 text-red-200 hover:bg-red-500/10 transition-all text-xs font-bold uppercase tracking-widest"
+                                        >
+                                            {copiedFailedDetail ? 'DETAIL COPIED' : 'COPY DETAIL TRANSAKSI'}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Decor */}
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--blood-red)]/5 rounded-full blur-3xl pointer-events-none"></div>
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-(--blood-red)/5 rounded-full blur-3xl pointer-events-none"></div>
                         </motion.div>
                     )}
                 </AnimatePresence>

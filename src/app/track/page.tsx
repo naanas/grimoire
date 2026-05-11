@@ -45,7 +45,7 @@ export default function TrackOrderPage() {
             case 'SUCCESS': return { color: 'text-green-500', bg: 'bg-green-500/10', border: 'border-green-500/20', icon: CheckCircle, text: 'Berhasil' };
             case 'PENDING': return { color: 'text-yellow-500', bg: 'bg-yellow-500/10', border: 'border-yellow-500/20', icon: Clock, text: 'Menunggu Pembayaran' };
             case 'PROCESSING': return { color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20', icon: Loader2, text: 'Sedang Diproses' };
-            case 'PROVIDER_FAILED': return { color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: XCircle, text: 'Gagal di Provider' };
+            case 'PROVIDER_FAILED': return { color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: XCircle, text: 'Perlu Bantuan Admin' };
             case 'FAILED': return { color: 'text-red-500', bg: 'bg-red-500/10', border: 'border-red-500/20', icon: XCircle, text: 'Gagal' };
             case 'EXPIRED': return { color: 'text-gray-500', bg: 'bg-gray-500/10', border: 'border-gray-500/20', icon: XCircle, text: 'Kadaluarsa' };
             default: return { color: 'text-stone-400', bg: 'bg-stone-500/10', border: 'border-stone-500/20', icon: AlertCircle, text: status };
@@ -187,10 +187,7 @@ export default function TrackOrderPage() {
                                 {result.status === 'PROVIDER_FAILED' && (
                                     <div className="bg-red-500/10 p-4 rounded-lg border border-red-500/30 mt-4">
                                         <p className="text-red-300 text-sm font-semibold">
-                                            Pesanan gagal karena provider menolak order (umumnya saldo provider tidak cukup). Tolong hubungi admin.
-                                        </p>
-                                        <p className="text-white/70 text-xs font-mono mt-2 break-all">
-                                            {result.providerStatus || 'Provider failed'}
+                                            Transaksi kamu belum bisa diproses otomatis. Tolong hubungi admin.
                                         </p>
                                         <button
                                             type="button"
@@ -199,11 +196,11 @@ export default function TrackOrderPage() {
                                                     'Detail transaksi gagal provider:',
                                                     `Invoice: ${result.invoice || '-'}`,
                                                     `Transaction ID: ${result.id || '-'}`,
-                                                    `Status: ${result.status || '-'}`,
-                                                    `Provider Detail: ${result.providerStatus || '-'}`,
+                                                    'Status: Perlu bantuan admin',
                                                     `Item: ${result.product?.name || 'Unknown Item'}`,
                                                     `Target: ${result.targetId || '-'}${result.zoneId ? ` (${result.zoneId})` : ''}`,
-                                                    `Total: Rp ${Number(result.amount || 0).toLocaleString('id-ID')}`
+                                                    `Total: Rp ${Number(result.amount || 0).toLocaleString('id-ID')}`,
+                                                    `Ref Sistem: ${result.id || result.invoice || '-'}`
                                                 ].join('\n');
                                                 navigator.clipboard.writeText(detail);
                                                 setCopiedFailedDetail(true);

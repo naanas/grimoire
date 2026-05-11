@@ -44,14 +44,14 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
     const isFailed = result.status === 'FAILED' || result.status === 'PROVIDER_FAILED';
 
     const providerFailedDetail = [
-        'Transaksi gagal di sisi provider. Mohon hubungi admin.',
+        'Transaksi membutuhkan bantuan admin.',
         `Invoice: ${result.invoice || '-'}`,
         `Transaction ID: ${result.id || urlTrxId || '-'}`,
-        `Status: ${result.status || '-'}`,
-        `Provider Detail: ${result.providerStatus || '-'}`,
+        'Status: Perlu bantuan admin',
         `Item: ${result.productName || result.product?.name || '-'}`,
         `Target: ${result.targetId || '-'}${result.zoneId ? ` (${result.zoneId})` : ''}`,
-        `Total: Rp ${(Number(result.amount) || 0).toLocaleString('id-ID')}`
+        `Total: Rp ${(Number(result.amount) || 0).toLocaleString('id-ID')}`,
+        `Ref Sistem: ${result.id || urlTrxId || result.invoice || '-'}`
     ].join('\n');
 
     return (
@@ -121,7 +121,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                 }>
                     {result.status === 'SUCCESS' ? 'Ritual Complete' :
                         result.status === 'PROCESSING' ? 'Soul Transferring...' :
-                            result.status === 'PROVIDER_FAILED' ? 'Provider Rejected Order' :
+                            result.status === 'PROVIDER_FAILED' ? 'Need Admin Assistance' :
                                 result.status === 'FAILED' ? 'Offering Rejected' :
                                 'Awaiting Tribute'}
                 </h2>
@@ -129,10 +129,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                 {result.status === 'PROVIDER_FAILED' && (
                     <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-left">
                         <p className="text-red-300 text-sm font-semibold">
-                            Pesanan gagal karena saldo provider tidak cukup. Tolong hubungi admin dan kirim detail transaksi di bawah.
-                        </p>
-                        <p className="text-white/70 text-xs font-mono mt-2 break-all">
-                            {result.providerStatus || 'Provider rejected the order.'}
+                            Transaksi kamu belum bisa diproses otomatis. Tolong hubungi admin dan kirim detail transaksi di bawah.
                         </p>
                         <button
                             type="button"

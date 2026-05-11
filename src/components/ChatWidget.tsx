@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { io, Socket } from 'socket.io-client';
-import { MessageCircle, X, Send, Minimize2, User as UserIcon } from 'lucide-react';
+import { MessageCircle, X, Send, Minimize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
-import { ChatMessage, ChatSession } from '@/types/chat';
+import { ChatMessage } from '@/types/chat';
 import { useUIStore } from '@/lib/uiStore';
 import { usePathname } from 'next/navigation';
 
@@ -20,7 +20,9 @@ export default function ChatWidget() {
     const [inputMessage, setInputMessage] = useState('');
     const [socket, setSocket] = useState<Socket | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
+    const [sessionToken, setSessionToken] = useState<string | null>(null);
     const [isJoining, setIsJoining] = useState(false);
+    const joiningRef = useRef(false);
 
     // Guest form state
     const [guestName, setGuestName] = useState('');
@@ -33,6 +35,69 @@ export default function ChatWidget() {
     const [isAdminOnline, setIsAdminOnline] = useState(false);
     const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    const handleSessionEnded = useCallback(() => {
+        setSessionId(null);
+        setSessionToken(null);
+        setHasJoined(false);
+        setMessages([]);
+        localStorage.removeItem('chatSessionId');
+        localStorage.removeItem('chatSessionToken');
+    }, []);
+
+    const fetchHistory = useCallback(async (id: string, token?: string | null) => {
+        try {
+            const res = await api.get(`/chat/session/${id}`, {
+                params: !user && token ? { token } : undefined
+            });
+            if (res.data.success && res.data.session) {
+                const session = res.data.session;
+                if (!session.isActive) {
+                    handleSessionEnded();
+                } else {
+                    setMessages(session.messages);
+                }
+            }
+        } catch (err: unknown) {
+            console.error('Failed to fetch chat history', err);
+            if (typeof err === 'object' && err !== null && 'response' in err) {
+                const status = (err as { response?: { status?: number } }).response?.status;
+                if (status === 403 || status === 401 || status === 404) {
+                    handleSessionEnded();
+                }
+            }
+        }
+    }, [handleSessionEnded, user]);
+
+    const startChat = useCallback(async () => {
+        if (joiningRef.current) return;
+        joiningRef.current = true;
+        setIsJoining(true);
+
+        try {
+            const payload = user ? {} : { guestName, guestEmail };
+            const endpoint = user ? '/chat/session/user' : '/chat/session/guest';
+
+            const res = await api.post(endpoint, payload);
+
+            if (res.data.success) {
+                const newSessionId = res.data.sessionId;
+                const newSessionToken = res.data.sessionToken || null;
+                setSessionId(newSessionId);
+                setSessionToken(newSessionToken);
+                localStorage.setItem('chatSessionId', newSessionId);
+                if (newSessionToken) {
+                    localStorage.setItem('chatSessionToken', newSessionToken);
+                }
+                setHasJoined(true);
+            }
+        } catch (error) {
+            console.error('Failed to start chat session', error);
+        } finally {
+            joiningRef.current = false;
+            setIsJoining(false);
+        }
+    }, [guestEmail, guestName, user]);
 
     // Scroll to bottom
     const scrollToBottom = () => {
@@ -50,124 +115,67 @@ export default function ChatWidget() {
         // For simplicity, if we have a user, we should try to fetch THEIR active session from server
         // instead of relying on localStorage which might be a guest session.
         if (user) {
-            const storedSessionId = localStorage.getItem('chatSessionId');
-            if (storedSessionId) {
-                // Check if it's a guest session (we can't easily know without fetching, but we can just clear it and let startChat logic handle it)
-                // Better: Try to join. If it fails (403), handleSessionEnded() will clear it.
-                // But we want to prefer the USER's active session if it exists on server.
-                // So let's try to fetch user session first.
-                startChat();
-            } else {
-                // No local session, but maybe user has one on server?
+            if (!hasJoined) {
                 startChat();
             }
         } else {
             // Guest mode: check local storage
             const storedSessionId = localStorage.getItem('chatSessionId');
+            const storedSessionToken = localStorage.getItem('chatSessionToken');
             if (storedSessionId && !hasJoined) {
                 setSessionId(storedSessionId);
+                setSessionToken(storedSessionToken);
                 setHasJoined(true);
             }
         }
-    }, [user]); // Run when user changes
+    }, [hasJoined, startChat, user]); // Run when user/session state changes
 
     // Initialize Socket
     useEffect(() => {
-        if (isOpen && !socket) {
-            const newSocket = io(SOCKET_URL);
-            setSocket(newSocket);
+        if (!isOpen || socket) return;
 
-            newSocket.on('connect', () => {
-                console.log('Connected to chat server');
-            });
+        const newSocket = io(SOCKET_URL);
+        setSocket(newSocket);
 
-            newSocket.on('receive_message', (message: ChatMessage) => {
-                setMessages(prev => [...prev, message]);
-                setIsTyping(false); // Stop typing when message received
-            });
+        newSocket.on('connect', () => {
+            console.log('Connected to chat server');
+        });
 
-            newSocket.on('admin_status', ({ online }) => {
-                setIsAdminOnline(online);
-            });
+        newSocket.on('receive_message', (message: ChatMessage) => {
+            setMessages(prev => [...prev, message]);
+            setIsTyping(false); // Stop typing when message received
+        });
 
-            newSocket.on('typing_status', ({ isTyping }) => {
-                setIsTyping(isTyping);
-            });
+        newSocket.on('admin_status', ({ online }) => {
+            setIsAdminOnline(online);
+        });
 
-            return () => {
-                newSocket.disconnect();
-                setSocket(null);
-            };
-        }
-    }, [isOpen]);
+        newSocket.on('typing_status', ({ isTyping }) => {
+            setIsTyping(isTyping);
+        });
+
+        return () => {
+            newSocket.disconnect();
+            setSocket(null);
+        };
+    }, [isOpen, socket]);
 
     // Session Management (Join & Fetch)
     useEffect(() => {
         if (socket && sessionId) {
             console.log(`Joining session: ${sessionId}`);
             socket.emit('join_session', sessionId);
-            fetchHistory(sessionId);
+            fetchHistory(sessionId, sessionToken);
         }
-    }, [socket, sessionId]);
-
-    const fetchHistory = async (id: string) => {
-        try {
-            const res = await api.get(`/chat/session/${id}`);
-            if (res.data.success && res.data.session) {
-                // If session is inactive? The backend doesn't explicitly return error for inactive unless we enforce it.
-                // But update: backend now expires session if old.
-                // If expire logic sets isActive=false, does getSession return it? Yes.
-                // Check if active?
-                const session = res.data.session;
-                if (!session.isActive) {
-                    // Session expired or closed
-                    handleSessionEnded();
-                } else {
-                    setMessages(session.messages);
-                }
-            }
-        } catch (err: any) {
-            console.error('Failed to fetch chat history', err);
-            if (err.response && (err.response.status === 403 || err.response.status === 401 || err.response.status === 404)) {
-                handleSessionEnded();
-            }
-        }
-    }
-
-    const handleSessionEnded = () => {
-        setSessionId(null);
-        setHasJoined(false);
-        setMessages([]);
-        localStorage.removeItem('chatSessionId');
-    };
-
-    const startChat = async () => {
-        if (isJoining) return;
-        setIsJoining(true);
-
-        try {
-            const payload = user ? {} : { guestName, guestEmail };
-            const endpoint = user ? '/chat/session/user' : '/chat/session/guest';
-
-            const res = await api.post(endpoint, payload);
-
-            if (res.data.success) {
-                const newSessionId = res.data.sessionId;
-                setSessionId(newSessionId);
-                localStorage.setItem('chatSessionId', newSessionId);
-                setHasJoined(true);
-            }
-        } catch (error) {
-            console.error('Failed to start chat session', error);
-        } finally {
-            setIsJoining(false);
-        }
-    };
+    }, [fetchHistory, sessionId, sessionToken, socket]);
 
     const endChat = async () => {
         if (!sessionId) return;
         try {
-            await api.post('/chat/session/end', { sessionId });
+            await api.post('/chat/session/end', {
+                sessionId,
+                sessionToken: !user ? sessionToken : undefined
+            });
             handleSessionEnded();
         } catch (error) {
             console.error('Failed to end session', error);
@@ -197,9 +205,9 @@ export default function ChatWidget() {
     const isOrderPage = pathname?.startsWith('/order/');
 
     return (
-        <div className={`fixed right-4 lg:right-6 z-[60] flex flex-col items-end transition-all duration-300 ${
+        <div className={`fixed right-4 lg:right-6 z-60 flex flex-col items-end transition-all duration-300 ${
             isOrderPage 
-                ? (isMobileSummaryExpanded ? 'bottom-[360px]' : 'bottom-[5.5rem] lg:bottom-6') 
+                ? (isMobileSummaryExpanded ? 'bottom-[360px]' : 'bottom-22 lg:bottom-6') 
                 : 'bottom-24 lg:bottom-6'
         }`}>
             <AnimatePresence>
@@ -211,7 +219,7 @@ export default function ChatWidget() {
                         className="mb-4 w-96 max-w-[calc(100vw-2rem)] h-[500px] bg-white/10 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="p-4 bg-gradient-to-r from-violet-600 to-indigo-600 flex justify-between items-center text-white">
+                        <div className="p-4 bg-linear-to-r from-violet-600 to-indigo-600 flex justify-between items-center text-white">
                             <div className="flex items-center gap-2">
                                 <div className="p-1.5 bg-white/20 rounded-full">
                                     <MessageCircle size={18} />
@@ -350,7 +358,7 @@ export default function ChatWidget() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-14 h-14 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-full shadow-2xl flex items-center justify-center text-white relative group"
+                className="w-14 h-14 bg-linear-to-r from-violet-600 to-indigo-600 rounded-full shadow-2xl flex items-center justify-center text-white relative group"
             >
                 {isOpen ? <X size={24} /> : <MessageCircle size={28} />}
 

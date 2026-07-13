@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { Loader2, CheckCircle, AlertCircle, XCircle, Clock, Zap, Wallet, CreditCard, Ticket, Globe, ChevronDown, ChevronUp, Store, Eye, EyeOff, AlertTriangle } from 'lucide-react';
@@ -8,8 +8,8 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { QRCodeSVG } from 'qrcode.react';
 import { PaymentChannel } from '@/lib/PaymentChannels';
-import { io } from 'socket.io-client';
 import OrderSummary, { MobileSummaryBar } from '@/components/OrderSummary';
+import { useTransactionRealtime, mapTrxToCheckoutResult } from '@/hooks/useTransactionRealtime';
 import { useUIStore } from '@/lib/uiStore';
 import CheckoutResultScreen, { CheckoutResult } from './components/CheckoutResultScreen';
 import PaymentChannelsGrid from './components/PaymentChannelsGrid';
@@ -93,8 +93,6 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [voucherCode, setVoucherCode] = useState('');
     const [checkingVoucher, setCheckingVoucher] = useState(false);
     const [voucherStats, setVoucherStats] = useState({ isValid: false, discount: 0, finalPrice: 0, message: '' });
-    const [checkingStatus, setCheckingStatus] = useState(false);
-
     useEffect(() => {
         setVoucherStats({ isValid: false, discount: 0, finalPrice: selectedProduct?.price_sell || 0, message: '' });
         setVoucherCode('');
@@ -203,8 +201,16 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         }
     };
 
-    const [isProcessing, setIsProcessing] = useState(!!urlTrxId);
+    const [isProcessing, setIsProcessing] = useState(false);
     const [result, setResult] = useState<any>(null);
+
+    const activeTrxId = useMemo(() => urlTrxId || result?.id || null, [urlTrxId, result?.id]);
+    const { trx: liveTrx, loading: trxLoading, connected, refresh: refreshTrx } = useTransactionRealtime(activeTrxId);
+
+    useEffect(() => {
+        if (!liveTrx) return;
+        setResult((prev: any) => mapTrxToCheckoutResult(liveTrx, prev));
+    }, [liveTrx]);
     const [error, setError] = useState('');
     const [user, setUser] = useState<any>(null);
 
@@ -305,87 +311,6 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     // Active Config: Use Selected Product's category if available, else page default
     const activeConfig = selectedProduct?.category || categoryConfig;
 
-    // Check Transaction from URL
-    useEffect(() => {
-        if (urlTrxId) {
-            setIsProcessing(true);
-            api.get(`/check/${urlTrxId}`)
-                .then(res => {
-                    if (res.data.success) {
-                        const trx = res.data.data;
-                        setResult({
-                            id: trx.id,
-                            invoice: trx.invoice,
-                            productName: trx.product?.name,
-                            amount: trx.amount,
-                            paymentUrl: trx.paymentUrl,
-                            paymentNo: trx.paymentNo,
-                            paymentName: trx.paymentChannel || trx.paymentMethod,
-                            status: trx.status || 'PENDING',
-                            basePrice: trx.basePrice || trx.product?.price_sell || 0,
-                            adminFee: trx.adminFee || 0,
-                            discountAmount: trx.discountAmount || 0,
-                            sn: trx.sn,
-                            expired: trx.expired || trx.expiredTime
-                        });
-                    }
-                })
-                .catch(err => console.error("Failed to fetch trx", err))
-                .finally(() => setIsProcessing(false));
-        }
-    }, [gameSlug, urlTrxId]);
-
-    // Poll Status
-    useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (result && (result.status === 'PENDING' || result.status === 'PROCESSING')) {
-            console.log("🔄 Polling Started for:", result.id, "Status:", result.status);
-            interval = setInterval(async () => {
-                try {
-                    console.log("📡 Checking Status...");
-                    const checkRes = await api.post(`/check-status/${result.id || urlTrxId}`);
-                    console.log("📩 Status Response:", checkRes.data);
-                    if (checkRes.data.success) {
-                        const trx = checkRes.data.data;
-                        if (trx.status !== result.status || trx.sn !== result.sn) {
-                            console.log("✅ Transaction Updated!", trx.status);
-                            setResult(trx);
-                        }
-                        if (trx.status === 'SUCCESS' || trx.status === 'FAILED' || trx.status === 'EXPIRED') {
-                            clearInterval(interval);
-                        }
-                    }
-                } catch (e) {
-                    console.error("❌ Polling Error:", e);
-                }
-            }, 2000); // 2s Interval
-        }
-        return () => clearInterval(interval);
-    }, [result?.status, urlTrxId]); // Depend on status string specifically to re-eval
-
-    // ⚡ Real-Time Socket Update
-    useEffect(() => {
-        if (!result?.id) return;
-        const socketUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace('/api', '');
-        const socket = io(socketUrl);
-
-        socket.on('connect', () => {
-            console.log("🔌 Socket Connected for Order:", result.id);
-            socket.emit('join_session', result.id); // Trx ID as Room
-        });
-
-        socket.on('transaction_update', (data: any) => {
-            console.log("⚡ Socket Update Received:", data);
-            if (data.status && data.status !== result.status) {
-                setResult((prev: any) => ({ ...prev, status: data.status }));
-            }
-        });
-
-        return () => {
-            socket.disconnect();
-        };
-    }, [result?.id]);
-
     const handleOrder = async () => {
         const missing = [];
         if (!targetId) missing.push("User ID");
@@ -435,9 +360,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
             if (res.data.success) {
                 const trx = res.data.data;
-                // [SECURITY/UI] Persist TRX ID to URL so "Back" navigation restores state
                 router.replace(`?id=${trx.id}`, { scroll: false });
-                setResult(trx);
+                setResult(mapTrxToCheckoutResult(trx));
             }
         } catch (err: any) {
             setError(err.response?.data?.message || 'Transaction Failed');
@@ -446,7 +370,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
         }
     };
 
-    if (urlTrxId && isProcessing && !result) {
+    if (urlTrxId && trxLoading && !result) {
         return (
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
                 <Loader2 className="animate-spin text-[var(--blood-red)]" size={48} />
@@ -460,6 +384,8 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             <CheckoutResultScreen 
                 result={result as CheckoutResult} 
                 urlTrxId={urlTrxId || undefined}
+                connected={connected}
+                onRefresh={refreshTrx}
                 onUpdateResult={(newResult) => setResult(newResult)}
             />
         );

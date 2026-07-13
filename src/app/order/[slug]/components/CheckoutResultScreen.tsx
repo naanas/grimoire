@@ -6,6 +6,7 @@ import Image from 'next/image';
 
 import api from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
+import { mapTrxToCheckoutResult } from '@/hooks/useTransactionRealtime';
 
 export type CheckoutResult = {
     id?: string;
@@ -31,10 +32,12 @@ type CheckoutResultPayload = CheckoutResult & Record<string, unknown>;
 type Props = {
     result: CheckoutResult;
     urlTrxId?: string;
+    connected?: boolean;
+    onRefresh?: () => Promise<unknown>;
     onUpdateResult?: (newResult: CheckoutResultPayload) => void;
 };
 
-export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult }: Props) {
+export default function CheckoutResultScreen({ result, urlTrxId, connected, onRefresh, onUpdateResult }: Props) {
     const router = useRouter();
     const { user } = useAuth();
     const [showPaymentNo, setShowPaymentNo] = useState(false);
@@ -42,6 +45,31 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
     const [showGuestReceipt, setShowGuestReceipt] = useState(false);
     const [copiedProviderFailedInfo, setCopiedProviderFailedInfo] = useState(false);
     const isFailed = result.status === 'FAILED' || result.status === 'PROVIDER_FAILED';
+    const isLive = connected && !['SUCCESS', 'FAILED', 'EXPIRED', 'PROVIDER_FAILED'].includes(result.status);
+
+    const handleManualRefresh = async () => {
+        if (!onUpdateResult) return;
+        setCheckingStatus(true);
+        try {
+            if (onRefresh) {
+                const data = await onRefresh();
+                if (data) {
+                    onUpdateResult(mapTrxToCheckoutResult(data as Record<string, any>, result) as CheckoutResultPayload);
+                    return;
+                }
+            }
+            const trxId = urlTrxId || result.id;
+            if (!trxId) return;
+            const checkRes = await api.get(`/check/${trxId}`);
+            if (checkRes.data.success) {
+                onUpdateResult(mapTrxToCheckoutResult(checkRes.data.data, result) as CheckoutResultPayload);
+            }
+        } catch {
+            alert('Failed to refresh status');
+        } finally {
+            setCheckingStatus(false);
+        }
+    };
 
     const providerFailedDetail = [
         'Transaksi membutuhkan bantuan admin.',
@@ -109,6 +137,16 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                         </div>
                     )}
                 </div>
+
+                {isLive && (
+                    <div className="flex items-center justify-center gap-2 -mt-4 mb-2">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f5ff] opacity-60" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00f5ff]" />
+                        </span>
+                        <span className="text-[#00f5ff]/60 text-[10px] font-mono uppercase tracking-[0.25em]">Live</span>
+                    </div>
+                )}
 
                 <h2 className={`text-2xl md:text-3xl font-(family-name:--font-cinzel) font-bold uppercase tracking-widest ${
                     result.status === 'SUCCESS' ? 'text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)] glitch-text' : 
@@ -269,31 +307,11 @@ export default function CheckoutResultScreen({ result, urlTrxId, onUpdateResult 
                 <div className="space-y-4">
                     <button
                         id="btn-check-status"
-                        onClick={async () => {
-                            if (!onUpdateResult) return;
-                            setCheckingStatus(true);
-                            try {
-                                const checkRes = await api.post(`/check-status/${urlTrxId || result.id}`);
-                                if (checkRes.data.success && checkRes.data.data.status) {
-                                    const trx = checkRes.data.data;
-                                    onUpdateResult({
-                                        ...result,
-                                        ...trx,
-                                        basePrice: trx.basePrice || trx.product?.price_sell || result.basePrice
-                                    });
-                                } else {
-                                    alert('Status Unchanged');
-                                }
-                            } catch {
-                                alert('Failed to check');
-                            } finally {
-                                setCheckingStatus(false);
-                            }
-                        }}
+                        onClick={handleManualRefresh}
                         disabled={checkingStatus || !onUpdateResult}
                         className="block w-full border border-[#00f5ff]/15 hover:border-[#00f5ff]/40 text-white/30 hover:text-[#00f5ff]/70 py-3 text-xs uppercase tracking-widest transition-all disabled:opacity-30 rounded-lg font-mono"
                     >
-                        {checkingStatus ? 'SYNCING...' : 'SYNC STATUS'}
+                        {checkingStatus ? 'SYNCING...' : 'REFRESH STATUS'}
                     </button>
                 </div>
 

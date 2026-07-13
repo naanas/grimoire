@@ -55,13 +55,12 @@ const productItemVariants: Variants = {
 
 type Product = {
     id: string;
-    sku_code: string;
     name: string;
     price_sell: number;
     group: string;
     category: {
         slug: string;
-        name: string; // Added for grouping
+        name: string;
         requiresZoneId?: boolean;
         requiresServerId?: boolean;
     };

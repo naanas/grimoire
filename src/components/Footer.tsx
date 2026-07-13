@@ -16,6 +16,7 @@ export default function Footer() {
                         <span className="bg-linear-to-r from-(--violet-glow) via-(--crimson-glow) to-(--gold-soft) bg-clip-text text-transparent">
                             magic
                         </span>
+                        <span>in Indonesia</span>
                     </div>
                 </div>
             </div>

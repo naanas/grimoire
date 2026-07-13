@@ -3,13 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import api from '@/lib/api';
-
-const TERMINAL_STATUSES = new Set(['SUCCESS', 'FAILED', 'EXPIRED', 'PROVIDER_FAILED']);
-const POLL_MS_PROCESSING = 5000;
-const POLL_MS_DEFAULT = 12000;
-
-const getSocketUrl = () =>
-    (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace(/\/api\/?$/, '');
+import { getSocketUrl } from '@/lib/socket';
 
 /** GET /check — syncs VIP status server-side when still PROCESSING */
 async function fetchTransaction(id: string) {
@@ -81,6 +75,9 @@ export function useTransactionRealtime(id: string | null) {
         const socket: Socket = io(getSocketUrl(), {
             transports: ['websocket', 'polling'],
             reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
+            timeout: 15000,
         });
 
         socket.on('connect', () => {

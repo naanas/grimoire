@@ -5,9 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import api from '@/lib/api';
 import { CheckCircle, XCircle, Clock, Loader2, ArrowLeft, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import BackgroundEffects from '@/components/BackgroundEffects';
 
 const HistoryList = () => {
     const [transactions, setTransactions] = useState<any[]>([]);

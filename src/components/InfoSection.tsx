@@ -49,7 +49,7 @@ export default function InfoSection() {
             {/* Top gradient line */}
             <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-(--violet)/40 to-transparent" />
 
-            <div className="max-w-7xl mx-auto px-4 md:px-6 relative">
+            <div className="max-w-7xl mx-auto px-4 md:px-6 relative pb-10 md:pb-12">
                 {/* Decorative corners */}
                 <div className="absolute -top-6 left-4 text-(--violet)/20 text-3xl md:text-4xl font-mono select-none pointer-events-none">
                     *
@@ -250,20 +250,6 @@ export default function InfoSection() {
                             ))}
                         </ul>
                     </div>
-                </div>
-
-                {/* Bottom bar */}
-                <div className="mt-10 md:mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <p className="text-[11px] text-(--text-muted) tracking-wider">
-                        © {new Date().getFullYear()} Grimoire Coins. All rights reserved.
-                    </p>
-                    <p className="text-[10px] text-(--text-faint) tracking-[0.3em] uppercase">
-                        Forged with{' '}
-                        <span className="bg-linear-to-r from-(--violet-glow) to-(--crimson-glow) bg-clip-text text-transparent font-bold">
-                            magic
-                        </span>{' '}
-                        in Indonesia
-                    </p>
                 </div>
             </div>
         </section>

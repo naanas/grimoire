@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { type Socket } from 'socket.io-client';
 import { MessageCircle, X, Send, Minimize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,8 +9,7 @@ import api from '@/lib/api';
 import { ChatMessage } from '@/types/chat';
 import { useUIStore } from '@/lib/uiStore';
 import { usePathname } from 'next/navigation';
-
-const SOCKET_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:4000';
+import { createAppSocket } from '@/lib/socket';
 
 export default function ChatWidget() {
     const { user } = useAuth();
@@ -19,6 +18,7 @@ export default function ChatWidget() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [inputMessage, setInputMessage] = useState('');
     const [socket, setSocket] = useState<Socket | null>(null);
+    const socketRef = useRef<Socket | null>(null);
     const [sessionId, setSessionId] = useState<string | null>(null);
     const [sessionToken, setSessionToken] = useState<string | null>(null);
     const [isJoining, setIsJoining] = useState(false);
@@ -130,35 +130,49 @@ export default function ChatWidget() {
         }
     }, [hasJoined, startChat, user]); // Run when user/session state changes
 
-    // Initialize Socket
+    // Socket only after chat session started — not while guest form is open
     useEffect(() => {
-        if (!isOpen || socket) return;
+        if (!isOpen || !hasJoined) {
+            socketRef.current?.disconnect();
+            socketRef.current = null;
+            setSocket(null);
+            setIsAdminOnline(false);
+            return;
+        }
 
-        const newSocket = io(SOCKET_URL);
+        const newSocket = createAppSocket();
+        socketRef.current = newSocket;
         setSocket(newSocket);
 
         newSocket.on('connect', () => {
             console.log('Connected to chat server');
         });
 
+        newSocket.on('connect_error', (err) => {
+            console.error('Chat socket error:', err.message);
+            setIsAdminOnline(false);
+        });
+
         newSocket.on('receive_message', (message: ChatMessage) => {
-            setMessages(prev => [...prev, message]);
-            setIsTyping(false); // Stop typing when message received
+            setMessages((prev) => [...prev, message]);
+            setIsTyping(false);
         });
 
         newSocket.on('admin_status', ({ online }) => {
             setIsAdminOnline(online);
         });
 
-        newSocket.on('typing_status', ({ isTyping }) => {
-            setIsTyping(isTyping);
+        newSocket.on('typing_status', ({ isTyping: typing }) => {
+            setIsTyping(typing);
         });
 
         return () => {
             newSocket.disconnect();
+            socketRef.current = null;
             setSocket(null);
+            setIsAdminOnline(false);
         };
-    }, [isOpen, socket]);
+    }, [isOpen, hasJoined]);
 
     // Session Management (Join & Fetch)
     useEffect(() => {

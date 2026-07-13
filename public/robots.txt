@@ -5,10 +5,8 @@ Disallow: /api/
 Disallow: /profile/
 Disallow: /history/
 Disallow: /payment/
-Disallow: /sentry-example-page/
+Disallow: /order/status
+Disallow: /verify-email
+Disallow: /sentry-example-page
 
-# Sitemap
 Sitemap: https://grimoirecoins.store/sitemap.xml
-
-# Crawl-delay for bots (seconds)
-Crawl-delay: 1

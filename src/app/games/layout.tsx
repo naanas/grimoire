@@ -1,30 +1,22 @@
-import { Metadata } from 'next';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: 'Semua Game - Grimoire Coins',
-    description: 'Jelajahi semua game yang tersedia untuk top-up di Grimoire Coins. Mobile Legends, Free Fire, PUBG Mobile, Genshin Impact, Valorant, dan banyak game populer lainnya dengan harga terbaik.',
+export const metadata = buildPageMetadata({
+    title: 'Semua Game Top Up',
+    description:
+        'Katalog lengkap game untuk top-up di Grimoire Coins. Mobile Legends, Free Fire, PUBG Mobile, Genshin Impact, Valorant & 100+ game dengan harga termurah.',
+    path: '/games',
     keywords: [
-        'daftar game',
-        'semua game',
+        'daftar game top up',
         'katalog game',
+        'semua game',
         'mobile legends',
         'free fire',
         'pubg mobile',
         'genshin impact',
-        'top up mobile legends',
-        'top up free fire',
-        'game online indonesia'
+        'top up game murah',
     ],
-    openGraph: {
-        title: 'Semua Game - Grimoire Coins',
-        description: 'Jelajahi semua game yang tersedia untuk top-up dengan harga terbaik.',
-    },
-};
+});
 
-export default function GamesLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+export default function GamesLayout({ children }: { children: React.ReactNode }) {
     return children;
 }

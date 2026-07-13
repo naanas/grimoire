@@ -1,13 +1,12 @@
-import { Metadata } from 'next';
+import { buildPageMetadata } from '@/lib/seo';
 
-export const metadata: Metadata = {
-    title: 'Tentang Kami - Grimoire Coins',
-    description: 'Grimoire Coins adalah platform top-up game terpercaya di Indonesia. Proses instan, aman, dan resmi untuk Mobile Legends, Free Fire, PUBG Mobile, dan game populer lainnya.',
-    openGraph: {
-        title: 'Tentang Kami - Grimoire Coins',
-        description: 'Platform top-up game terpercaya dengan proses instan, aman, dan resmi.',
-    },
-};
+export const metadata = buildPageMetadata({
+    title: 'Tentang Kami',
+    description:
+        'Grimoire Coins adalah platform top-up game terpercaya di Indonesia. Proses instan 24 jam, aman, dan resmi untuk Mobile Legends, Free Fire, PUBG Mobile, dan game populer lainnya.',
+    path: '/about-us',
+    keywords: ['tentang grimoire coins', 'platform top up game indonesia'],
+});
 
 export default function AboutUs() {
     return (

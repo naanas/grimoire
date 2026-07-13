@@ -19,6 +19,7 @@ import BannerCarousel from '@/components/BannerCarousel';
 import GameSection from '@/components/GameSection';
 import { GameData } from '@/components/GameCard';
 import InfoSection from '@/components/InfoSection';
+import HomeFaq from '@/components/HomeFaq';
 
 export type Category = GameData;
 
@@ -357,6 +358,8 @@ export default function Home() {
                     </Link>
                 </div>
             </section>
+
+            <HomeFaq />
 
             {/* === FOOTER INFO === */}
             <InfoSection />

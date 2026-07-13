@@ -5,22 +5,89 @@ import { io, Socket } from 'socket.io-client';
 import api from '@/lib/api';
 import { getSocketUrl } from '@/lib/socket';
 
+const TERMINAL_STATUSES = new Set(['SUCCESS', 'FAILED', 'EXPIRED', 'PROVIDER_FAILED']);
+const POLL_MS_PROCESSING = 5000;
+const POLL_MS_DEFAULT = 12000;
+
+type TransactionProduct = {
+    name?: string;
+    price_sell?: number;
+};
+
+export type TransactionData = {
+    id?: string;
+    invoice?: string;
+    productName?: string;
+    product?: TransactionProduct;
+    amount?: string | number;
+    paymentUrl?: string;
+    paymentNo?: string;
+    paymentChannel?: string;
+    paymentMethod?: string;
+    paymentName?: string;
+    status?: string;
+    basePrice?: string | number;
+    adminFee?: number;
+    discountAmount?: number;
+    sn?: string;
+    expired?: string | number;
+    expiredTime?: string | number;
+    targetId?: string;
+    zoneId?: string;
+    providerStatus?: string;
+    createdAt?: string;
+};
+
 /** GET /check — syncs VIP status server-side when still PROCESSING */
-async function fetchTransaction(id: string) {
+async function fetchTransaction(id: string): Promise<TransactionData | null> {
     const res = await api.get(`/check/${id}`);
-    if (res.data.success) return res.data.data;
+    if (res.data.success) return res.data.data as TransactionData;
     return null;
 }
 
+export type CheckoutResult = {
+    id?: string;
+    status: string;
+    invoice: string;
+    productName: string;
+    basePrice: string | number;
+    amount: string | number;
+    adminFee?: number;
+    discountAmount?: number;
+    paymentName?: string;
+    paymentNo?: string;
+    paymentUrl?: string;
+    product?: { price_sell: number; name?: string };
+    targetId?: string;
+    zoneId?: string;
+    createdAt?: string;
+    providerStatus?: string;
+    sn?: string;
+    expired?: string | number;
+};
+
 /** Normalize API / DB transaction into checkout result shape */
-export function mapTrxToCheckoutResult(trx: Record<string, any>, fallback?: Record<string, any> | null) {
-    if (!trx) return fallback ?? null;
+export function mapTrxToCheckoutResult(
+    trx: TransactionData,
+    fallback?: Partial<CheckoutResult> | null,
+): CheckoutResult | null {
+    if (!trx) {
+        if (!fallback) return null;
+        return {
+            ...fallback,
+            status: fallback.status ?? 'PENDING',
+            invoice: fallback.invoice ?? '',
+            productName: fallback.productName ?? '',
+            basePrice: fallback.basePrice ?? 0,
+            amount: fallback.amount ?? 0,
+        };
+    }
     return {
         ...fallback,
         id: trx.id ?? fallback?.id,
-        invoice: trx.invoice ?? fallback?.invoice,
-        productName: trx.product?.name ?? trx.productName ?? fallback?.productName,
-        amount: trx.amount ?? fallback?.amount,
+        invoice: trx.invoice ?? fallback?.invoice ?? '',
+        productName: trx.product?.name ?? trx.productName ?? fallback?.productName ?? '',
+        amount: trx.amount ?? fallback?.amount ?? 0,
         paymentUrl: trx.paymentUrl ?? fallback?.paymentUrl,
         paymentNo: trx.paymentNo ?? fallback?.paymentNo,
         paymentName: trx.paymentChannel || trx.paymentMethod || trx.paymentName || fallback?.paymentName,
@@ -32,16 +99,18 @@ export function mapTrxToCheckoutResult(trx: Record<string, any>, fallback?: Reco
         expired: trx.expired ?? trx.expiredTime ?? fallback?.expired,
         targetId: trx.targetId ?? fallback?.targetId,
         zoneId: trx.zoneId ?? fallback?.zoneId,
-        product: trx.product ?? fallback?.product,
+        product: trx.product?.price_sell != null
+            ? { price_sell: trx.product.price_sell, name: trx.product.name }
+            : fallback?.product,
         providerStatus: trx.providerStatus ?? fallback?.providerStatus,
         createdAt: trx.createdAt ?? fallback?.createdAt,
     };
 }
 
 export function useTransactionRealtime(id: string | null) {
-    const [trx, setTrx] = useState<any>(null);
+    const [trx, setTrx] = useState<TransactionData | null>(null);
     const [loading, setLoading] = useState(true);
-    const trxRef = useRef<any>(null);
+    const trxRef = useRef<TransactionData | null>(null);
 
     const refresh = useCallback(async () => {
         if (!id) return null;
@@ -87,7 +156,7 @@ export function useTransactionRealtime(id: string | null) {
         socket.on('transaction_update', (data: { status?: string; transactionId?: string }) => {
             if (data.transactionId && data.transactionId !== id) return;
             if (data.status && trxRef.current) {
-                setTrx((prev: any) => (prev ? { ...prev, status: data.status } : prev));
+                setTrx((prev) => (prev ? { ...prev, status: data.status } : prev));
             }
             refresh();
         });

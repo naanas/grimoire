@@ -11,7 +11,7 @@ import { PaymentChannel } from '@/lib/PaymentChannels';
 import OrderSummary, { MobileSummaryBar } from '@/components/OrderSummary';
 import { useTransactionRealtime, mapTrxToCheckoutResult } from '@/hooks/useTransactionRealtime';
 import { useUIStore } from '@/lib/uiStore';
-import CheckoutResultScreen, { CheckoutResult } from './components/CheckoutResultScreen';
+import CheckoutResultScreen, { type CheckoutResult } from './components/CheckoutResultScreen';
 import PaymentChannelsGrid from './components/PaymentChannelsGrid';
 
 const containerVariants: Variants = {
@@ -201,14 +201,14 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     };
 
     const [isProcessing, setIsProcessing] = useState(false);
-    const [result, setResult] = useState<any>(null);
+    const [result, setResult] = useState<CheckoutResult | null>(null);
 
     const activeTrxId = useMemo(() => urlTrxId || result?.id || null, [urlTrxId, result?.id]);
     const { trx: liveTrx, loading: trxLoading, refresh: refreshTrx } = useTransactionRealtime(activeTrxId);
 
     useEffect(() => {
         if (!liveTrx) return;
-        setResult((prev: any) => mapTrxToCheckoutResult(liveTrx, prev));
+        setResult((prev) => mapTrxToCheckoutResult(liveTrx, prev));
     }, [liveTrx]);
     const [error, setError] = useState('');
     const [user, setUser] = useState<any>(null);

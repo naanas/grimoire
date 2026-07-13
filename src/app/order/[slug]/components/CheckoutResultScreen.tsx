@@ -6,26 +6,9 @@ import Image from 'next/image';
 
 import api from '@/lib/api';
 import { useAuth } from '@/hooks/useAuth';
-import { mapTrxToCheckoutResult } from '@/hooks/useTransactionRealtime';
+import { mapTrxToCheckoutResult, type CheckoutResult, type TransactionData } from '@/hooks/useTransactionRealtime';
 
-export type CheckoutResult = {
-    id?: string;
-    status: string;
-    invoice: string;
-    productName: string;
-    basePrice: string | number;
-    amount: string | number;
-    adminFee?: number;
-    discountAmount?: number;
-    paymentName?: string;
-    paymentNo?: string;
-    paymentUrl?: string;
-    product?: { price_sell: number; name?: string };
-    targetId?: string;
-    zoneId?: string;
-    createdAt?: string;
-    providerStatus?: string;
-};
+export type { CheckoutResult };
 
 type CheckoutResultPayload = CheckoutResult & Record<string, unknown>;
 
@@ -52,7 +35,7 @@ export default function CheckoutResultScreen({ result, urlTrxId, onRefresh, onUp
             if (onRefresh) {
                 const data = await onRefresh();
                 if (data) {
-                    onUpdateResult(mapTrxToCheckoutResult(data as Record<string, any>, result) as CheckoutResultPayload);
+                    onUpdateResult(mapTrxToCheckoutResult(data as TransactionData, result) as CheckoutResultPayload);
                     return;
                 }
             }

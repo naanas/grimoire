@@ -90,7 +90,7 @@ function StatusContent() {
         );
     }
 
-    const statusStyle = getStatusDisplay(trx.status);
+    const statusStyle = getStatusDisplay(trx.status ?? 'PENDING');
 
     return (
         <motion.div
@@ -159,7 +159,7 @@ function StatusContent() {
                     <div className="p-4 space-y-2.5">
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-white/40">Price</span>
-                            <span className="text-white font-mono">Rp {((trx.amount || 0) - (trx.adminFee || 0)).toLocaleString()}</span>
+                            <span className="text-white font-mono">Rp {(Number(trx.amount || 0) - Number(trx.adminFee || 0)).toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-white/40">Admin Fee</span>
@@ -167,7 +167,7 @@ function StatusContent() {
                         </div>
                         <div className="flex justify-between items-center pt-2.5 border-t border-white/8">
                             <span className="text-white font-bold uppercase tracking-wider text-xs">Total Paid</span>
-                            <span className="text-white font-black text-lg font-mono">Rp {(trx.amount || 0).toLocaleString()}</span>
+                            <span className="text-white font-black text-lg font-mono">Rp {Number(trx.amount || 0).toLocaleString()}</span>
                         </div>
                     </div>
                 </div>

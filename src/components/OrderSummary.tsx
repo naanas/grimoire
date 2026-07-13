@@ -1,18 +1,31 @@
 'use client';
 
 import { ShoppingCart, ChevronUp, ChevronDown, Ticket, CheckCircle, XCircle } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
+import type { User } from '@/types/user';
+
+type SummaryProduct = {
+    name: string;
+    price_sell: number;
+};
+
+type VoucherStats = {
+    isValid: boolean;
+    discount: number;
+    finalPrice: number;
+    message: string;
+};
 
 type OrderSummaryProps = {
-    selectedProduct: any;
-    voucherStats: { isValid: boolean; discount: number; finalPrice: number; message: string };
+    selectedProduct: SummaryProduct | null;
+    voucherStats: VoucherStats;
     dynamicFee: number | null;
     loadingFee: boolean;
     isProcessing: boolean;
     onCheckout: () => void;
     // WhatsApp Contact
-    user: any;
+    user: User | null;
     guestContact: string;
     onGuestContactChange: (value: string) => void;
     // Voucher
@@ -39,9 +52,21 @@ export default function OrderSummary({
     onApplyVoucher,
     shouldHighlightInput = false
 }: OrderSummaryProps) {
+    const inputRef = useRef<HTMLInputElement>(null);
     const basePrice = voucherStats.isValid ? voucherStats.finalPrice : (selectedProduct?.price_sell || 0);
     const totalFee = dynamicFee || 0;
     const totalPrice = basePrice + totalFee;
+
+    useEffect(() => {
+        if (shouldHighlightInput) {
+            inputRef.current?.focus();
+            inputRef.current?.classList.add('ring-4', 'ring-yellow-500', 'animate-pulse');
+            const timer = setTimeout(() => {
+                inputRef.current?.classList.remove('ring-4', 'ring-yellow-500', 'animate-pulse');
+            }, 2000);
+            return () => clearTimeout(timer);
+        }
+    }, [shouldHighlightInput]);
 
     return (
         <div className="bg-black/90 border border-gray-800 p-6 rounded-lg space-y-6 h-fit">
@@ -121,9 +146,10 @@ export default function OrderSummary({
                     </div>
                     <div className="relative group">
                         <input
+                            ref={inputRef}
                             type="text"
                             placeholder="08XXXXXXXXXX"
-                            className="w-full bg-black border border-gray-800 p-3 rounded focus:border-red-600 outline-none text-white text-sm font-mono"
+                            className="w-full bg-black border border-gray-800 p-3 rounded focus:border-red-600 outline-none text-white text-sm font-mono transition-all duration-300"
                             value={guestContact}
                             onChange={(e) => onGuestContactChange(e.target.value.replace(/\D/g, ''))}
                         />
@@ -174,9 +200,27 @@ export default function OrderSummary({
     );
 }
 
-// Mobile Summary Bar Component
-import { createPortal } from 'react-dom';
+type MobileSummaryBarProps = {
+    selectedProduct: SummaryProduct | null;
+    totalPrice: number;
+    isExpanded: boolean;
+    onToggle: () => void;
+    onCheckout: () => void;
+    isProcessing: boolean;
+    voucherStats: VoucherStats;
+    dynamicFee: number | null;
+    loadingFee: boolean;
+    guestContact: string;
+    voucherCode: string;
+    onGuestContactChange: (val: string) => void;
+    onVoucherCodeChange: (val: string) => void;
+    onApplyVoucher: () => void;
+    checkingVoucher: boolean;
+    user: User | null;
+    shouldHighlightInput?: boolean;
+};
 
+// Mobile Summary Bar Component
 export function MobileSummaryBar({
     selectedProduct,
     totalPrice,
@@ -195,31 +239,13 @@ export function MobileSummaryBar({
     checkingVoucher,
     user,
     shouldHighlightInput
-}: {
-    selectedProduct: any;
-    totalPrice: number;
-    isExpanded: boolean;
-    onToggle: () => void;
-    onCheckout: () => void;
-    isProcessing: boolean;
-    voucherStats: any;
-    dynamicFee: number | null;
-    loadingFee: boolean;
-    guestContact: string;
-    voucherCode: string;
-    onGuestContactChange: (val: string) => void;
-    onVoucherCodeChange: (val: string) => void;
-    onApplyVoucher: () => void;
-    checkingVoucher: boolean;
-    user: any;
-    shouldHighlightInput?: boolean;
-}) {
+}: MobileSummaryBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    const mounted = useSyncExternalStore(
+        () => () => {},
+        () => true,
+        () => false
+    );
 
     useEffect(() => {
         if (shouldHighlightInput && isExpanded) {
@@ -234,19 +260,19 @@ export function MobileSummaryBar({
     if (!mounted) return null;
 
     return createPortal(
-        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-[var(--dark-blood)]/50 shadow-[0_-10px_30px_rgba(187,10,30,0.15)] pb-safe">
-            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-red-700 to-transparent" />
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-(--dark-blood)/50 shadow-[0_-10px_30px_rgba(187,10,30,0.15)] pb-safe">
+            <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-red-700 to-transparent" />
 
             {/* Expanded View */}
             {isExpanded && selectedProduct && (
-                <div className="p-4 border-b border-[var(--dark-blood)]/40 space-y-4 animate-in slide-in-from-bottom-4 overflow-y-auto max-h-[60vh]">
+                <div className="p-4 border-b border-(--dark-blood)/40 space-y-4 animate-in slide-in-from-bottom-4 overflow-y-auto max-h-[60vh]">
                     <div className="flex justify-between text-sm">
                         <span className="text-gray-400 font-mono text-[10px] tracking-widest uppercase">Product</span>
                         <span className="text-white font-bold">{selectedProduct.name}</span>
                     </div>
 
                     {/* INPUTS MOVED HERE */}
-                    <div className="space-y-4 pt-4 border-t border-[var(--dark-blood)]/30">
+                    <div className="space-y-4 pt-4 border-t border-(--dark-blood)/30">
                         {/* WhatsApp Input */}
                         {(!user || !user.phoneNumber) && (
                             <div className="space-y-2">
@@ -256,7 +282,7 @@ export function MobileSummaryBar({
                                 <input
                                     type="text"
                                     placeholder="08XXXXXXXXXX"
-                                    className="w-full bg-black/60 border border-[var(--dark-blood)]/50 p-3 outline-none text-white text-sm font-mono transition-all duration-300 focus:border-red-500 focus:bg-black"
+                                    className="w-full bg-black/60 border border-(--dark-blood)/50 p-3 outline-none text-white text-sm font-mono transition-all duration-300 focus:border-red-500 focus:bg-black"
                                     value={guestContact}
                                     ref={inputRef}
                                     onChange={(e) => onGuestContactChange(e.target.value.replace(/\D/g, ''))}
@@ -271,14 +297,14 @@ export function MobileSummaryBar({
                                 <input
                                     type="text"
                                     placeholder="CODE"
-                                    className="flex-1 bg-black/60 border border-[var(--dark-blood)]/50 px-3 py-3 text-white outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-700 transition-all focus:border-red-500 focus:bg-black"
+                                    className="flex-1 bg-black/60 border border-(--dark-blood)/50 px-3 py-3 text-white outline-none uppercase text-sm font-bold tracking-widest placeholder:text-gray-700 transition-all focus:border-red-500 focus:bg-black"
                                     value={voucherCode}
                                     onChange={(e) => onVoucherCodeChange(e.target.value.toUpperCase())}
                                 />
                                 <button
                                     onClick={onApplyVoucher}
                                     disabled={checkingVoucher}
-                                    className="bg-stone-900 border border-[var(--dark-blood)] hover:bg-red-950/30 text-white px-4 py-3 font-bold disabled:opacity-50 transition-colors"
+                                    className="bg-stone-900 border border-(--dark-blood) hover:bg-red-950/30 text-white px-4 py-3 font-bold disabled:opacity-50 transition-colors"
                                 >
                                     {checkingVoucher ? '...' : <Ticket size={18} className="text-red-500" />}
                                 </button>
@@ -296,7 +322,7 @@ export function MobileSummaryBar({
                         </div>
                     </div>
 
-                    <div className="flex justify-between text-sm border-t border-[var(--dark-blood)]/30 pt-4 mt-2">
+                    <div className="flex justify-between text-sm border-t border-(--dark-blood)/30 pt-4 mt-2">
                         <span className="text-gray-400 font-mono text-[10px] tracking-widest uppercase">Price</span>
                         <span suppressHydrationWarning className="text-white font-mono">
                             Rp {selectedProduct.price_sell.toLocaleString('id-ID')}
@@ -313,7 +339,7 @@ export function MobileSummaryBar({
                     {dynamicFee !== null && dynamicFee > 0 && (
                         <div className="flex justify-between text-sm">
                             <span className="text-gray-400 font-mono text-[10px] tracking-widest uppercase">Fee</span>
-                            <span suppressHydrationWarning className="text-[var(--blood-red)] font-mono">
+                            <span suppressHydrationWarning className="text-(--blood-red) font-mono">
                                 {loadingFee ? '...' : `+ Rp ${dynamicFee.toLocaleString('id-ID')}`}
                             </span>
                         </div>
@@ -338,7 +364,7 @@ export function MobileSummaryBar({
                             <p className="text-[10px] text-stone-500 uppercase flex items-center gap-2 tracking-[0.2em] font-mono leading-none mb-1">
                                 Total <span className="text-[8px] text-stone-700 tracking-normal">(Click details)</span>
                             </p>
-                            <p suppressHydrationWarning className="text-xl font-black text-[var(--blood-red)] leading-none drop-shadow-[0_0_8px_rgba(187,10,30,0.5)]">
+                            <p suppressHydrationWarning className="text-xl font-black text-(--blood-red) leading-none drop-shadow-[0_0_8px_rgba(187,10,30,0.5)]">
                                 Rp {totalPrice.toLocaleString('id-ID')}
                             </p>
                         </div>
@@ -351,7 +377,7 @@ export function MobileSummaryBar({
                         className="relative bg-red-700 hover:bg-red-600 disabled:bg-stone-900 disabled:border disabled:border-stone-800 disabled:text-stone-600 text-white font-black py-3 px-8 uppercase tracking-widest transition-all disabled:cursor-not-allowed text-sm clip-path-button overflow-hidden group"
                     >
                         <span className="relative z-10">{isProcessing ? 'Wait...' : 'Order'}</span>
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                        <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                     </button>
                 </div>
             </div>

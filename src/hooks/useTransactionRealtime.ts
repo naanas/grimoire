@@ -5,11 +5,13 @@ import { io, Socket } from 'socket.io-client';
 import api from '@/lib/api';
 
 const TERMINAL_STATUSES = new Set(['SUCCESS', 'FAILED', 'EXPIRED', 'PROVIDER_FAILED']);
+const POLL_MS_PROCESSING = 5000;
+const POLL_MS_DEFAULT = 12000;
 
 const getSocketUrl = () =>
     (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000').replace(/\/api\/?$/, '');
 
-/** Read-only status fetch — no side effects unlike POST /check-status */
+/** GET /check — syncs VIP status server-side when still PROCESSING */
 async function fetchTransaction(id: string) {
     const res = await api.get(`/check/${id}`);
     if (res.data.success) return res.data.data;
@@ -45,7 +47,6 @@ export function mapTrxToCheckoutResult(trx: Record<string, any>, fallback?: Reco
 export function useTransactionRealtime(id: string | null) {
     const [trx, setTrx] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const [connected, setConnected] = useState(false);
     const trxRef = useRef<any>(null);
 
     const refresh = useCallback(async () => {
@@ -65,7 +66,6 @@ export function useTransactionRealtime(id: string | null) {
         }
     }, [id]);
 
-    // Initial load
     useEffect(() => {
         if (!id) {
             setLoading(false);
@@ -75,7 +75,6 @@ export function useTransactionRealtime(id: string | null) {
         refresh();
     }, [id, refresh]);
 
-    // Socket: instant push when backend emits transaction_update
     useEffect(() => {
         if (!id) return;
 
@@ -85,11 +84,8 @@ export function useTransactionRealtime(id: string | null) {
         });
 
         socket.on('connect', () => {
-            setConnected(true);
             socket.emit('join_session', id);
         });
-
-        socket.on('disconnect', () => setConnected(false));
 
         socket.on('transaction_update', (data: { status?: string; transactionId?: string }) => {
             if (data.transactionId && data.transactionId !== id) return;
@@ -101,22 +97,22 @@ export function useTransactionRealtime(id: string | null) {
 
         return () => {
             socket.disconnect();
-            setConnected(false);
         };
     }, [id, refresh]);
 
-    // Fallback poll (read-only GET) — safety net if socket/callback misses an update
+    // Poll GET /check — backend syncs VIP when PROCESSING
     useEffect(() => {
         if (!id) return;
         const status = trx?.status;
         if (status && TERMINAL_STATUSES.has(status)) return;
 
+        const intervalMs = status === 'PROCESSING' ? POLL_MS_PROCESSING : POLL_MS_DEFAULT;
         const interval = setInterval(() => {
             refresh();
-        }, 12000);
+        }, intervalMs);
 
         return () => clearInterval(interval);
     }, [id, trx?.status, refresh]);
 
-    return { trx, loading, connected, refresh };
+    return { trx, loading, refresh };
 }

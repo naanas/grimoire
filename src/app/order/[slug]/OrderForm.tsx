@@ -205,7 +205,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     const [result, setResult] = useState<any>(null);
 
     const activeTrxId = useMemo(() => urlTrxId || result?.id || null, [urlTrxId, result?.id]);
-    const { trx: liveTrx, loading: trxLoading, connected, refresh: refreshTrx } = useTransactionRealtime(activeTrxId);
+    const { trx: liveTrx, loading: trxLoading, refresh: refreshTrx } = useTransactionRealtime(activeTrxId);
 
     useEffect(() => {
         if (!liveTrx) return;
@@ -373,7 +373,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
     if (urlTrxId && trxLoading && !result) {
         return (
             <div className="flex flex-col items-center justify-center py-20 space-y-4">
-                <Loader2 className="animate-spin text-[var(--blood-red)]" size={48} />
+                <Loader2 className="animate-spin text-(--blood-red)" size={48} />
                 <p className="text-gray-400 font-mono animate-pulse">VERIFYING TRANSACTION...</p>
             </div>
         );
@@ -384,7 +384,6 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
             <CheckoutResultScreen 
                 result={result as CheckoutResult} 
                 urlTrxId={urlTrxId || undefined}
-                connected={connected}
                 onRefresh={refreshTrx}
                 onUpdateResult={(newResult) => setResult(newResult)}
             />
@@ -407,16 +406,16 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                     className="bg-[#05050f]/90 backdrop-blur-xl border border-[#00f5ff]/10 shadow-[0_0_60px_rgba(0,245,255,0.04)] rounded-xl relative overflow-hidden w-full">
 
                     {/* Neon Scanline */}
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
+                    <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
                     <div className="p-4 md:p-8 space-y-8 relative z-10">
 
                         {/* 1. Account Data */}
                         <motion.section variants={sectionVariants}>
-                            <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
+                            <h3 className="text-base md:text-lg font-(family-name:--font-cinzel) font-bold mb-6 flex items-center gap-3 text-white">
                                 <span className="w-8 h-8 rounded-md bg-[#00f5ff]/10 border border-[#00f5ff]/30 flex items-center justify-center text-[#00f5ff] text-xs font-mono shadow-[0_0_10px_rgba(0,245,255,0.2)]">01</span>
                                 ACCOUNT DATA
-                                <span className="flex-1 h-px bg-gradient-to-r from-[#00f5ff]/20 to-transparent" />
+                                <span className="flex-1 h-px bg-linear-to-r from-[#00f5ff]/20 to-transparent" />
                             </h3>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -425,11 +424,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         id="target-id-input"
                                         type="text"
                                         placeholder=" "
-                                        className="peer w-full bg-white/[0.03] border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                        className="peer w-full bg-white/3 border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
                                         value={targetId}
                                         onChange={(e) => setTargetId(e.target.value)}
                                     />
-                                    <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:bg-[#08081a] peer-[&:not(:placeholder-shown)]:px-1.5 peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/70 pointer-events-none">
+                                    <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:left-3 peer-not-placeholder-shown:bg-[#08081a] peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:text-[#00f5ff]/70 pointer-events-none">
                                         User ID
                                     </label>
                                 </div>
@@ -439,11 +438,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         <input
                                             type="text"
                                             placeholder=" "
-                                            className="peer w-full bg-white/[0.03] border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                            className="peer w-full bg-white/3 border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
                                             value={zoneId}
                                             onChange={(e) => setZoneId(e.target.value)}
                                         />
-                                        <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:bg-[#08081a] peer-[&:not(:placeholder-shown)]:px-1.5 peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/70 pointer-events-none">
+                                        <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:left-3 peer-not-placeholder-shown:bg-[#08081a] peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:text-[#00f5ff]/70 pointer-events-none">
                                             Zone ID
                                         </label>
                                     </div>
@@ -454,11 +453,11 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                         <input
                                             type="text"
                                             placeholder=" "
-                                            className="peer w-full bg-white/[0.03] border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
+                                            className="peer w-full bg-white/3 border border-white/10 rounded-lg p-4 pt-5 focus:border-[#00f5ff]/50 focus:ring-1 focus:ring-[#00f5ff]/15 outline-none text-white transition-all text-sm font-bold tracking-wider"
                                             value={serverId}
                                             onChange={(e) => setServerId(e.target.value)}
                                         />
-                                        <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-[&:not(:placeholder-shown)]:-top-2 peer-[&:not(:placeholder-shown)]:left-3 peer-[&:not(:placeholder-shown)]:bg-[#08081a] peer-[&:not(:placeholder-shown)]:px-1.5 peer-[&:not(:placeholder-shown)]:text-[#00f5ff]/70 pointer-events-none">
+                                        <label className="absolute left-4 top-4 text-white/25 text-xs uppercase tracking-widest transition-all duration-300 peer-focus:-top-2 peer-focus:left-3 peer-focus:bg-[#08081a] peer-focus:px-1.5 peer-focus:text-[#00f5ff] peer-not-placeholder-shown:-top-2 peer-not-placeholder-shown:left-3 peer-not-placeholder-shown:bg-[#08081a] peer-not-placeholder-shown:px-1.5 peer-not-placeholder-shown:text-[#00f5ff]/70 pointer-events-none">
                                             Server ID
                                         </label>
                                     </div>
@@ -469,7 +468,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             <div className="mt-4 min-h-[40px]">
                                 {nickCheckLoading && (
                                     <div className="flex items-center gap-3 text-gray-400 animate-pulse">
-                                        <Loader2 className="animate-spin text-[var(--blood-red)]" size={18} />
+                                        <Loader2 className="animate-spin text-(--blood-red)" size={18} />
                                         <span className="text-xs uppercase tracking-widest font-bold">Summoning Identity...</span>
                                     </div>
                                 )}
@@ -502,14 +501,14 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
 
                         {/* 2. Select Nominal (Grouped by Variation) */}
                         <motion.section variants={sectionVariants}>
-                            <h3 className="text-base md:text-lg font-[family-name:var(--font-cinzel)] font-bold mb-6 flex items-center gap-3 text-white">
+                            <h3 className="text-base md:text-lg font-(family-name:--font-cinzel) font-bold mb-6 flex items-center gap-3 text-white">
                                 <span className="w-8 h-8 rounded-md bg-[#00f5ff]/10 border border-[#00f5ff]/30 flex items-center justify-center text-[#00f5ff] text-xs font-mono shadow-[0_0_10px_rgba(0,245,255,0.2)]">02</span>
                                 SELECT ITEM
-                                <span className="flex-1 h-px bg-gradient-to-r from-[#00f5ff]/20 to-transparent" />
+                                <span className="flex-1 h-px bg-linear-to-r from-[#00f5ff]/20 to-transparent" />
                             </h3>
 
                             {loading ? (
-                                <div className="flex justify-center py-12"><Loader2 className="animate-spin text-[var(--blood-red)]" size={32} /></div>
+                                <div className="flex justify-center py-12"><Loader2 className="animate-spin text-(--blood-red)" size={32} /></div>
                             ) : (
                                 <div className="space-y-6">
                                     {/* Grouping Logic: Variation -> Product Group */}
@@ -534,10 +533,10 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                     {hasMultipleVariations && (
                                                         <button
                                                             onClick={() => toggleSection(variationName)}
-                                                            className="w-full flex items-center justify-between p-4 bg-white/[0.02] hover:bg-white/[0.04] transition-colors rounded-t-xl"
+                                                            className="w-full flex items-center justify-between p-4 bg-white/2 hover:bg-white/4 transition-colors rounded-t-xl"
                                                         >
                                                             <div className="flex items-center gap-3">
-                                                                <Globe size={16} className="text-[var(--blood-red)]" />
+                                                                <Globe size={16} className="text-(--blood-red)" />
                                                                 <span className="text-sm font-bold text-gray-200 uppercase tracking-widest">{variationName}</span>
                                                                 <span className="text-xs text-gray-600 font-mono">({variationProducts.length} Items)</span>
                                                             </div>
@@ -586,12 +585,12 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                                                                                     cursor-pointer relative px-4 py-4 flex flex-col items-center justify-center border transition-all duration-300 overflow-hidden group/item rounded-lg
                                                                                     ${selectedProduct?.id === p.id
                                                                                                 ? 'bg-[#00f5ff]/5 border-[#00f5ff]/60 shadow-[0_0_20px_rgba(0,245,255,0.15)] scale-[1.02] z-10'
-                                                                                                : 'bg-white/[0.02] border-white/8 hover:border-[#00f5ff]/25 hover:bg-[#00f5ff]/[0.03]'}
+                                                                                                : 'bg-white/2 border-white/8 hover:border-[#00f5ff]/25 hover:bg-[#00f5ff]/3'}
                                                                                 `}
                                                                                     >
                                                                                         {/* Subtle Glow Background for Selected */}
                                                                                         {selectedProduct?.id === p.id && (
-                                                                                            <div className="absolute inset-0 bg-gradient-to-t from-[#00f5ff]/8 to-transparent pointer-events-none" />
+                                                                                            <div className="absolute inset-0 bg-linear-to-t from-[#00f5ff]/8 to-transparent pointer-events-none" />
                                                                                         )}
 
                                                                                         <div className="flex flex-col items-center z-10 text-center gap-1">
@@ -697,7 +696,7 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
+                        className="fixed inset-0 z-999 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
                         onClick={() => setShowValidationModal(false)}
                     >
                         <motion.div
@@ -707,20 +706,20 @@ export default function OrderForm({ gameSlug }: { gameSlug: string }) {
                             onClick={(e) => e.stopPropagation()}
                             className="bg-[#05050f] border border-[#00f5ff]/20 rounded-2xl p-8 max-w-sm w-full shadow-[0_0_50px_rgba(0,245,255,0.08)] text-center relative overflow-hidden"
                         >
-                            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
+                            <div className="absolute top-0 inset-x-0 h-px bg-linear-to-r from-transparent via-[#00f5ff]/50 to-transparent" />
 
                             <div className="w-16 h-16 bg-[#00f5ff]/10 rounded-xl flex items-center justify-center mx-auto mb-6 ring-1 ring-[#00f5ff]/25">
                                 <AlertTriangle size={30} className="text-[#00f5ff]" />
                             </div>
 
-                            <h3 className="text-xl font-bold text-white mb-2 font-[family-name:var(--font-cinzel)] uppercase tracking-widest">
+                            <h3 className="text-xl font-bold text-white mb-2 font-(family-name:--font-cinzel) uppercase tracking-widest">
                                 Data Belum Lengkap
                             </h3>
                             <p className="text-white/40 text-sm mb-6">
                                 Mohon lengkapi data berikut untuk melanjutkan pesanan Anda:
                             </p>
 
-                            <div className="space-y-2 mb-8 text-left bg-white/[0.03] p-4 rounded-lg border border-white/8">
+                            <div className="space-y-2 mb-8 text-left bg-white/3 p-4 rounded-lg border border-white/8">
                                 {missingFields.map((field, idx) => (
                                     <div key={idx} className="flex items-center gap-2 text-[#00f5ff]/80 text-sm font-bold">
                                         <XCircle size={13} className="text-[#00f5ff]/60" />

@@ -2,7 +2,7 @@
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle, XCircle, Clock, Loader2, ArrowLeft, AlertCircle, Radio } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Loader2, ArrowLeft, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTransactionRealtime } from '@/hooks/useTransactionRealtime';
@@ -61,7 +61,7 @@ function getStatusDisplay(status: string) {
 function StatusContent() {
     const searchParams = useSearchParams();
     const id = searchParams.get('id');
-    const { trx, loading, connected } = useTransactionRealtime(id);
+    const { trx, loading } = useTransactionRealtime(id);
 
     if (!id) {
         return (
@@ -91,7 +91,6 @@ function StatusContent() {
     }
 
     const statusStyle = getStatusDisplay(trx.status);
-    const isLive = connected && !['SUCCESS', 'FAILED', 'EXPIRED', 'PROVIDER_FAILED'].includes(trx.status);
 
     return (
         <motion.div
@@ -100,29 +99,16 @@ function StatusContent() {
             transition={{ duration: 0.5 }}
             className="max-w-lg mx-auto py-8 px-4"
         >
-            {isLive && (
-                <div className="flex items-center justify-center gap-2 mb-4">
-                    <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f5ff] opacity-60" />
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00f5ff]" />
-                    </span>
-                    <span className="text-[#00f5ff]/70 text-[10px] font-mono uppercase tracking-[0.25em] flex items-center gap-1">
-                        <Radio size={10} />
-                        Live
-                    </span>
-                </div>
-            )}
-
             <div className="flex justify-center mb-6">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={trx.status}
                         initial={{ scale: 0.9, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className={`relative w-24 h-24 flex items-center justify-center rounded-2xl bg-white/[0.03] border ${statusStyle.border} ${statusStyle.glow}`}
+                        className={`relative w-24 h-24 flex items-center justify-center rounded-2xl bg-white/3 border ${statusStyle.border} ${statusStyle.glow}`}
                     >
                         {statusStyle.icon}
-                        <div className={`absolute top-0 inset-x-0 h-px bg-gradient-to-r ${statusStyle.bar} to-transparent rounded-t-2xl`} />
+                        <div className={`absolute top-0 inset-x-0 h-px bg-linear-to-r ${statusStyle.bar} to-transparent rounded-t-2xl`} />
                     </motion.div>
                 </AnimatePresence>
             </div>
@@ -133,7 +119,7 @@ function StatusContent() {
                         key={trx.status}
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className={`text-2xl md:text-3xl font-[family-name:var(--font-cinzel)] font-black uppercase tracking-widest ${statusStyle.color}`}
+                        className={`text-2xl md:text-3xl font-(family-name:--font-cinzel) font-black uppercase tracking-widest ${statusStyle.color}`}
                     >
                         {statusStyle.title}
                     </motion.h1>
@@ -141,8 +127,8 @@ function StatusContent() {
                 <p className="text-white/30 text-xs font-mono tracking-widest mt-2 uppercase">Invoice: {trx.invoice}</p>
             </div>
 
-            <div className={`rounded-xl bg-white/[0.02] border border-white/8 overflow-hidden ${statusStyle.glow}`}>
-                <div className="h-px bg-gradient-to-r from-transparent via-[#00f5ff]/40 to-transparent" />
+            <div className={`rounded-xl bg-white/2 border border-white/8 overflow-hidden ${statusStyle.glow}`}>
+                <div className="h-px bg-linear-to-r from-transparent via-[#00f5ff]/40 to-transparent" />
 
                 <div className="p-6 space-y-0">
                     {[
@@ -168,8 +154,8 @@ function StatusContent() {
                     </div>
                 )}
 
-                <div className="mx-4 mb-4 rounded-lg bg-white/[0.03] border border-white/6 overflow-hidden">
-                    <div className="h-px bg-gradient-to-r from-transparent via-[#00f5ff]/20 to-transparent" />
+                <div className="mx-4 mb-4 rounded-lg bg-white/3 border border-white/6 overflow-hidden">
+                    <div className="h-px bg-linear-to-r from-transparent via-[#00f5ff]/20 to-transparent" />
                     <div className="p-4 space-y-2.5">
                         <div className="flex justify-between items-center text-sm">
                             <span className="text-white/40">Price</span>

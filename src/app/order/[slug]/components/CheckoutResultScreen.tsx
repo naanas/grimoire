@@ -32,12 +32,11 @@ type CheckoutResultPayload = CheckoutResult & Record<string, unknown>;
 type Props = {
     result: CheckoutResult;
     urlTrxId?: string;
-    connected?: boolean;
     onRefresh?: () => Promise<unknown>;
     onUpdateResult?: (newResult: CheckoutResultPayload) => void;
 };
 
-export default function CheckoutResultScreen({ result, urlTrxId, connected, onRefresh, onUpdateResult }: Props) {
+export default function CheckoutResultScreen({ result, urlTrxId, onRefresh, onUpdateResult }: Props) {
     const router = useRouter();
     const { user } = useAuth();
     const [showPaymentNo, setShowPaymentNo] = useState(false);
@@ -45,7 +44,6 @@ export default function CheckoutResultScreen({ result, urlTrxId, connected, onRe
     const [showGuestReceipt, setShowGuestReceipt] = useState(false);
     const [copiedProviderFailedInfo, setCopiedProviderFailedInfo] = useState(false);
     const isFailed = result.status === 'FAILED' || result.status === 'PROVIDER_FAILED';
-    const isLive = connected && !['SUCCESS', 'FAILED', 'EXPIRED', 'PROVIDER_FAILED'].includes(result.status);
 
     const handleManualRefresh = async () => {
         if (!onUpdateResult) return;
@@ -137,16 +135,6 @@ export default function CheckoutResultScreen({ result, urlTrxId, connected, onRe
                         </div>
                     )}
                 </div>
-
-                {isLive && (
-                    <div className="flex items-center justify-center gap-2 -mt-4 mb-2">
-                        <span className="relative flex h-2 w-2">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f5ff] opacity-60" />
-                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00f5ff]" />
-                        </span>
-                        <span className="text-[#00f5ff]/60 text-[10px] font-mono uppercase tracking-[0.25em]">Live</span>
-                    </div>
-                )}
 
                 <h2 className={`text-2xl md:text-3xl font-(family-name:--font-cinzel) font-bold uppercase tracking-widest ${
                     result.status === 'SUCCESS' ? 'text-green-400 drop-shadow-[0_0_15px_rgba(34,197,94,0.5)] glitch-text' : 
